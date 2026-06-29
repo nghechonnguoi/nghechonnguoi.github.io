@@ -389,6 +389,34 @@ const PROFESSION_MAP = {
   },
   "Kinh tế & Tài chính": {
     base: "Chuyên gia Tài chính / Kế toán",
+
+    // ── PHÂN BIỆT các dạng TƯ VẤN TÀI CHÍNH & KINH TẾ bằng COMBO HOLLAND ──
+    //  S+I : Tư vấn Tài chính Cá nhân / Wealth Manager (đồng hành + phân tích)
+    //  I+C : Nhà Kinh tế học / Phân tích Rủi ro (hàn lâm, mô hình)
+    //  E+I : Tư vấn Đầu tư / Investment Banker (kinh doanh + phân tích)
+    //  C+I : Kế toán Kiểm toán / CFO (hệ thống + phân tích)
+    //  E+S : Tư vấn Tài chính Doanh nghiệp / M&A (thuyết phục + con người)
+    combos: {
+      "SI": "Tư vấn Tài chính Cá nhân / Wealth Manager",
+      "IS": "Nhà Kinh tế học / Chuyên gia Phân tích Tài chính",
+      "EI": "Tư vấn Đầu tư / Investment Banker",
+      "IE": "Chuyên gia Fintech / Phân tích Đầu tư Quốc tế",
+      "CI": "Kế toán Kiểm toán / Chuyên gia Tài chính Doanh nghiệp",
+      "IC": "Nhà Kinh tế học Nghiên cứu / Chuyên gia Chính sách Kinh tế",
+      "EC": "Tư vấn Tài chính Doanh nghiệp / CFO",
+      "CE": "Chuyên gia Kiểm toán / Quản trị Rủi ro Tài chính",
+      "SC": "Tư vấn Bảo hiểm & Kế hoạch Tài chính Gia đình",
+      "ES": "Tư vấn Tài chính Doanh nghiệp / M&A Advisor"
+    },
+
+    bases: {
+      S: "Tư vấn Tài chính Cá nhân",         // Đồng hành, gần gũi khách hàng
+      E: "Chuyên gia Đầu tư / Tư vấn Doanh nghiệp",
+      I: "Nhà Kinh tế học / Chuyên gia Phân tích",
+      C: "Kế toán / Kiểm toán viên",
+      A: "Chuyên gia Fintech / Thiết kế Sản phẩm Tài chính"
+    },
+
     niches: {
       C: ["kiểm toán báo cáo tài chính doanh nghiệp", "xây dựng hệ thống kế toán quản trị nội bộ", "tuân thủ thuế & pháp lý tài chính"],
       I: ["định giá tài sản & phân tích đầu tư", "mô hình hóa rủi ro tài chính & bảo hiểm", "nghiên cứu chính sách kinh tế vĩ mô"],
@@ -396,6 +424,14 @@ const PROFESSION_MAP = {
       S: ["tư vấn kế hoạch tài chính cá nhân & gia đình", "chăm sóc khách hàng dịch vụ ngân hàng bán lẻ", "bán & tư vấn sản phẩm bảo hiểm nhân thọ"],
       default: ["lập & phân tích báo cáo tài chính doanh nghiệp", "đầu tư chứng khoán & tài sản tài chính", "thẩm định & kiểm soát tín dụng ngân hàng"]
     },
+
+    nichesByCombo: {
+      "SI": ["xây dựng kế hoạch tài chính dài hạn cho cá nhân & gia đình", "quản lý tài sản & danh mục đầu tư cá nhân (Wealth Management)"],
+      "EI": ["tư vấn mua bán & sáp nhập doanh nghiệp (M&A)", "phân tích định giá & cơ hội đầu tư tăng trưởng"],
+      "CI": ["kiểm toán độc lập & đảm bảo báo cáo tài chính minh bạch", "xây dựng hệ thống kiểm soát nội bộ & quản trị rủi ro"],
+      "SC": ["tư vấn bảo hiểm nhân thọ & kế hoạch tích lũy dài hạn", "đồng hành 1-1 giúp gia đình an tâm tài chính"]
+    },
+
     subjects: {
       toan: ["xây dựng mô hình định lượng tài chính", "tối ưu danh mục đầu tư theo thuật toán"],
       anh: ["làm việc với thị trường tài chính & nhà đầu tư quốc tế", "phân tích báo cáo tài chính doanh nghiệp nước ngoài"]
@@ -522,12 +558,47 @@ const PROFESSION_MAP = {
   },
   "Tâm lý học ứng dụng": {
     base: "Chuyên gia Tâm lý / Tham vấn viên",
+
+    // ── PHÂN BIỆT các dạng TƯ VẤN TÂM LÝ & COACHING bằng COMBO HOLLAND ──
+    //  S+I : Tham vấn tâm lý lâm sàng (sâu sắc, chẩn đoán)
+    //  S+A : Life Coach / Khai vấn (cảm hứng, sáng tạo, đồng hành)
+    //  E+S : Tư vấn Tâm lý Tổ chức / Executive Coach
+    //  S+E : Tư vấn Phát triển Bản thân & Nghề nghiệp
+    //  I+S : Nhà Tâm lý học Nghiên cứu & Chẩn đoán Lâm sàng
+    combos: {
+      "SI": "Tham vấn viên Tâm lý / Nhà Trị liệu Tâm lý",
+      "IS": "Nhà Tâm lý học / Chuyên gia Chẩn đoán Lâm sàng",
+      "SA": "Life Coach / Khai vấn Phát triển Bản thân",
+      "AS": "Nhà Trị liệu Sáng tạo / Art Therapist",
+      "ES": "Tư vấn viên Tâm lý Tổ chức / Executive Coach",
+      "SE": "Tư vấn Phát triển Nghề nghiệp & Hiệu suất Cá nhân",
+      "EI": "Tư vấn Chiến lược Nhân sự & Lãnh đạo",
+      "IC": "Chuyên gia Đánh giá Tâm lý & Xây dựng Công cụ Đo lường",
+      "SC": "Tham vấn viên Học đường & Sức khỏe Tâm thần"
+    },
+
+    bases: {
+      S: "Tham vấn viên Tâm lý",             // Quan tâm cá nhân, đồng hành
+      I: "Nhà Tâm lý học / Chuyên gia Lâm sàng",  // Hàn lâm, chẩn đoán
+      E: "Tư vấn Tâm lý Tổ chức / Executive Coach",
+      A: "Life Coach / Khai vấn Sáng tạo",
+      C: "Chuyên gia Đánh giá Tâm lý"
+    },
+
     niches: {
       S: ["tham vấn tâm lý cá nhân & hỗ trợ cảm xúc", "làm việc với học sinh gặp khủng hoảng tâm lý học đường", "đồng hành trị liệu cho người trải qua sang chấn"],
       I: ["đánh giá tâm lý & chẩn đoán lâm sàng", "nghiên cứu hành vi, nhận thức & cảm xúc người", "thiết kế công cụ đánh giá & trắc nghiệm tâm lý"],
       E: ["coaching phát triển lãnh đạo & hiệu suất", "tư vấn tâm lý tổ chức & văn hóa doanh nghiệp", "đào tạo & diễn thuyết về phát triển bản thân"],
       A: ["trị liệu thông qua nghệ thuật, âm nhạc & kịch", "dùng hoạt động sáng tạo để phục hồi cảm xúc", "thiết kế chương trình trị liệu phi truyền thống"],
       default: ["tham vấn tâm lý cho cá nhân & gia đình", "hỗ trợ sức khỏe tâm thần & phòng ngừa rối loạn", "coaching & khai vấn phát triển bản thân"]
+    },
+
+    nichesByCombo: {
+      "SI": ["trị liệu tâm lý cá nhân & đồng hành thoát khỏi sang chấn", "tư vấn mối quan hệ & đời sống gia đình"],
+      "IS": ["chẩn đoán tâm lý lâm sàng & xây dựng lộ trình trị liệu", "nghiên cứu hành vi & thiết kế công cụ trắc nghiệm"],
+      "SA": ["khai vấn hướng dẫn cá nhân khám phá mục đích sống", "đồng hành chuyển đổi cuộc đời & sự nghiệp (Life Transition Coach)", "họ cách tư dân để phát triển tư duy tương thượng"],
+      "ES": ["coaching hiệu suất nhân sự & văn hóa công ty", "tư vấn tâm lý quản lý stress & burnout tại doanh nghiệp"],
+      "SE": ["tư vấn phát triển sự nghiệp & định vị bản thân", "có mặt trên sân khấu để truyền cảm hứng và chia sẻ"]
     }
   },
   "Truyền thông đa phương tiện": {
@@ -587,6 +658,24 @@ const PROFESSION_MAP = {
   },
   "Pháp luật & Tư pháp": {
     base: "Luật sư / Chuyên gia Pháp lý",
+
+    // ── PHÂN BIỆT các dạng TƯ VẤN PHÁP LÝ ──
+    combos: {
+      "CI": "Tư vấn viên Pháp lý Doanh nghiệp / Compliance",
+      "IC": "Luật sư Nghiên cứu / Chuyên gia Chính sách Pháp luật",
+      "EC": "Luật sư Tranh tụng / Đàm phán Thương mại",
+      "CE": "Tư vấn Pháp lý M&A / Đầu tư Quốc tế",
+      "SC": "Tư vấn Pháp lý Cộng đồng / Bảo vệ Quyền lợi",
+      "IS": "Luật sư Nhân quyền / Chuyên gia Pháp lý Công nghệ"
+    },
+
+    bases: {
+      C: "Tư vấn viên Pháp lý",
+      E: "Luật sư Tranh tụng",
+      I: "Chuyên gia Nghiên cứu Pháp luật",
+      S: "Luật sư Cộng đồng / Bảo vệ Quyền lợi"
+    },
+
     niches: {
       C: ["soạn thảo & rà soát hợp đồng thương mại", "tư vấn tuân thủ pháp lý & quản trị rủi ro cho doanh nghiệp", "công chứng, chứng thực & quản lý hồ sơ pháp lý"],
       E: ["tranh tụng tại tòa án thương mại & dân sự", "tư vấn M&A, đầu tư nước ngoài & IPO", "đàm phán hòa giải & giải quyết tranh chấp"],
