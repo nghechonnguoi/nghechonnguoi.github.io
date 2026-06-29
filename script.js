@@ -427,24 +427,87 @@ const PROFESSION_MAP = {
     }
   },
   "Giáo dục & Đào tạo": {
-    base: "Giáo viên / Nhà đào tạo",            // Fallback chung
+    base: "Giáo viên / Nhà đào tạo",   // Fallback nếu không tìm được combo
+
+    // ── PHÂN BIỆT 5 NGHỀ BẰNG COMBO HOLLAND TOP1+TOP2 ────────────────────
+    //  GIÁO VIÊN: S thuần (dạy học sinh K-12, trường phổ thông)
+    //  GIẢNG VIÊN: I+S hoặc I thuần (giảng đại học, nghiên cứu)
+    //  NHÀ ĐÀO TẠO: E+S hoặc E thuần (đào tạo người lớn, doanh nghiệp)
+    //  HUẤN LUYỆN VIÊN: E+R hoặc R+E (coaching hiệu suất, kết quả thực chiến)
+    //  CHUYÊN VIÊN TƯ VẤN: S+I, S+C, C+S (đồng hành 1-1, hướng nghiệp, không lên lớp)
+    combos: {
+      // GIÁO VIÊN (S top1, không có E cao)
+      "SS": "Giáo viên / Nhà giáo dục",
+      "SA": "Giáo viên Nghệ thuật & Sáng tạo",
+      "SR": "Giáo viên Thực hành & Kỹ thuật",
+      "SC": "Giáo viên / Chuyên viên Giáo dục Thẩm lượng",
+      // GIẢNG VIÊN (Đại học / Nghiên cứu)
+      "IS": "Giảng viên / Nhà Nghiên cứu Giáo dục",
+      "SI": "Giảng viên / Nhà Nghiên cứu Giáo dục",
+      "IC": "Giảng viên Đại học / Chuyên gia Phát triển Chương trình",
+      "IA": "Giảng viên Sáng tạo / Nghiên cứu Mỹ thuật",
+      // NHÀ ĐÀO TẠO (doanh nghiệp, kỹ năng, người lớn)
+      "ES": "Nhà đào tạo / Facilitator Doanh nghiệp",
+      "SE": "Nhà đào tạo / Hướng nghiệp Nghề nghiệp",
+      "EI": "Nhà đào tạo / Chuyên gia Phát triển Năng lực",
+      "EA": "Nhà đào tạo Sáng tạo / Trainer Nội dung",
+      "EC": "Nhà đào tạo / Quản lý Chương trình Đào tạo",
+      // HUẤN LUYỆN VIÊN (coaching hiệu suất, thực chiến)
+      "ER": "Huấn luyện viên / Performance Coach",
+      "RE": "Huấn luyện viên Nghề / Kỹ năng Thực hành",
+      "RS": "Đào tạo viên Nghề Thực hành",
+      // CHUYÊN VIÊN TƯ VẤN / HƯỚNG NGHIỆP (1-1, không lên lớp)
+      "CS": "Chuyên viên Hướng nghiệp & Tư vấn Nghề nghiệp",
+      "CI": "Chuyên viên Kiểm định & Phát triển Chương trình Học",
+      "CE": "Quản lý Giáo dục & Điều hành Nhà trường"
+    },
+
     bases: {
-      S: "Giáo viên / Chuyên viên Hướng nghiệp",
+      S: "Giáo viên",                           // Thuần S: giáo viên phổ thông
       E: "Nhà đào tạo / Huấn luyện viên Doanh nghiệp",
       I: "Giảng viên Đại học / Nhà Nghiên cứu Giáo dục",
       A: "Giáo viên Nghệ thuật & Sáng tạo",
       C: "Chuyên viên Quản lý Giáo dục",
-      R: "Giáo viên Thực hành & Kỹ thuật"
+      R: "Đào tạo viên Nghề Thực hành"
     },
+
+    // Ngách theo TừNG NGHỀ riêng biệt
     niches: {
-      S: ["tư vấn & hỗ trợ tâm lý học sinh", "hướng nghiệp & định hướng tương lai cho học sinh", "giảng dạy học sinh có nhu cầu đặc biệt"],
-      E: ["đào tạo kỹ năng lãnh đạo & quản lý cho doanh nghiệp", "huấn luyện đội ngũ kinh doanh & bán hàng", "giảng dạy bậc đại học & nghiên cứu sinh"],
-      I: ["dạy các môn STEM & khoa học tự nhiên", "nghiên cứu & cải tiến chương trình giảng dạy", "phát triển nền tảng học trực tuyến (EdTech)"],
+      // GIÁO VIÊN (S thuần): gần gũi học sinh, lớp học, cảm xúc
+      S: ["giảng dạy môn học chính quy tại trường phổ thông", "xây dựng môi trường học tập tích cực & an toàn cảm xúc", "hỗ trợ học sinh có nhu cầu đặc biệt & tìm kiếm riêng"],
+      // NHÀ ĐÀO TẠO (E): doanh nghiệp, kết quả đo lường, người lớn
+      E: ["đào tạo kỹ năng lãnh đạo & quản lý cho doanh nghiệp", "huấn luyện đội ngũ kinh doanh & bán hàng đạt target", "thiết kế & triển khai chương trình đào tạo nội bộ (L&D)"],
+      // GIẢNG VIÊN ĐH (I): hàn lâm, nghiên cứu, chuyên sâu
+      I: ["giảng dạy & nghiên cứu chuyên ngành bậc đại học", "phát triển chương trình giảng dạy & tài liệu học thuật", "hướng dẫn nghiên cứu sinh & nghịān siến"],
+      // GIÁO VIÊN NGHỆ THUẪT (A)
       A: ["dạy mỹ thuật, âm nhạc & kỹ năng sáng tạo", "đào tạo diễn xuất, MC & kỹ năng biểu diễn", "giảng dạy thiết kế & thời trang"],
-      C: ["quản lý giáo dục & điều hành nhà trường", "đào tạo nghiệp vụ kế toán, hành chính & văn phòng", "kiểm định & đánh giá chất lượng chương trình học"],
-      R: ["đào tạo nghề thực hành (bếp, thẩm mỹ, kỹ thuật, thủ công)", "giảng dạy kỹ năng tay nghề tại trường nghề & trung tâm dạy nghề", "kết hợp giỏi nghề & có sứ mệnh truyền đạt — dạy online & offline"],
-      default: ["dạy học & truyền đạt kiến thức chuyên môn", "đào tạo kỹ năng mềm & phát triển bản thân", "hướng dẫn & khai vấn học sinh định hướng nghề"]
+      // CHUYÊN VIÊN QUẢN LÝ (C): hệ thống, kiểm định, điều hành
+      C: ["quản lý giáo dục & điều hành nhà trường", "kiểm định & đánh giá chất lượng chương trình học", "thiết kế hệ thống đào tạo & quy trình chuẩn hóa"],
+      // ĐÀO TẠO VIÊN NGHỀ (R): thực hành, tay nghề
+      R: ["đào tạo nghề thực hành (bếp, thẩm mỹ, kỹ thuật, thủ công)", "giảng dạy kỹ năng tay nghề tại trường nghề & trung tâm", "kết hợp giỏi nghề & có sứ mệnh truyền đạt — dạy online & offline"],
+      default: ["truyền đạt kiến thức chuyên môn", "đào tạo kỹ năng mềm & phát triển bản thân", "hướng dẫn định hướng nghề nghiệp"]
     },
+
+    // Ngách theo combos (hiển thị khi tìm được combo)
+    nichesByCombo: {
+      // GIÁO VIÊN
+      "SA": ["dạy mỹ thuật, âm nhạc & năng khiếu sáng tạo", "giáo dục đạo đức thẩm mỹ & cảm thụ nghệ thuật"],
+      "SR": ["dạy kỹ thuật thực hành & môn học thực nghiệm", "giáo dục hướng nghiệp phổ thông"],
+      // GIẢNG VIÊN
+      "IS": ["giảng dạy & nghiên cứu chuyên ngành", "hướng dẫn luận văn & nghiên cứu sinh", "phát triển giáo trình & chương trình học thuật"],
+      "SI": ["giảng dạy đại học kết hợp nghiên cứu cộng đồng", "phát triển chương trình học có tính ứng dụng xã hội"],
+      // NHÀ ĐÀO TẠO
+      "ES": ["đào tạo kỹ năng lãnh đạo & văn hóa doanh nghiệp", "thiết kế workshop & chương trình phát triển nhân viên", "hướng nghiệp và định vị nghề nghiệp cho người lớn"],
+      "SE": ["đào tạo kỹ năng nghề nghiệp & tư vấn việc làm", "hướng dẫn chuyển đổi nghề & lộ trình sự nghiệp"],
+      "EI": ["phát triển năng lực nhân sự cấp cao", "thiết kế chương trình đào tạo căn cứ dữ liệu & bằng chứng"],
+      // HUẤN LUYỆN VIÊN
+      "ER": ["coaching hiệu suất & đạt target bán hàng", "huấn luyện thể lực & kỹ năng thực chiến", "có mặt hiện trường để dẫn dắt & cải thiện ngay"],
+      "RE": ["dạy nghề & làm mẫu thực hành trực tiếp", "huấn luyện kỹ năng tay nghề có thể đo lường kết quả"],
+      // CHUYÊN VIÊN TƯ VẤN HƯỚNG NGHIỆP
+      "CS": ["tư vấn lỹ lịch sự nghiệp & kế hoạch hướng nghiệp", "đồng hành 1-1 xây dựng định hướng nghề rõ ràng"],
+      "SC": ["tư vấn học đường & phát triển toàn diện học sinh", "hỗ trợ học sinh xây dựng lộ trình học tập rõ ràng"]
+    },
+
     subjects: {
       toan: ["dạy Toán cấp THPT & luyện thi đại học", "đào tạo tư duy logic & giải toán nâng cao"],
       anh: ["dạy Tiếng Anh giao tiếp & luyện thi IELTS/TOEIC", "đào tạo kỹ năng tiếng Anh học thuật & công sở"],
@@ -706,14 +769,31 @@ function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength) {
   const profMap = PROFESSION_MAP[industry || ''];
   if (!profMap) return { profession: null, nicheStr: '' };
 
-  // 1. Xác định Holland code nổi trội của user
-  const userTopH = Object.entries(hPct || {})
-    .sort((a, b) => b[1] - a[1])[0]?.[0] || 'S';
+  // 1. Xác định Holland top1 và top2 của user
+  const sortedH = Object.entries(hPct || {}).sort((a, b) => b[1] - a[1]);
+  const userTopH  = sortedH[0]?.[0] || 'S';
+  const userTop2H = sortedH[1]?.[0] || 'S';
+  const comboKey  = userTopH + userTop2H;
 
-  // 2. Lấy pool ngách theo Holland
-  let nichePool = profMap.niches[userTopH] || profMap.niches.default || [];
+  // 2. Ưu tiên combo top1+top2 → phân biệt chính xác 5 nghề đào tạo
+  let professionName;
+  if (profMap.combos && profMap.combos[comboKey]) {
+    professionName = profMap.combos[comboKey];
+  } else if (profMap.bases && profMap.bases[userTopH]) {
+    professionName = profMap.bases[userTopH];
+  } else {
+    professionName = profMap.base;
+  }
 
-  // 3. Ưu tiên ngách theo môn học mạnh nhất (nếu có điểm THPT & mapping subjects)
+  // 3. Lấy pool ngách: Ưu tiên nichesByCombo nếu có, rồi mới đến niches
+  let nichePool;
+  if (profMap.nichesByCombo && profMap.nichesByCombo[comboKey]) {
+    nichePool = profMap.nichesByCombo[comboKey];
+  } else {
+    nichePool = profMap.niches[userTopH] || profMap.niches.default || [];
+  }
+
+  // 4. Ưu tiên ngách theo môn học mạnh nhất (nếu có điểm THPT & mapping subjects)
   let subjectNiches = [];
   if (profMap.subjects && thptScores) {
     const bestSubject = Object.entries(thptScores)
@@ -724,7 +804,7 @@ function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength) {
     }
   }
 
-  // 4. Ưu tiên ngách theo điểm mạnh Ikigai (nếu có)
+  // 5. Ưu tiên ngách theo điểm mạnh Ikigai (nếu có)
   const STRENGTH_HOLLAND = {
     COMMUNICATE: 'E', ANALYZE: 'I', CREATE: 'A',
     ORGANIZE: 'C', EMPATHIZE: 'S'
@@ -737,14 +817,10 @@ function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength) {
     }
   }
 
-  // 5. Kết hợp: subject → strength → holland → loại trùng → lấy tối đa 3
+  // 6. Kết hợp: subject → combo/strength → holland → loại trùng → lấy tối đa 3
   const combined = [...new Set([...subjectNiches, ...strengthNiches, ...nichePool])].slice(0, 3);
 
-  // 6. Xác định tên NGHỀ cụ thể: ưu tiên `bases[hollandCode]` nếu có, fallback về `base`
-  const professionName = (profMap.bases && profMap.bases[userTopH])
-    ? profMap.bases[userTopH]
-    : profMap.base;
-
+  // 7. professionName đã xác định ở bước 2 (combo → bases → base)
   const nicheStr = combined.length > 0 ? ` (${combined.join(', ')})` : '';
   return { profession: professionName, nicheStr };
 }
