@@ -1,0 +1,13 @@
+# Bỏ qua thư mục Python engine (backend — không cần cho web)
+ikigai-engine/
+
+# Bỏ qua file hệ thống Windows
+Thumbs.db
+desktop.ini
+
+# Bỏ qua thư mục ẩn của các IDE
+.vscode/
+.idea/
+
+# Bỏ qua Node modules nếu có sau này
+node_modules/

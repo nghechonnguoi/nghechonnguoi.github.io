@@ -1,0 +1,483 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #f4f6f9;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 30px 20px;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 750px;
+  /* Nới rộng khung để chứa form lớn */
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  padding: 40px;
+  width: 100%;
+}
+
+h2 {
+  color: #1a365d;
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #718096;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: #e2e8f0;
+  margin-bottom: 30px;
+}
+
+/* Các vùng phân khối dữ liệu form */
+.form-section {
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.form-section h3 {
+  color: #2b6cb0;
+  font-size: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.section-icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.section-desc {
+  color: #a0aec0;
+  font-size: 12px;
+  margin-bottom: 16px;
+  margin-top: -8px;
+}
+
+/* Cấu trúc Lưới cho 9 môn thi THPT */
+.subject-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-2 {
+  flex: 2;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #4a5568;
+  font-size: 13px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #fff;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+/* Định dạng ô chọn tệp file */
+.file-upload-wrapper input[type="file"] {
+  padding: 7px;
+  background: #fff;
+  cursor: pointer;
+}
+
+/* Nút Submit chính */
+.btn-primary {
+  width: 100%;
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(49, 130, 206, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: #2b6cb0;
+}
+
+/* Lớp tiện ích để ẩn các thành phần khi chưa dùng đến */
+.hidden {
+  display: none !important;
+}
+
+/* Định dạng vùng tiến trình làm bài */
+.quiz-progress {
+  margin-bottom: 24px;
+}
+
+.progress-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 6px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+#progress-fill {
+  width: 0%;
+  /* Sẽ tăng dần bằng JavaScript */
+  height: 100%;
+  background-color: #48bb78;
+  /* Màu xanh lá cây biểu thị tiến độ */
+  transition: width 0.3s ease;
+}
+
+/* Định dạng khối câu hỏi */
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* Định dạng các nút chọn đáp án */
+.options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-option {
+  width: 100%;
+  text-align: left;
+  padding: 14px 20px;
+  background-color: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-option:hover {
+  background-color: #ebf8ff;
+  border-color: #4299e1;
+  color: #2b6cb0;
+}
+
+/* Bố cục chia đôi cho phần thông tin tổng quan */
+.report-section-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.result-box {
+  background-color: #f8fafc;
+  border: 1px solid #edf2f7;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.result-box h4 {
+  font-size: 13px;
+  color: #4a5568;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 6px;
+}
+
+.result-list {
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/* Thẻ hiển thị từng ngành nghề gợi ý */
+.career-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 5px solid #cbd5e0;
+  /* Sẽ đổi màu động theo rổ chiến thuật */
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.career-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.career-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+/* Nhãn rổ chiến thuật */
+.bucket-tag {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.bucket-dream {
+  background-color: #faf5ff;
+  color: #805ad5;
+  border: 1px solid #d6bcfa;
+}
+
+.bucket-match {
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+  border: 1px solid #bee3f8;
+}
+
+.bucket-safe {
+  background-color: #f0fff4;
+  color: #38a169;
+  border: 1px solid #c6f6d5;
+}
+
+.career-details {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  color: #718096;
+  margin-bottom: 8px;
+}
+
+.career-details span strong {
+  color: #4a5568;
+}
+
+.career-advice {
+  font-size: 12.5px;
+  color: #e53e3e;
+  background: #fff5f5;
+  padding: 8px 12px;
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
+/* =========================================================================
+   🔒 GIAO DIỆN AUTH UI PREMIUM BY FIREBASE (MÀN HÌNH KHÓA TOÀN MÀN HÌNH)
+   ========================================================================= */
+.auth-wrapper {
+  position: fixed;
+  inset: 0;
+  background: #111827;
+  /* Màu nền tối sang trọng che toàn bộ bài test */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  /* Đảm bảo nổi lên trên cùng tuyệt đối */
+  font-family: sans-serif;
+}
+
+.auth-card {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.auth-header h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.auth-header p {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 24px;
+  line-height: 1.4;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+  transition: 0.2s;
+}
+
+.auth-form input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-login {
+  flex: 1;
+  background: #2563eb;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.btn-login:hover {
+  background: #1d4ed8;
+}
+
+.btn-register {
+  flex: 1;
+  background: #f3f4f6;
+  color: #374151;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.btn-register:hover {
+  background: #e5e7eb;
+}
+
+.btn-google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  color: #374151;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 16px;
+  transition: 0.2s;
+}
+
+.btn-google:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.btn-google img {
+  width: 18px;
+  height: 18px;
+}
+
+.auth-divider {
+  margin: 18px 0;
+  font-size: 11px;
+  color: #9ca3af;
+  position: relative;
+  font-weight: 600;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 42%;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.auth-divider::before {
+  left: 0;
+}
+
+.auth-divider::after {
+  right: 0;
+}
+
+/* Ẩn nội dung khi chưa đăng nhập */
+.hidden {
+  display: none !important;
+}
