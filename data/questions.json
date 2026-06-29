@@ -2,184 +2,214 @@
     "holland_questions": [
         {
             "id": "Q_R1",
-            "text": "Bạn thích tự tay mày mò sửa chữa đồ điện, máy móc, hoặc lắp ráp đồ dùng trong nhà.",
+            "text": "Bạn thích tự tay tháo lắp, sửa chữa đồ điện/máy móc, hoặc nghịch phá rồi ráp lại một thiết bị nào đó để tìm hiểu cơ chế hoạt động.",
             "category": "R"
         },
         {
             "id": "Q_R2",
-            "text": "Bạn thích các hoạt động ngoài trời, vận động chân tay hoặc chăm sóc cây cối, thú cưng.",
+            "text": "Khi học Vật Lý hoặc Hóa học, bạn thích phần thí nghiệm thực hành trong phòng lab hơn là ngồi ghi chép lý thuyết trên lớp.",
             "category": "R"
         },
         {
             "id": "Q_R3",
-            "text": "Bạn thấy mình hợp với việc làm ra các sản phẩm thực tế hơn là ngồi suy nghĩ lý thuyết suông.",
+            "text": "Bạn cảm thấy hứng thú khi nhìn thấy một công trình xây dựng, một cỗ máy vận hành, hoặc khi xem phim tài liệu về kỹ thuật chế tạo.",
             "category": "R"
         },
         {
             "id": "Q_R4",
-            "text": "Bạn thích học các môn có tính thực hành cao, có thí nghiệm trực quan (Lý, Hóa, Sinh).",
+            "text": "Nếu được chọn, bạn thích học nghề có kết quả 'nhìn thấy rõ ràng bằng mắt' hơn (ví dụ: sản phẩm hoàn chỉnh, công trình, thiết bị) so với công việc xử lý thông tin trừu tượng.",
+            "category": "R"
+        },
+        {
+            "id": "Q_R5",
+            "text": "Bạn thích tham gia các hoạt động vận động ngoài trời, thể thao, hoặc chăm sóc vật nuôi/cây cối nhiều hơn các hoạt động ngồi yên trong phòng.",
             "category": "R"
         },
         {
             "id": "Q_I1",
-            "text": "Bạn thích đào sâu tìm hiểu nguyên lý vận hành của mọi thứ xung quanh (Ví dụ: Tại sao cái này lại chạy được?).",
+            "text": "Khi gặp một hiện tượng tự nhiên kỳ lạ (sấm sét, nhật thực, cầu vồng...), bạn chủ động tìm hiểu nguyên nhân khoa học đằng sau nó thay vì chỉ ngắm nhìn.",
             "category": "I"
         },
         {
             "id": "Q_I2",
-            "text": "Bạn thích giải các bài toán khó, chơi các trò chơi trí tuệ, câu đố logic hoặc lập trình máy tính.",
+            "text": "Bạn thích giải câu đố logic, bài toán tư duy, chơi cờ vua/game chiến thuật, hoặc thách thức bản thân với đề thi khó hơn mức cần thiết.",
             "category": "I"
         },
         {
             "id": "Q_I3",
-            "text": "Bạn thường dành thời gian đọc sách khoa học, công nghệ, hoặc chủ động tìm kiếm kiến thức mới trên mạng.",
+            "text": "Bạn thường đọc thêm sách/bài viết về khoa học, công nghệ, lịch sử, hoặc triết học ngoài giờ học vì thấy tự nhiên tò mò, không phải vì bắt buộc.",
             "category": "I"
         },
         {
             "id": "Q_I4",
-            "text": "Bạn thích làm việc độc lập để tự mình suy nghĩ và tìm ra giải pháp cho một vấn đề phức tạp.",
+            "text": "Bạn thích tự mình ngồi suy nghĩ một mình để phân tích vấn đề đến tận gốc rễ, hơn là hỏi ngay người khác khi gặp khó khăn.",
+            "category": "I"
+        },
+        {
+            "id": "Q_I5",
+            "text": "Bạn thường đặt ra câu hỏi kiểu 'Tại sao lại thế này? Nếu thay đổi điều này thì sẽ ra sao?' ngay cả với những thứ mà bạn bè xung quanh thấy hiển nhiên.",
             "category": "I"
         },
         {
             "id": "Q_A1",
-            "text": "Bạn thích vẽ, viết lách, làm video (Tiktok/CapCut), chụp ảnh hoặc chơi một nhạc cụ giải trí.",
+            "text": "Bạn có thói quen tự viết nhật ký, sáng tác thơ/truyện ngắn, vẽ phác thảo, hoặc biên tập video/ảnh theo phong cách riêng của mình.",
             "category": "A"
         },
         {
             "id": "Q_A2",
-            "text": "Bạn thích làm việc trong môi trường tự do sáng tạo, không thích bị gò bó bởi các quy tắc cứng nhắc.",
+            "text": "Khi được giao làm bài thuyết trình nhóm, bạn là người chủ động nghĩ ra ý tưởng trình bày độc đáo, hình ảnh đẹp mắt — dù tốn thêm thời gian.",
             "category": "A"
         },
         {
             "id": "Q_A3",
-            "text": "Bạn là người nhạy cảm, dễ xúc động và thường để ý đến yếu tố thẩm mỹ (cái đẹp, màu sắc, bố cục trang phục/đồ vật).",
+            "text": "Bạn dễ dàng nhận ra sự khác biệt tinh tế về màu sắc, bố cục, phong cách thẩm mỹ (trong trang phục, thiết kế phòng, bao bì sản phẩm...) mà nhiều người không để ý.",
             "category": "A"
         },
         {
             "id": "Q_A4",
-            "text": "Bạn thích tự lên những ý tưởng mới lạ, độc đáo, không đụng hàng cho các sự kiện hoặc bài tập nhóm ở trường.",
+            "text": "Bạn cảm thấy bức bối, không thoải mái khi phải làm việc trong môi trường quá cứng nhắc, rập khuôn theo một quy trình duy nhất không được sáng tạo thêm.",
+            "category": "A"
+        },
+        {
+            "id": "Q_A5",
+            "text": "Bạn chơi hoặc từng học một nhạc cụ, tham gia CLB nhiếp ảnh, kịch nghệ, vẽ, múa, hoặc bất kỳ hình thức nghệ thuật nào vì thực sự yêu thích.",
             "category": "A"
         },
         {
             "id": "Q_S1",
-            "text": "Bạn thích lắng nghe, tâm sự và đưa ra lời khuyên để giải quyết rắc rối hoặc nỗi buồn cho bạn bè xung quanh.",
+            "text": "Khi bạn bè có chuyện buồn hoặc rắc rối, họ thường tìm đến bạn để tâm sự và bạn thực sự muốn giúp — không chỉ vì lịch sự.",
             "category": "S"
         },
         {
             "id": "Q_S2",
-            "text": "Bạn thích tham gia các hoạt động tình nguyện, câu lạc bộ sở thích, hoặc công tác đoàn đội năng nổ ở trường.",
+            "text": "Bạn tìm thấy ý nghĩa và động lực làm việc khi kết quả công sức của mình trực tiếp cải thiện cuộc sống hoặc cảm xúc của người khác.",
             "category": "S"
         },
         {
             "id": "Q_S3",
-            "text": "Bạn thấy hạnh phúc và có động lực nhất khi công việc của mình giúp đỡ hoặc mang lại giá trị tích cực cho người khác.",
+            "text": "Bạn từng tình nguyện giảng lại bài cho bạn kém hơn, tham gia hoạt động cộng đồng, hoặc chăm sóc người thân — và cảm thấy thực sự vui khi làm vậy.",
             "category": "S"
         },
         {
             "id": "Q_S4",
-            "text": "Bạn có khả năng truyền đạt, giải thích một vấn đề phức tạp cho người khác dễ hiểu (Ví dụ: Giảng lại bài cũ cho bạn cùng lớp).",
+            "text": "Bạn có khả năng đọc được cảm xúc, tâm trạng của người khác khá tốt — biết khi nào nên nói, khi nào nên im lặng và lắng nghe.",
+            "category": "S"
+        },
+        {
+            "id": "Q_S5",
+            "text": "Bạn thấy mình phù hợp và hứng thú với các môi trường làm việc có nhiều tương tác người-người (trường học, bệnh viện, tổ chức cộng đồng, dịch vụ khách hàng) hơn là làm việc một mình với máy móc hoặc dữ liệu.",
             "category": "S"
         },
         {
             "id": "Q_E1",
-            "text": "Bạn thường chủ động đứng ra làm trưởng nhóm khi làm bài tập lớn hoặc đứng ra tổ chức các sự kiện của lớp.",
+            "text": "Bạn tự nguyện đứng ra tổ chức, điều phối nhóm trong các bài tập lớn hoặc sự kiện lớp — và cảm thấy hứng khởi hơn khi có vai trò dẫn dắt.",
             "category": "E"
         },
         {
             "id": "Q_E2",
-            "text": "Bạn tự tin vào khả năng giao tiếp, thương lượng và thuyết phục người khác đồng tình với ý kiến hoặc kế hoạch của mình.",
+            "text": "Bạn không ngại tranh luận để bảo vệ quan điểm hoặc thuyết phục người khác thay đổi ý kiến khi bạn chắc chắn mình đúng.",
             "category": "E"
         },
         {
             "id": "Q_E3",
-            "text": "Bạn thích thử sức với các hoạt động kinh doanh nhỏ (Bán đồ ăn vặt, đồ handmade, hoặc làm affiliate marketing trên mạng).",
+            "text": "Bạn đã từng bán hàng online, làm affiliate, tổ chức sự kiện nhỏ kiếm tiền, hoặc mơ về việc tự kinh doanh riêng — dù chỉ ở giai đoạn thử nghiệm.",
             "category": "E"
         },
         {
             "id": "Q_E4",
-            "text": "Bạn là người coi trọng mục tiêu, thích sự cạnh tranh sòng phẳng và muốn trở thành người có tầm ảnh hưởng trong tập thể.",
+            "text": "Bạn coi trọng việc có tầm ảnh hưởng đến người xung quanh và tìm thấy động lực từ sự cạnh tranh lành mạnh, từ việc vươn lên dẫn đầu trong tập thể.",
+            "category": "E"
+        },
+        {
+            "id": "Q_E5",
+            "text": "Khi đọc về các CEO, doanh nhân khởi nghiệp thành công, bạn cảm thấy bị cuốn hút và muốn học theo hành trình của họ hơn là thấy không liên quan đến mình.",
             "category": "E"
         },
         {
             "id": "Q_C1",
-            "text": "Bạn thích sắp xếp đồ đạc, góc học tập ngăn nắp và luôn làm việc có kế hoạch, có checklist rõ ràng từng bước.",
+            "text": "Bạn luôn có thói quen lập kế hoạch học tập/sinh hoạt trước (to-do list, lịch học tuần, mục tiêu tháng...) và cảm thấy lo lắng khi không có kế hoạch rõ ràng.",
             "category": "C"
         },
         {
             "id": "Q_C2",
-            "text": "Bạn là người cẩn thận, chú trọng chi tiết, thường kiểm tra lại bài vở nhiều lần để tránh các sai sót nhỏ không đáng có.",
+            "text": "Bạn rất chú trọng đến sự chính xác — khi làm bài, bạn kiểm tra lại ít nhất 1-2 lần để chắc chắn không có lỗi nhỏ nào.",
             "category": "C"
         },
         {
             "id": "Q_C3",
-            "text": "Bạn thấy thoải mái khi làm việc với các con số, bảng biểu dữ liệu (Excel/Sheets) hoặc ghi chép sổ sách (Quản lý quỹ lớp).",
+            "text": "Bạn thấy thoải mái, thậm chí thích thú khi làm việc với bảng tính Excel, sổ theo dõi quỹ lớp, hoặc bất kỳ hệ thống ghi chép số liệu có cấu trúc nào.",
             "category": "C"
         },
         {
             "id": "Q_C4",
-            "text": "Bạn thích tuân thủ quy trình, nội quy rõ ràng của tập thể hơn là phải tự xoay xở trong một bối cảnh mơ hồ.",
+            "text": "Bạn thích tuân theo quy trình và nội quy đã được thống nhất hơn là tự mình phá vỡ quy tắc, vì bạn tin rằng hệ thống rõ ràng tạo ra kết quả tốt hơn.",
+            "category": "C"
+        },
+        {
+            "id": "Q_C5",
+            "text": "Bạn thấy mình phù hợp với công việc đòi hỏi sự tỉ mỉ, nhất quán và kiên nhẫn xử lý từng chi tiết nhỏ — hơn là các công việc sáng tạo tự phát.",
             "category": "C"
         }
     ],
     "mbti_questions": [
         {
             "id": "Q_M1",
-            "text": "Sau một tuần học tập căng thẳng, bạn thích làm gì hơn: (A) Tụ tập, đi chơi với bạn bè để nạp năng lượng / (B) Ở nhà một mình, đọc sách, xem phim để nghỉ ngơi.",
+            "text": "Sau một tuần học tập mệt mỏi, bạn nạp lại năng lượng bằng cách nào nhiều hơn? (A) Ra ngoài gặp bạn bè, đi chơi, tụ tập đông vui / (B) Ở một mình trong phòng, đọc sách, nghe nhạc hoặc xem phim yêu thích.",
             "dimension": "EI"
         },
         {
             "id": "Q_M2",
-            "text": "Trong các cuộc thảo luận nhóm ở lớp, bạn thường: (A) Chủ động nói ra ý kiến của mình ngay lập tức / (B) Lắng nghe mọi người trước rồi mới phát biểu ý kiến cá nhân.",
+            "text": "Trong các buổi thảo luận nhóm, bạn thường làm gì? (A) Nói ra suy nghĩ ngay khi nảy ra, thoải mái phát biểu dù chưa suy nghĩ xong / (B) Lắng nghe hết mọi người, tổng hợp trong đầu rồi mới phát biểu khi đã chắc chắn.",
             "dimension": "EI"
         },
         {
             "id": "Q_M3",
-            "text": "Bạn thích được bạn bè biết đến là một người: (A) Cởi mở, năng động, dễ kết bạn / (B) Kín tiếng, sâu sắc, có thế giới nội tâm phong phú.",
+            "text": "Bạn nhận ra mình thuộc kiểu nào hơn? (A) Có nhiều bạn bè, dễ làm quen người lạ, thích không khí đông vui náo nhiệt / (B) Có ít bạn thân nhưng rất sâu sắc, thích không gian yên tĩnh và cuộc trò chuyện có chiều sâu.",
             "dimension": "EI"
         },
         {
             "id": "Q_M4",
-            "text": "Khi tiếp cận một môn học mới, bạn thích: (A) Học những kiến thức thực tế, có ví dụ cụ thể ứng dụng được ngay / (B) Học những lý thuyết tổng quan, ý tưởng mới mẻ khơi gợi tương lai.",
+            "text": "Khi học một môn mới hoặc làm một việc mới, bạn tiếp cận theo cách nào? (A) Tìm các ví dụ thực tế, bước đi cụ thể để làm ngay — học qua thực hành / (B) Muốn hiểu rõ bức tranh tổng thể, nguyên lý sâu xa trước khi bắt tay vào làm.",
             "dimension": "SN"
         },
         {
             "id": "Q_M5",
-            "text": "Khi giải quyết một bài tập lớn, bạn thường: (A) Sử dụng những cách làm quen thuộc đã được thầy cô chứng minh hiệu quả / (B) Tìm tòi những phương pháp mới, sáng tạo dù chưa chắc chắn.",
+            "text": "Khi lên kế hoạch cho một mục tiêu quan trọng, bạn thường suy nghĩ theo hướng nào? (A) Từ hiện tại — những bước đi thực tế, nguồn lực có sẵn ngay bây giờ / (B) Từ tương lai — hình dung kết quả mơ ước, rồi ngược lại tìm đường đi.",
             "dimension": "SN"
         },
         {
             "id": "Q_M6",
-            "text": "Bạn là người có xu hướng sống và tập trung nhiều hơn vào: (A) Thực tại, những gì mắt thấy tai nghe ngay bây giờ / (B) Tương lai, những khả năng và viễn cảnh có thể xảy ra.",
+            "text": "Bạn tin tưởng vào điều gì hơn khi phải đưa ra một quyết định lớn? (A) Kinh nghiệm thực tế đã được kiểm chứng, dữ liệu và bằng chứng cụ thể / (B) Linh cảm mạnh mẽ và khả năng nhìn thấy các xu hướng và kịch bản tương lai.",
             "dimension": "SN"
         },
         {
             "id": "Q_M7",
-            "text": "Khi nhận xét bài làm của một người bạn thân, bạn sẽ: (A) Nói thẳng, nói thật các lỗi sai để bạn tiến bộ / (B) Tìm cách nói giảm nói tránh, động viên trước để bạn không bị buồn.",
+            "text": "Khi phải đưa ra phán xét về một tình huống xảy ra trong nhóm, bạn dựa nhiều hơn vào điều gì? (A) Logic, quy tắc và sự công bằng khách quan — ai đúng ai sai / (B) Bối cảnh cảm xúc, hoàn cảnh từng người và sự hòa hợp chung của cả nhóm.",
             "dimension": "TF"
         },
         {
             "id": "Q_M8",
-            "text": "Bạn bị thuyết phục mạnh mẽ nhất bởi điều nào dưới đây: (A) Các số liệu logic, bằng chứng khoa học rõ ràng / (B) Câu chuyện truyền cảm hứng và sự đồng cảm sâu sắc giữa con người.",
+            "text": "Khi góp ý cho bài làm hoặc kế hoạch của một người bạn, bạn thường: (A) Nói thẳng, thành thật về các điểm yếu dù có thể khiến bạn ấy không vui nhất thời / (B) Tìm cách nói tế nhị, nhấn mạnh điểm tốt trước để bạn cảm thấy được tôn trọng.",
             "dimension": "TF"
         },
         {
             "id": "Q_M9",
-            "text": "Khi giải quyết xung đột trong một nhóm, bạn thường dựa vào: (A) Luật lệ, lý lẽ, phân định ai đúng ai sai rõ ràng / (B) Sự hòa hợp, cảm xúc của mọi người để không ai bị tổn thương.",
+            "text": "Điều gì thường khiến bạn cảm thấy hài lòng hơn sau khi hoàn thành một việc? (A) Biết rằng mình đã làm đúng quy trình, đạt được kết quả đo lường được cụ thể / (B) Cảm giác mọi người xung quanh đều vui vẻ và cảm thấy tốt hơn sau khi có mình.",
             "dimension": "TF"
         },
         {
             "id": "Q_M10",
-            "text": "Trước một chuyến đi chơi xa hoặc một kỳ thi lớn, bạn thường: (A) Lên lịch trình chi tiết từng ngày và tuân thủ nghiêm ngặt / (B) Để mọi thứ diễn ra tự nhiên, tùy cơ ứng biến.",
+            "text": "Trước một sự kiện lớn (thi cuối kỳ, chuyến dã ngoại, buổi biểu diễn...), bạn thường: (A) Chuẩn bị kỹ lưỡng từ trước, lên lịch chi tiết và tuân theo đúng kế hoạch / (B) Để mọi thứ linh hoạt, chuẩn bị những gì cần thiết nhưng không cần kế hoạch cứng nhắc.",
             "dimension": "JP"
         },
         {
             "id": "Q_M11",
-            "text": "Bạn cảm thấy thoải mái nhất khi làm việc trong môi trường: (A) Mọi thứ có quy định, phân công rõ ràng, deadline cố định / (B) Linh hoạt thời gian, có thể tự do thay đổi kế hoạch vào phút chót.",
+            "text": "Bạn cảm thấy dễ chịu hơn trong môi trường nào? (A) Deadline rõ ràng, nhiệm vụ được phân công cụ thể, mọi thứ được chốt trước / (B) Có sự linh hoạt, được thay đổi kế hoạch theo tình hình, không bị ép buộc bởi quy trình cứng.",
             "dimension": "JP"
         },
         {
             "id": "Q_M12",
-            "text": "Khi bắt tay vào làm một dự án/bài tập lớn, bạn thích: (A) Giải quyết dứt điểm từng phần theo kế hoạch đặt ra / (B) Làm nhiều phần cùng lúc tùy thuộc vào cảm hứng của bản thân.",
+            "text": "Khi còn thời gian rảnh và chưa đến deadline, bạn thường làm gì? (A) Tranh thủ hoàn thành việc trước để rảnh rang sau, cảm giác xong việc rất nhẹ nhõm / (B) Giữ lại khoảng trống đó để tiếp tục suy nghĩ thêm, tận hưởng quá trình và hoàn thiện vào cuối.",
             "dimension": "JP"
         }
     ],
@@ -187,25 +217,73 @@
         {
             "id": "Q_IKIGAI_DREAM",
             "type": "ikigai_dream",
-            "question": "Nếu không bị giới hạn bởi tiền bạc hay thời gian, ước mơ lớn nhất về công việc tương lai của bạn là gì? (Ví dụ: Trở thành nhà đào tạo, viết sách, xây dựng thương hiệu riêng, chuyên gia tâm lý...)"
+            "question": "Nếu tiền bạc không phải vấn đề và bạn có thể làm bất cứ nghề nào, bạn muốn làm gì? Hãy mô tả cụ thể nhất có thể — không cần thực tế, cứ viết điều bạn thực sự mơ ước."
         },
         {
             "id": "Q_IKIGAI_TALENT_1",
             "type": "ikigai_talent",
             "category": "TALENT_SPEECH",
-            "question": "Bạn tự đánh giá mức độ tự tin và năng lực sử dụng ngôn từ để thuyết phục, truyền cảm hứng hoặc đào tạo người khác ở mức nào?"
+            "question": "Khi nói chuyện, thuyết trình hoặc giải thích một vấn đề, người khác thường hiểu ngay và cảm thấy bị cuốn hút — bạn thấy mình làm tốt điều này ở mức nào?"
         },
         {
             "id": "Q_IKIGAI_TALENT_2",
             "type": "ikigai_talent",
             "category": "TALENT_STRATEGY",
-            "question": "Bạn có năng khiếu tự nhiên trong việc phân tích tâm lý hành vi, thiết lập chiến lược lộ trình hoặc lên kế hoạch dài hạn không?"
+            "question": "Khi đối mặt với một vấn đề phức tạp, bạn thường nhanh chóng nhìn thấy bức tranh tổng thể, phân tích được nguyên nhân gốc và vạch ra hướng giải quyết rõ ràng — bạn đánh giá năng lực này của mình ở mức nào?"
         },
         {
             "id": "Q_IKIGAI_TALENT_3",
             "type": "ikigai_talent",
             "category": "TALENT_CRAFT",
-            "question": "Bạn có xu hướng yêu thích và làm tốt các công việc thao tác trực tiếp bằng tay chân, máy móc kỹ thuật hoặc thủ công ứng dụng không?"
+            "question": "Bạn có xu hướng học nhanh và làm tốt các kỹ năng thực hành tay chân — nấu ăn, sửa chữa, cắt may, chế tác, vận hành thiết bị — mà không cần hướng dẫn quá nhiều. Mức độ bạn tự đánh giá?"
+        },
+        {
+            "id": "Q_IKIGAI_VALUE",
+            "type": "ikigai_choice",
+            "question": "Trong tương lai, điều nào quan trọng nhất với bạn trong công việc?",
+            "options": [
+                { "value": "MONEY", "text": "Thu nhập cao — sự ổn định tài chính là nền tảng của mọi thứ" },
+                { "value": "IMPACT", "text": "Tạo ra tác động tích cực — công việc phải có ý nghĩa với cộng đồng" },
+                { "value": "FREEDOM", "text": "Tự do — tự quyết thời gian, địa điểm và cách làm việc" },
+                { "value": "MASTERY", "text": "Làm chủ chuyên môn — trở thành người giỏi nhất trong một lĩnh vực" },
+                { "value": "RECOGNITION", "text": "Được công nhận — có địa vị, danh tiếng và sự ngưỡng mộ từ xã hội" }
+            ]
+        },
+        {
+            "id": "Q_IKIGAI_ENV",
+            "type": "ikigai_choice",
+            "question": "Môi trường làm việc lý tưởng mà bạn hình dung cho bản thân là?",
+            "options": [
+                { "value": "TEAM", "text": "Làm việc nhóm sôi nổi, tương tác nhiều, họp hành và cộng tác liên tục" },
+                { "value": "SOLO", "text": "Làm việc độc lập, tập trung sâu, ít bị gián đoạn" },
+                { "value": "FIELD", "text": "Năng động ngoài thực địa — gặp gỡ nhiều người, di chuyển thường xuyên" },
+                { "value": "REMOTE", "text": "Làm online, linh hoạt địa điểm, có thể làm từ bất cứ đâu" },
+                { "value": "MIXED", "text": "Kết hợp — vừa có thời gian tập trung độc lập, vừa có tương tác nhóm" }
+            ]
+        },
+        {
+            "id": "Q_IKIGAI_STRENGTH",
+            "type": "ikigai_choice",
+            "question": "Bạn bè hoặc thầy cô thường khen bạn nhất về điều gì?",
+            "options": [
+                { "value": "COMMUNICATE", "text": "Nói chuyện cuốn hút, diễn đạt rõ ràng, dễ thuyết phục người khác" },
+                { "value": "ANALYZE", "text": "Tư duy sắc bén, phân tích vấn đề sâu, luôn hỏi Tại sao?" },
+                { "value": "CREATE", "text": "Sáng tạo, luôn có ý tưởng mới lạ, nhìn mọi thứ theo góc độ khác biệt" },
+                { "value": "ORGANIZE", "text": "Ngăn nắp, có tổ chức, luôn làm mọi thứ bài bản và đúng hạn" },
+                { "value": "EMPATHIZE", "text": "Đồng cảm tốt, biết lắng nghe, mọi người cảm thấy được hiểu khi ở cạnh bạn" }
+            ]
+        },
+        {
+            "id": "Q_IKIGAI_AVOID",
+            "type": "ikigai_choice",
+            "question": "Điều nào dưới đây bạn chắc chắn KHÔNG muốn có trong công việc tương lai?",
+            "options": [
+                { "value": "AVOID_ROUTINE", "text": "Làm đi làm lại một việc không đổi ngày qua ngày" },
+                { "value": "AVOID_PEOPLE", "text": "Phải tiếp xúc với quá nhiều người lạ liên tục, không có không gian riêng" },
+                { "value": "AVOID_PRESSURE", "text": "Áp lực cao, deadline dồn dập, luôn trong tình trạng khẩn cấp" },
+                { "value": "AVOID_ABSTRACT", "text": "Chỉ làm việc với lý thuyết, số liệu, không thấy kết quả thực tế rõ ràng" },
+                { "value": "AVOID_RULES", "text": "Bị kiểm soát chặt chẽ bởi quy trình, không có không gian sáng tạo hay tự quyết" }
+            ]
         }
     ]
 }

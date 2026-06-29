@@ -4,8 +4,10 @@
 //
 //  ICI = (S_identity × 0.60) + (S_niche × 0.25) + (S_market × 0.15)
 //
-//  VÒNG 1 — Bản ngã Tố chất Nhân số học   (1001 → TOP 15)
-//  VÒNG 2 — Định vị Môi trường & Hành vi  (15   → TOP 10)
+//  S_identity = LP×0.25 + Soul×0.10 + Mission×0.30 + Talent×0.25 + Passion×0.10
+//
+//  VÒNG 1 — Bản ngã Tố chất Nhân số học   (1001 → TOP 20)
+//  VÒNG 2 — Định vị Môi trường & Hành vi  (20   → TOP 10)
 //            ↳ RIASEC Hexagon Penalty
 //            ↳ MBTI Compatibility
 //            ↳ Ikigai Talent Bonus (SPEECH / STRATEGY / CRAFT)
@@ -215,11 +217,11 @@ function displayQuestion() {
   } else if (q.type === "ikigai_talent") {
     // Câu tài năng — thang 5 mức
     [
-      { val: 1, text: "1 - Rất yếu / Không tự tin" },
-      { val: 2, text: "2 - Dưới trung bình" },
-      { val: 3, text: "3 - Trung bình" },
-      { val: 4, text: "4 - Khá tốt / Tự tin" },
-      { val: 5, text: "5 - Rất mạnh / Vượt trội" }
+      { val: 1, text: "1 — Rất yếu / Chưa bao giờ làm tốt điều này" },
+      { val: 2, text: "2 — Dưới trung bình / Còn nhiều hạn chế" },
+      { val: 3, text: "3 — Trung bình / Bình thường như mọi người" },
+      { val: 4, text: "4 — Khá tốt / Tự tin & được ghi nhận" },
+      { val: 5, text: "5 — Rất mạnh / Đây là điểm vượt trội rõ ràng của tôi" }
     ].forEach(lvl => {
       const btn = document.createElement("button");
       btn.className = "btn-option";
@@ -228,15 +230,29 @@ function displayQuestion() {
       container.appendChild(btn);
     });
 
+  } else if (q.type === "ikigai_choice") {
+    // Câu chọn giá trị / môi trường / điểm mạnh / né tránh — chọn 1 trong N
+    (q.options || []).forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "btn-option";
+      btn.style.textAlign = "left";
+      btn.innerText = opt.text;
+      btn.onclick = () => handleSelectOption(q.id, opt.value);
+      container.appendChild(btn);
+    });
+
   } else if (q.id?.includes("_M") || q.dimension) {
-    // MBTI — A/B
+    // MBTI — A/B: hiển thị nội dung đầy đủ, tách từ dấu " / "
+    const parts = (q.text || "").split(" / ");
+    const optA = parts[0] ? parts[0].replace(/^.*\(A\)\s*/, "").trim() : "Đáp án A";
+    const optB = parts[1] ? parts[1].replace(/\s*\(B\)\s*/, "").trim() : "Đáp án B";
     [
-      { val: "A", text: "➔ Chọn đáp án A" },
-      { val: "B", text: "➔ Chọn đáp án B" }
+      { val: "A", text: "A — " + optA },
+      { val: "B", text: "B — " + optB }
     ].forEach(opt => {
       const btn = document.createElement("button");
       btn.className = "btn-option";
-      btn.style.fontWeight = "600";
+      btn.style.cssText = "font-weight:500;text-align:left;";
       btn.innerText = opt.text;
       btn.onclick = () => handleSelectOption(q.id, opt.val);
       container.appendChild(btn);
@@ -294,8 +310,9 @@ function finishQuiz() {
 //  BỘ NÃO THUẬT TOÁN v5.0 — UNIVERSAL LAYERED ARCHITECTURE
 //  ICI = (S_identity × 0.60) + (S_niche × 0.25) + (S_market × 0.15)
 //
-//  VÒNG 1 — Bản ngã Tố chất Nhân số học   (1001 → TOP 15)
-//  VÒNG 2 — Định vị Môi trường & Hành vi  (15   → TOP 10)
+//  S_identity = LP×0.25 + Soul×0.10 + Mission×0.30 + Talent×0.25 + Passion×0.10
+//  VÒNG 1 — Bản ngã Tố chất Nhân số học   (1001 → TOP 20)
+//  VÒNG 2 — Định vị Môi trường & Hành vi  (20   → TOP 10)
 //            ↳ RIASEC Hexagon Penalty (dist=3 → ×0.20; dist=2 → ×0.70)
 //            ↳ MBTI Compatibility Score
 //            ↳ Ikigai Talent Bonus: CRAFT (+15/×0.30), SPEECH/STRATEGY (+15/+5)
@@ -305,6 +322,433 @@ function finishQuiz() {
 //            ↳ Diversity Guard (≤2 ngành cùng industry trong TOP 5)
 //            ↳ Display branching: Dưới lớp 12 / Đại học
 // ============================================================================
+// ============================================================================
+//  PROFESSION DISPLAY ENGINE
+//  4 TẦNG KHÁI NIỆM:
+//    Nghề          = danh xưng nghề nghiệp (base) — "Giáo viên", "Bác sĩ", "Kỹ sư"
+//    Ngách nghề    = chuyên sâu cụ thể trong nghề (niches[]) — "dạy Toán THPT & luyện thi"
+//    Ngành học     = chương trình ĐH cần theo (entry.study_major) — "Sư phạm Toán"
+//    Vị trí việc làm = chức danh tại doanh nghiệp (entry.niche) — "AI Product Lead"
+// ============================================================================
+const PROFESSION_MAP = {
+  "Công nghệ Thông tin": {
+    base: "Lập trình viên / Kỹ sư Phần mềm",
+    niches: {
+      I: ["xây dựng mô hình AI & học máy", "phân tích dữ liệu lớn", "nghiên cứu thuật toán tối ưu"],
+      R: ["lập trình nhúng & điều khiển phần cứng", "quản trị hạ tầng mạng & hệ thống", "tích hợp IoT thực địa"],
+      C: ["kiểm thử & đảm bảo chất lượng phần mềm", "vận hành & giám sát hệ thống 24/7", "phân tích nghiệp vụ & viết đặc tả"],
+      E: ["dẫn dắt dự án công nghệ lớn", "tư vấn chuyển đổi số doanh nghiệp", "xây dựng startup công nghệ"],
+      A: ["thiết kế giao diện & trải nghiệm người dùng", "phát triển game & thế giới ảo", "dựng sản phẩm sáng tạo số"],
+      S: ["giảng dạy lập trình & công nghệ", "hỗ trợ người dùng & tư vấn giải pháp số", "xây dựng cộng đồng developer"],
+      default: ["phát triển phần mềm ứng dụng", "bảo mật & an toàn thông tin mạng", "triển khai giải pháp AI thực tiễn"]
+    },
+    subjects: {
+      toan: ["lập trình giải thuật & tối ưu toán học", "xây dựng mô hình dữ liệu khoa học"],
+      ly: ["lập trình nhúng & điều khiển phần cứng", "thiết kế hệ thống điện tử - IoT"],
+      anh: ["phát triển sản phẩm công nghệ thị trường quốc tế", "làm việc với tài liệu kỹ thuật tiếng Anh"]
+    }
+  },
+  "Quản trị & Marketing": {
+    base: "Chuyên gia Marketing / Kinh doanh",
+    niches: {
+      E: ["bán hàng & phát triển khách hàng B2B", "đàm phán & ký kết hợp đồng thương mại", "xây dựng mạng lưới đối tác chiến lược"],
+      S: ["chăm sóc & giữ chân khách hàng", "xây dựng cộng đồng thương hiệu", "marketing truyền miệng & referral"],
+      I: ["nghiên cứu thị trường & hành vi người tiêu dùng", "phân tích dữ liệu marketing (growth hacking)", "dự báo xu hướng thị trường"],
+      A: ["sáng tạo nội dung thương hiệu", "kể chuyện thương hiệu (brand storytelling)", "thiết kế chiến dịch truyền thông sáng tạo"],
+      C: ["lập kế hoạch marketing tổng thể & ngân sách", "vận hành quy trình bán hàng có hệ thống", "kiểm soát hiệu suất chiến dịch theo KPI"],
+      default: ["chạy quảng cáo & marketing số (Facebook/Google)", "quản lý thương hiệu doanh nghiệp", "phát triển sản phẩm & thị trường mới"]
+    },
+    subjects: {
+      toan: ["phân tích dữ liệu marketing & đo lường ROI", "định giá & tối ưu chi phí chiến dịch"],
+      van: ["viết content marketing & copywriting", "kể chuyện thương hiệu bằng ngôn từ"],
+      anh: ["marketing quốc tế & thương mại điện tử toàn cầu", "làm việc với thương hiệu nước ngoài"]
+    }
+  },
+  "Y Dược & Sức khỏe": {
+    base: "Bác sĩ / Nhân viên Y tế",          // Fallback chung
+    bases: {
+      I: "Bác sĩ / Nhà nghiên cứu Lâm sàng",
+      S: "Điều dưỡng viên / Nhân viên Chăm sóc Sức khỏe",
+      R: "Kỹ thuật viên Y tế / Chuyên viên Phục hồi chức năng",
+      C: "Dược sĩ / Chuyên viên Kiểm định Dược",
+      E: "Quản lý Bệnh viện / Doanh nhân Y tế"
+    },
+    niches: {
+      I: ["chẩn đoán & điều trị bệnh lý chuyên sâu", "nghiên cứu lâm sàng & phát triển phác đồ điều trị", "ứng dụng công nghệ y tế tiên tiến"],
+      S: ["chăm sóc toàn diện sức khỏe bệnh nhân", "tư vấn sức khỏe phòng ngừa cho cộng đồng", "đồng hành cùng bệnh nhân mạn tính"],
+      R: ["thực hiện phẫu thuật & thủ thuật can thiệp", "vật lý trị liệu & phục hồi chức năng vận động", "kỹ thuật xét nghiệm & chẩn đoán hình ảnh"],
+      C: ["kiểm định thuốc & dược phẩm lưu hành", "quản lý hệ thống hồ sơ y tế & tuân thủ quy trình", "kiểm soát chất lượng dịch vụ y tế"],
+      E: ["quản lý phòng khám & bệnh viện tư nhân", "phát triển sản phẩm y tế & thiết bị số", "tư vấn chiến lược sức khỏe cho doanh nghiệp"],
+      default: ["khám & điều trị bệnh lý thường gặp", "pha chế & tư vấn sử dụng thuốc", "điều dưỡng & chăm sóc người bệnh"]
+    },
+    subjects: {
+      hoa: ["pha chế dược phẩm & kiểm soát chất lượng thuốc", "nghiên cứu phát triển hợp chất sinh học mới"],
+      sinh: ["nghiên cứu bệnh lý cấp độ tế bào & phân tử", "phát triển vaccine & liệu pháp sinh học"],
+      toan: ["phân tích thống kê nghiên cứu lâm sàng", "mô hình hóa dịch tễ học & y tế cộng đồng"]
+    }
+  },
+  "Kinh tế & Tài chính": {
+    base: "Chuyên gia Tài chính / Kế toán",
+    niches: {
+      C: ["kiểm toán báo cáo tài chính doanh nghiệp", "xây dựng hệ thống kế toán quản trị nội bộ", "tuân thủ thuế & pháp lý tài chính"],
+      I: ["định giá tài sản & phân tích đầu tư", "mô hình hóa rủi ro tài chính & bảo hiểm", "nghiên cứu chính sách kinh tế vĩ mô"],
+      E: ["tư vấn M&A & đầu tư doanh nghiệp", "quản lý danh mục đầu tư & quỹ", "phát triển sản phẩm fintech"],
+      S: ["tư vấn kế hoạch tài chính cá nhân & gia đình", "chăm sóc khách hàng dịch vụ ngân hàng bán lẻ", "bán & tư vấn sản phẩm bảo hiểm nhân thọ"],
+      default: ["lập & phân tích báo cáo tài chính doanh nghiệp", "đầu tư chứng khoán & tài sản tài chính", "thẩm định & kiểm soát tín dụng ngân hàng"]
+    },
+    subjects: {
+      toan: ["xây dựng mô hình định lượng tài chính", "tối ưu danh mục đầu tư theo thuật toán"],
+      anh: ["làm việc với thị trường tài chính & nhà đầu tư quốc tế", "phân tích báo cáo tài chính doanh nghiệp nước ngoài"]
+    }
+  },
+  "Kỹ thuật & Công nghệ": {
+    base: "Kỹ sư Cơ khí / Điện / Tự động hóa",
+    niches: {
+      R: ["thiết kế & gia công chi tiết cơ khí chính xác", "lắp đặt & vận hành dây chuyền sản xuất tự động", "bảo trì & sửa chữa hệ thống điện công nghiệp"],
+      I: ["nghiên cứu vật liệu tiên tiến & nano", "tối ưu quy trình hóa học & phản ứng công nghiệp", "phát triển giải pháp năng lượng tái tạo mới"],
+      C: ["kiểm soát chất lượng sản phẩm theo tiêu chuẩn ISO", "quản lý chuỗi cung ứng & kho vận công nghiệp", "thanh tra an toàn lao động & môi trường nhà máy"],
+      E: ["điều hành dự án xây dựng công trình kỹ thuật", "tư vấn giải pháp kỹ thuật cho doanh nghiệp sản xuất", "phát triển startup trong lĩnh vực công nghiệp"],
+      default: ["thiết kế & chế tạo máy móc thiết bị", "lập trình & vận hành robot công nghiệp", "thiết kế hệ thống điện – điều khiển tự động hóa"]
+    },
+    subjects: {
+      toan: ["tính toán kết cấu & mô phỏng hệ thống kỹ thuật", "tối ưu hóa quy trình sản xuất"],
+      ly: ["thiết kế hệ thống cơ - điện - nhiệt ứng dụng", "phân tích vật lý kết cấu công trình"],
+      hoa: ["phát triển vật liệu composite & polymer kỹ thuật", "kiểm soát quy trình hóa học công nghiệp"]
+    }
+  },
+  "Nghệ thuật & Sáng tạo": {
+    base: "Nghệ sĩ / Nhà Thiết kế",
+    niches: {
+      A: ["thiết kế nhận diện thương hiệu & bao bì sản phẩm", "vẽ minh họa & sáng tác concept art", "chụp ảnh & dàn dựng hình ảnh thương mại"],
+      E: ["đạo diễn sản xuất nội dung thương mại", "điều hành studio sáng tạo & agency", "kinh doanh tác phẩm nghệ thuật & IP"],
+      S: ["dùng nghệ thuật để trị liệu & chữa lành tâm lý", "giảng dạy mỹ thuật & kỹ năng sáng tạo", "tổ chức nghệ thuật cộng đồng & triển lãm"],
+      I: ["nghiên cứu lịch sử mỹ thuật & phê bình nghệ thuật", "bảo tồn di vật & quản lý bộ sưu tập bảo tàng", "phân tích xu hướng thẩm mỹ & design"],
+      default: ["thiết kế đồ họa & hình ảnh thương mại", "biểu diễn & sáng tác nghệ thuật", "tạo nội dung sáng tạo đa nền tảng"]
+    }
+  },
+  "Giáo dục & Đào tạo": {
+    base: "Giáo viên / Nhà đào tạo",            // Fallback chung
+    bases: {
+      S: "Giáo viên / Chuyên viên Hướng nghiệp",
+      E: "Nhà đào tạo / Huấn luyện viên Doanh nghiệp",
+      I: "Giảng viên Đại học / Nhà Nghiên cứu Giáo dục",
+      A: "Giáo viên Nghệ thuật & Sáng tạo",
+      C: "Chuyên viên Quản lý Giáo dục",
+      R: "Giáo viên Thực hành & Kỹ thuật"
+    },
+    niches: {
+      S: ["tư vấn & hỗ trợ tâm lý học sinh", "hướng nghiệp & định hướng tương lai cho học sinh", "giảng dạy học sinh có nhu cầu đặc biệt"],
+      E: ["đào tạo kỹ năng lãnh đạo & quản lý cho doanh nghiệp", "huấn luyện đội ngũ kinh doanh & bán hàng", "giảng dạy bậc đại học & nghiên cứu sinh"],
+      I: ["dạy các môn STEM & khoa học tự nhiên", "nghiên cứu & cải tiến chương trình giảng dạy", "phát triển nền tảng học trực tuyến (EdTech)"],
+      A: ["dạy mỹ thuật, âm nhạc & kỹ năng sáng tạo", "đào tạo diễn xuất, MC & kỹ năng biểu diễn", "giảng dạy thiết kế & thời trang"],
+      C: ["quản lý giáo dục & điều hành nhà trường", "đào tạo nghiệp vụ kế toán, hành chính & văn phòng", "kiểm định & đánh giá chất lượng chương trình học"],
+      R: ["đào tạo nghề thực hành (bếp, thẩm mỹ, kỹ thuật, thủ công)", "giảng dạy kỹ năng tay nghề tại trường nghề & trung tâm dạy nghề", "kết hợp giỏi nghề & có sứ mệnh truyền đạt — dạy online & offline"],
+      default: ["dạy học & truyền đạt kiến thức chuyên môn", "đào tạo kỹ năng mềm & phát triển bản thân", "hướng dẫn & khai vấn học sinh định hướng nghề"]
+    },
+    subjects: {
+      toan: ["dạy Toán cấp THPT & luyện thi đại học", "đào tạo tư duy logic & giải toán nâng cao"],
+      anh: ["dạy Tiếng Anh giao tiếp & luyện thi IELTS/TOEIC", "đào tạo kỹ năng tiếng Anh học thuật & công sở"],
+      van: ["dạy Ngữ văn & kỹ năng viết sáng tạo", "đào tạo kỹ năng diễn đạt & thuyết trình"],
+      ly: ["dạy Vật Lý & thực hành thí nghiệm khoa học", "đào tạo tư duy phân tích vật lý ứng dụng"],
+      hoa: ["dạy Hóa Học & thí nghiệm thực hành", "đào tạo kiến thức hóa học ứng dụng cuộc sống"],
+      sinh: ["dạy Sinh học & khoa học tự nhiên", "đào tạo kiến thức sức khỏe & sinh học ứng dụng"],
+      su: ["dạy Lịch sử & giáo dục công dân", "đào tạo tư duy phản biện & kiến thức xã hội"],
+      dia: ["dạy Địa lý & giáo dục môi trường", "đào tạo kiến thức địa lý kinh tế - xã hội"],
+      gdcd: ["dạy Giáo dục Công dân & pháp luật", "đào tạo kỹ năng sống & giá trị sống cho học sinh"]
+    }
+  },
+  "Tâm lý học ứng dụng": {
+    base: "Chuyên gia Tâm lý / Tham vấn viên",
+    niches: {
+      S: ["tham vấn tâm lý cá nhân & hỗ trợ cảm xúc", "làm việc với học sinh gặp khủng hoảng tâm lý học đường", "đồng hành trị liệu cho người trải qua sang chấn"],
+      I: ["đánh giá tâm lý & chẩn đoán lâm sàng", "nghiên cứu hành vi, nhận thức & cảm xúc người", "thiết kế công cụ đánh giá & trắc nghiệm tâm lý"],
+      E: ["coaching phát triển lãnh đạo & hiệu suất", "tư vấn tâm lý tổ chức & văn hóa doanh nghiệp", "đào tạo & diễn thuyết về phát triển bản thân"],
+      A: ["trị liệu thông qua nghệ thuật, âm nhạc & kịch", "dùng hoạt động sáng tạo để phục hồi cảm xúc", "thiết kế chương trình trị liệu phi truyền thống"],
+      default: ["tham vấn tâm lý cho cá nhân & gia đình", "hỗ trợ sức khỏe tâm thần & phòng ngừa rối loạn", "coaching & khai vấn phát triển bản thân"]
+    }
+  },
+  "Truyền thông đa phương tiện": {
+    base: "Nhà báo / Người làm truyền thông",
+    niches: {
+      A: ["sản xuất nội dung video & podcast sáng tạo", "quay phim, chụp ảnh & dựng phim tài liệu", "thiết kế đồ họa truyền thông & infographic"],
+      E: ["quản lý quan hệ công chúng (PR) cho thương hiệu", "xây dựng & điều hành kênh mạng xã hội doanh nghiệp", "tổ chức sự kiện truyền thông & press tour"],
+      S: ["viết phóng sự xã hội & điều tra", "làm truyền thông cho tổ chức phi lợi nhuận & NGO", "kết nối cộng đồng qua nội dung báo chí"],
+      I: ["phân tích dữ liệu & đo lường hiệu quả truyền thông", "nghiên cứu dư luận & xu hướng thông tin đại chúng", "viết về khoa học & công nghệ cho công chúng"],
+      default: ["viết báo & phóng sự thời sự", "sản xuất & biên tập nội dung số đa nền tảng", "xây dựng thương hiệu cá nhân qua truyền thông"]
+    }
+  },
+  "Hành chính & Dịch vụ Công": {
+    base: "Cán bộ Nhà nước / Chuyên viên Hành chính",
+    niches: {
+      C: ["xử lý hồ sơ & thủ tục hành chính công", "quản lý văn bản & lưu trữ công vụ", "kiểm soát ngân sách & tài chính công"],
+      S: ["trực tiếp tiếp dân & giải quyết khiếu nại", "tham gia ngoại giao nhân dân & giao lưu quốc tế", "công tác xã hội & hỗ trợ cộng đồng yếu thế"],
+      E: ["lãnh đạo đơn vị hành chính cấp địa phương", "xây dựng & trình bày chính sách phát triển vùng", "đại diện cơ quan nhà nước trong đàm phán quốc tế"],
+      I: ["nghiên cứu & đề xuất cải cách chính sách công", "phân tích dữ liệu kinh tế - xã hội phục vụ hoạch định", "triển khai chính phủ số & dịch vụ công trực tuyến"],
+      default: ["thực thi chính sách & pháp luật nhà nước", "phục vụ người dân qua dịch vụ hành chính công", "quản lý & điều phối hoạt động của đơn vị nhà nước"]
+    }
+  },
+  "Du lịch & Khách sạn": {
+    base: "Chuyên gia Du lịch / Quản lý Khách sạn",
+    niches: {
+      S: ["đón tiếp & dẫn đường cho khách du lịch quốc tế", "chăm sóc trải nghiệm khách lưu trú cao cấp", "xây dựng tour & gói dịch vụ cá nhân hóa"],
+      E: ["quản lý toàn bộ hoạt động khách sạn & resort", "phát triển sản phẩm du lịch & ký kết đối tác lữ hành", "kinh doanh & Marketing điểm đến du lịch"],
+      A: ["thiết kế không gian khách sạn boutique & thẩm mỹ", "tạo nội dung du lịch cho mạng xã hội & travel blog", "xây dựng trải nghiệm du lịch văn hóa độc đáo"],
+      R: ["hướng dẫn du lịch sinh thái, trekking & mạo hiểm", "điều hành tour du lịch nông nghiệp & thực địa", "quản lý hoạt động thể thao mặt nước & dã ngoại"],
+      default: ["hướng dẫn & đưa đón khách du lịch", "quản lý lễ tân & dịch vụ lưu trú", "lập kế hoạch & điều phối tour du lịch"]
+    }
+  },
+  "Quản trị Nhân sự": {
+    base: "Chuyên gia Nhân sự (HR)",
+    niches: {
+      S: ["tìm kiếm, phỏng vấn & tuyển dụng nhân tài phù hợp", "thiết kế chương trình đào tạo & phát triển nhân viên", "xây dựng văn hóa gắn kết & phúc lợi đội ngũ"],
+      E: ["tham mưu chiến lược nhân sự cho ban lãnh đạo", "tái cơ cấu & tối ưu hóa mô hình tổ chức doanh nghiệp", "dẫn dắt chuyển đổi văn hóa doanh nghiệp"],
+      I: ["phân tích dữ liệu nhân sự & dự báo nhu cầu nhân lực", "nghiên cứu mô hình tổ chức & hành vi nhân viên", "xây dựng hệ thống đánh giá hiệu suất (KPI/OKR)"],
+      C: ["quản lý hợp đồng lao động & tuân thủ pháp lý", "xây dựng hệ thống lương thưởng & đãi ngộ cạnh tranh", "vận hành phần mềm quản lý HR & tự động hóa quy trình"],
+      default: ["tuyển dụng & onboarding nhân viên mới", "đào tạo & nâng cao năng lực đội ngũ", "quản lý quan hệ lao động & giải quyết tranh chấp"]
+    }
+  },
+  "Khoa học Tự nhiên & Nghiên cứu": {
+    base: "Nhà nghiên cứu / Khoa học gia",
+    niches: {
+      I: ["thiết kế thí nghiệm & kiểm chứng giả thuyết khoa học", "phân tích dữ liệu nghiên cứu & công bố học thuật quốc tế", "xây dựng mô hình lý thuyết & mô phỏng tính toán"],
+      R: ["thực hiện thí nghiệm lab & điều chế hợp chất", "nghiên cứu đặc tính vật liệu & sinh vật", "vận hành thiết bị khoa học chuyên biệt"],
+      C: ["kiểm định & đảm bảo chất lượng kết quả nghiên cứu", "quản lý phòng thí nghiệm & an toàn hóa chất", "biên soạn báo cáo & tài liệu khoa học chuẩn mực"],
+      default: ["nghiên cứu sinh học phân tử & di truyền", "phân tích hóa học & chế tạo vật liệu mới", "ứng dụng khoa học vào giải quyết vấn đề thực tiễn"]
+    },
+    subjects: {
+      hoa: ["tổng hợp & phân tích hợp chất hóa học", "nghiên cứu vật liệu polyme & nano"],
+      sinh: ["nghiên cứu sinh học phân tử & kỹ thuật gene", "phát triển vi sinh ứng dụng & công nghệ lên men"],
+      ly: ["đo lường & phân tích hiện tượng vật lý", "nghiên cứu quang học, vật lý hạt nhân & vật liệu"],
+      toan: ["xây dựng mô hình toán học & thống kê khoa học", "mô phỏng số & phân tích dữ liệu lớn"]
+    }
+  },
+  "Pháp luật & Tư pháp": {
+    base: "Luật sư / Chuyên gia Pháp lý",
+    niches: {
+      C: ["soạn thảo & rà soát hợp đồng thương mại", "tư vấn tuân thủ pháp lý & quản trị rủi ro cho doanh nghiệp", "công chứng, chứng thực & quản lý hồ sơ pháp lý"],
+      E: ["tranh tụng tại tòa án thương mại & dân sự", "tư vấn M&A, đầu tư nước ngoài & IPO", "đàm phán hòa giải & giải quyết tranh chấp"],
+      I: ["nghiên cứu pháp luật so sánh & học thuật pháp lý", "xây dựng chính sách & đề xuất cải cách luật pháp", "phân tích pháp lý về công nghệ, dữ liệu & AI"],
+      S: ["bảo vệ quyền lợi người lao động & yếu thế", "tư vấn pháp lý miễn phí cho cộng đồng", "tranh tụng về quyền trẻ em, phụ nữ & nhân quyền"],
+      default: ["tư vấn pháp lý cho doanh nghiệp & cá nhân", "đại diện khách hàng trong vụ kiện tụng", "nghiên cứu & áp dụng pháp luật chuyên ngành"]
+    }
+  },
+  "Thể thao & Phát triển Thể lực": {
+    base: "Huấn luyện viên / Chuyên gia Thể thao",   // Fallback chung
+    bases: {
+      R: "Huấn luyện viên Thể thao / Vận động viên Chuyên nghiệp",
+      S: "Huấn luyện viên Thể lực Cá nhân (Personal Trainer)",
+      E: "Quản lý Thể thao / Nhà tổ chức Sự kiện Thể thao",
+      I: "Khoa học gia Thể thao / Chuyên gia Phân tích Hiệu suất",
+      A: "Vận động viên Esports / Huấn luyện viên Thể thao Điện tử",
+      C: "Chuyên viên Hành chính & Quản lý Thể dục Thể thao"
+    },
+    niches: {
+      R: ["huấn luyện vận động viên đạt thành tích thi đấu chuyên nghiệp", "thi đấu thể thao chuyên nghiệp các môn thể thao cụ thể", "thiết kế chương trình tập luyện chuyên sâu"],
+      S: ["huấn luyện cá nhân (Personal Trainer) & coaching thể chất", "dạy yoga, thiền & phát triển sức khỏe toàn diện", "giảng dạy giáo dục thể chất cho học sinh"],
+      E: ["tổ chức sự kiện thể thao & giải đấu lớn", "quản lý câu lạc bộ thể thao & thương hiệu vận động viên", "phát triển kinh doanh trong lĩnh vực thể thao"],
+      I: ["phân tích hiệu suất tập luyện bằng dữ liệu & công nghệ", "nghiên cứu dinh dưỡng thể thao & phục hồi chấn thương", "y học thể thao & hỗ trợ y tế cho vận động viên"],
+      default: ["huấn luyện & phát triển thể chất cá nhân", "dạy kỹ thuật môn thể thao cụ thể", "quản lý chương trình thể dục sức khỏe cộng đồng"]
+    }
+  },
+  "Nông Lâm Ngư nghiệp": {
+    base: "Kỹ sư Nông nghiệp / Chuyên gia Thực phẩm",
+    niches: {
+      R: ["trực tiếp canh tác & ứng dụng kỹ thuật trồng trọt hiện đại", "quản lý ao hồ & ứng dụng công nghệ nuôi trồng thủy sản", "bảo vệ & phát triển rừng bền vững"],
+      I: ["nghiên cứu & lai tạo giống cây trồng, vật nuôi mới", "ứng dụng IoT & dữ liệu vào nông nghiệp thông minh", "phát triển công nghệ chế biến & bảo quản thực phẩm"],
+      E: ["thu mua, chế biến & xuất khẩu nông sản ra thị trường quốc tế", "xây dựng startup nông nghiệp công nghệ cao", "quản lý trang trại & chuỗi cung ứng quy mô lớn"],
+      C: ["kiểm tra an toàn vệ sinh thực phẩm & chứng nhận tiêu chuẩn", "quản lý kho vận & logistics nông sản", "giám sát dịch bệnh cây trồng & kiểm dịch thực vật"],
+      default: ["ứng dụng công nghệ cao vào trồng trọt & chăn nuôi", "chế biến & nâng cao giá trị nông sản xuất khẩu", "kiểm soát chất lượng & an toàn vệ sinh thực phẩm"]
+    }
+  },
+  "Môi trường & Năng lượng Xanh": {
+    base: "Kỹ sư Môi trường / Chuyên gia Năng lượng Xanh",
+    niches: {
+      I: ["nghiên cứu giải pháp năng lượng tái tạo hiệu suất cao", "đo đạc & phân tích tác động môi trường & khí hậu", "phát triển công nghệ pin & lưu trữ năng lượng"],
+      R: ["thiết kế & thi công hệ thống điện mặt trời & điện gió", "vận hành hệ thống xử lý nước thải & chất thải rắn", "lắp đặt công trình tiết kiệm năng lượng & tòa nhà xanh"],
+      E: ["tư vấn chiến lược ESG & phát triển bền vững cho doanh nghiệp", "huy động đầu tư vào dự án năng lượng sạch", "phát triển thị trường carbon & tín chỉ xanh"],
+      C: ["kiểm định & cấp chứng nhận tác động môi trường", "giám sát tuân thủ pháp luật bảo vệ môi trường", "đo đạc & báo cáo phát thải carbon cho doanh nghiệp"],
+      default: ["thiết kế hệ thống năng lượng mặt trời & điện gió", "xử lý ô nhiễm & phục hồi môi trường tự nhiên", "tư vấn phát triển bền vững & ESG cho doanh nghiệp"]
+    }
+  },
+  "Dịch vụ Cá nhân & Lifestyle": {
+    base: "Chuyên gia Làm đẹp / Chăm sóc Lifestyle",
+    niches: {
+      S: ["tư vấn phong cách ăn mặc & hình ảnh cá nhân", "chăm sóc sức khỏe & wellness toàn diện", "dịch vụ đặc biệt & chăm sóc khách hàng cao cấp"],
+      A: ["trang điểm nghệ thuật & sân khấu", "thiết kế & tạo kiểu tóc độc đáo", "nail art & chăm sóc móng sáng tạo"],
+      E: ["kinh doanh & quản lý salon, spa, tiệm làm đẹp", "xây dựng thương hiệu cá nhân trong ngành làm đẹp", "nhượng quyền & mở rộng chuỗi dịch vụ lifestyle"],
+      R: ["thực hiện kỹ thuật massage & trị liệu cơ thể chuyên sâu", "pha chế cà phê specialty & barista chuyên nghiệp", "nấu ăn & chế biến thực phẩm tinh tế"],
+      default: ["tư vấn & thực hiện dịch vụ chăm sóc sắc đẹp", "hướng dẫn & cải thiện phong cách sống lành mạnh", "dịch vụ cá nhân hóa cho nhu cầu đặc biệt"]
+    }
+  },
+  "Xây dựng & Kiến trúc": {
+    base: "Kỹ sư Xây dựng / Kiến trúc sư",
+    niches: {
+      R: ["thiết kế kết cấu & thi công công trình dân dụng", "giám sát thi công hạ tầng giao thông & cầu đường", "quản lý an toàn & chất lượng thi công tại công trường"],
+      A: ["thiết kế kiến trúc công trình ấn tượng & bền vững", "thiết kế nội thất & cảnh quan không gian sống", "phát triển ý tưởng kiến trúc xanh & thân thiện môi trường"],
+      C: ["lập dự toán & kiểm soát chi phí xây dựng", "đấu thầu & quản lý hợp đồng xây dựng", "kiểm định chất lượng công trình & nghiệm thu"],
+      E: ["đầu tư & phát triển dự án bất động sản", "điều hành tổng thầu công trình lớn", "tư vấn chiến lược & phát triển đô thị"],
+      default: ["thiết kế & thi công công trình dân dụng", "thiết kế kiến trúc & không gian", "quản lý dự án xây dựng từ đầu đến cuối"]
+    }
+  },
+  "Ngôn ngữ & Văn hóa": {
+    base: "Chuyên gia Ngôn ngữ / Phiên dịch viên",
+    niches: {
+      S: ["phiên dịch liên tiếp tại hội nghị quốc tế", "giảng dạy ngoại ngữ & luyện thi ngôn ngữ quốc tế", "làm cầu nối giao tiếp ngoại giao & văn hóa"],
+      I: ["nghiên cứu ngôn ngữ học & xây dựng từ điển chuyên ngành", "phát triển công nghệ xử lý ngôn ngữ tự nhiên (NLP)", "biên dịch tài liệu học thuật & pháp lý chuyên sâu"],
+      E: ["quản lý chương trình giao lưu văn hóa quốc tế", "kinh doanh dịch vụ phiên dịch & biên dịch", "phát triển nội dung đa ngôn ngữ cho thị trường quốc tế"],
+      A: ["biên dịch văn học & sáng tác song ngữ", "bảo tồn & truyền bá di sản văn hóa dân tộc", "biên kịch & lồng tiếng cho phim ảnh, game"],
+      C: ["biên tập & hiệu đính tài liệu kỹ thuật & pháp lý", "chuẩn hóa thuật ngữ chuyên ngành đa ngôn ngữ", "quản lý cơ sở dữ liệu ngôn ngữ & bộ nhớ dịch thuật"],
+      default: ["biên dịch & phiên dịch tài liệu chuyên ngành", "giảng dạy ngoại ngữ thực hành", "nghiên cứu & ứng dụng ngôn ngữ học"]
+    },
+    subjects: {
+      anh: ["phiên dịch Anh - Việt tại hội nghị quốc tế", "dạy Tiếng Anh học thuật & luyện thi IELTS/TOEFL"],
+      van: ["biên dịch tác phẩm văn học ra tiếng nước ngoài", "nghiên cứu & bảo tồn ngôn ngữ dân tộc thiểu số"]
+    }
+  },
+  "Khác": {
+    base: "Chuyên gia Liên ngành",
+    niches: {
+      I: ["nghiên cứu & tư vấn chính sách ở giao thoa nhiều lĩnh vực", "phân tích xu hướng tương lai & dự báo hệ thống", "ứng dụng tư duy hệ thống phức tạp vào giải quyết vấn đề"],
+      E: ["lãnh đạo tổ chức phi lợi nhuận & phát triển xã hội", "tư vấn chiến lược đa lĩnh vực cho doanh nghiệp & nhà nước", "xây dựng startup giải quyết vấn đề xã hội (impact)"],
+      S: ["phát triển & kết nối cộng đồng địa phương", "tư vấn & hỗ trợ thay đổi hành vi bền vững", "điều phối chương trình phúc lợi & chăm sóc xã hội"],
+      A: ["thiết kế dịch vụ & trải nghiệm người dùng liên ngành", "phát triển dự án sáng tạo kết hợp nhiều lĩnh vực", "nghệ thuật tương tác & công nghệ sáng tạo số"],
+      C: ["xây dựng & vận hành hệ thống quản lý đa lĩnh vực", "kiểm soát rủi ro & tuân thủ trong môi trường phức tạp", "vận hành dịch vụ & hỗ trợ quy trình tổng thể"],
+      R: ["triển khai giải pháp kỹ thuật thực địa đa ngành", "bảo trì & vận hành hệ thống kỹ thuật tổng hợp", "dịch vụ thực hành trực tiếp theo nhu cầu thực tế"],
+      default: ["tư vấn chiến lược ở giao điểm nhiều lĩnh vực", "quản lý dự án liên ngành phức tạp", "phát triển năng lực chuyên sâu cá nhân hóa"]
+    }
+  },
+  // ── NGÀNH MỚI: Xu hướng 20 năm tới ──────────────────────────────────────────
+  "Vũ trụ & Hàng không": {
+    base: "Kỹ sư Hàng không Vũ trụ / Chuyên gia Không gian",
+    bases: {
+      R: "Kỹ sư Hàng không Vũ trụ / Kỹ sư UAV & Drone",
+      I: "Nhà Khoa học Vũ trụ / Chuyên gia Dữ liệu Vệ tinh",
+      S: "Bác sĩ Y học Hàng không / Chuyên gia Sức khỏe Phi hành",
+      C: "Chuyên viên Kỹ thuật Hạ tầng Mặt đất & Vận hành Vệ tinh",
+      E: "Quản lý Dự án Hàng không Vũ trụ / Doanh nhân Space Tech",
+      A: "Kỹ sư Thiết kế Hệ thống Vũ trụ & Mô phỏng"
+    },
+    niches: {
+      R: ["thiết kế kết cấu tên lửa & phương tiện phóng vũ trụ", "lập trình & vận hành hệ thống UAV/Drone thực địa", "bảo trì & kiểm định hệ thống hàng không kỹ thuật cao"],
+      I: ["phân tích dữ liệu vệ tinh & viễn thám ứng dụng", "nghiên cứu vật lý thiên văn & hệ mặt trời", "xây dựng mô hình quan sát & giám sát Trái đất từ vũ trụ"],
+      S: ["khám sức khỏe & đánh giá thể chất tâm lý phi hành gia", "y học hàng không & điều trị rối loạn sinh lý không trọng lực", "đào tạo & hỗ trợ sức khỏe phi hành đoàn"],
+      E: ["phát triển dự án vệ tinh thương mại & định vị GPS", "kinh doanh dịch vụ dữ liệu vũ trụ & Earth Observation", "huy động đầu tư và quản lý startup Space Tech"],
+      C: ["vận hành & giám sát hệ thống mặt đất vệ tinh 24/7", "kiểm định & đảm bảo chất lượng phần cứng hàng không", "quản lý dữ liệu bay & tuân thủ quy trình an toàn hàng không"],
+      default: ["thiết kế & phát triển hệ thống vệ tinh ứng dụng", "vận hành UAV/Drone thực địa trong nông nghiệp & giám sát", "phân tích dữ liệu viễn thám phục vụ quy hoạch & môi trường"]
+    },
+    subjects: {
+      toan: ["tính toán quỹ đạo vệ tinh & cơ học bay", "mô phỏng số hệ thống hàng không"],
+      ly: ["vật lý hàng không & cơ học thiên thể ứng dụng", "thiết kế hệ thống động lực & nhiệt tên lửa"],
+      anh: ["làm việc với tài liệu kỹ thuật hàng không tiêu chuẩn quốc tế", "hợp tác nghiên cứu vũ trụ với NASA, ESA, JAXA"]
+    }
+  },
+  "Khoa học Thần kinh & Công nghệ Não": {
+    base: "Chuyên gia Khoa học Thần kinh / Kỹ sư Não-Máy",
+    bases: {
+      I: "Nhà Khoa học Thần kinh Tính toán / Nghiên cứu viên Não bộ",
+      R: "Kỹ sư Thần kinh học / Lập trình viên Giao diện Não-Máy (BCI)",
+      S: "Bác sĩ Thần kinh học Lâm sàng / Chuyên gia Phục hồi Thần kinh",
+      E: "Doanh nhân Neuroscience Tech / Quản lý Startup BCI",
+      A: "Nhà thiết kế Ứng dụng Não-Máy & Giao diện Nhận thức Số"
+    },
+    niches: {
+      I: ["nghiên cứu cơ chế học tập, trí nhớ & nhận thức của não bộ", "xây dựng mô hình AI mô phỏng mạng thần kinh sinh học", "phân tích tín hiệu EEG/fMRI & dữ liệu não bộ"],
+      R: ["lập trình giao diện não-máy (BCI) thu nhận & giải mã tín hiệu não", "thiết kế thiết bị cấy ghép thần kinh & điện cực não", "phát triển phần mềm phục hồi chức năng thần kinh"],
+      S: ["chẩn đoán & điều trị bệnh Alzheimer, Parkinson, động kinh", "phục hồi chức năng thần kinh cho người đột quỵ & tổn thương não", "tư vấn & hỗ trợ tâm lý thần kinh cho bệnh nhân mạn tính"],
+      E: ["phát triển startup ứng dụng BCI trong giáo dục & y tế", "tư vấn chiến lược ứng dụng neuroscience cho doanh nghiệp", "huy động đầu tư cho công nghệ thần kinh đột phá"],
+      A: ["thiết kế trải nghiệm tương tác điều khiển bằng sóng não", "phát triển game & nội dung học tập thích ứng não bộ", "ứng dụng neurofeedback trong nghệ thuật & sáng tạo"],
+      default: ["nghiên cứu & ứng dụng khoa học thần kinh vào y tế", "phát triển công nghệ giao tiếp não-máy hỗ trợ người khuyết tật", "ứng dụng AI & dữ liệu não để cải thiện học tập & hiệu suất"]
+    },
+    subjects: {
+      sinh: ["nghiên cứu sinh học thần kinh & cơ chế hoạt động synapse", "phân tích dữ liệu gene liên quan đến bệnh thần kinh"],
+      toan: ["xây dựng mô hình toán học mạng thần kinh sinh học", "phân tích thống kê dữ liệu não bộ & tín hiệu EEG"],
+      ly: ["vật lý điện sinh học & đo lường tín hiệu thần kinh", "thiết kế điện cực & thiết bị đo não"],
+      anh: ["đọc tài liệu nghiên cứu thần kinh học quốc tế", "hợp tác nghiên cứu với các trung tâm neuroscience hàng đầu thế giới"]
+    }
+  },
+  "Khoa học Sức khỏe & Y tế Cộng đồng": {
+    base: "Chuyên gia Y tế Công cộng / Khoa học Sức khỏe",
+    bases: {
+      I: "Nhà Nghiên cứu Dịch tễ học / Khoa học gia Sức khỏe",
+      S: "Chuyên gia Y tế Công cộng / Sức khỏe Cộng đồng",
+      C: "Chuyên gia Dinh dưỡng Lâm sàng / Y học Nghề nghiệp",
+      R: "Chuyên gia Khoa học Vận động / Sinh lý Thể dục",
+      E: "Nhà Phân tích Chính sách Y tế / Chuyên gia Sức khỏe Toàn cầu"
+    },
+    niches: {
+      I: ["điều tra & phân tích ổ dịch bệnh truyền nhiễm", "xây dựng mô hình dịch tễ học & dự báo bùng phát dịch", "nghiên cứu yếu tố nguy cơ & gánh nặng bệnh tật cộng đồng"],
+      S: ["thiết kế & triển khai chương trình sức khỏe cộng đồng", "truyền thông thay đổi hành vi sức khỏe cho dân số lớn", "hỗ trợ cộng đồng yếu thế tiếp cận dịch vụ y tế"],
+      C: ["tư vấn chế độ ăn & dinh dưỡng trị liệu cho bệnh nhân", "giám sát an toàn thực phẩm & vệ sinh môi trường", "quản lý hồ sơ sức khỏe & hệ thống y tế số"],
+      R: ["đánh giá năng lực thể chất & thiết kế chương trình vận động phục hồi", "đo lường sinh lý vận động & tối ưu hiệu suất thể lực", "phục hồi chức năng thông qua bài tập khoa học"],
+      E: ["phân tích & đề xuất cải cách chính sách y tế quốc gia", "kết nối hợp tác y tế quốc tế & quản lý dự án ODA y tế", "phát triển hệ thống giám sát sức khỏe toàn cầu One Health"],
+      default: ["phòng ngừa bệnh tật & nâng cao sức khỏe cộng đồng", "kiểm soát dịch bệnh & ứng phó khủng hoảng y tế công cộng", "nghiên cứu & ứng dụng khoa học sức khỏe vào chính sách"]
+    },
+    subjects: {
+      sinh: ["dịch tễ học bệnh truyền nhiễm & sinh học phân tử", "nghiên cứu vi sinh vật & ký sinh trùng gây bệnh"],
+      hoa: ["dinh dưỡng học phân tử & hóa sinh thực phẩm", "phân tích chất độc môi trường & ô nhiễm sức khỏe"],
+      toan: ["thống kê y tế & mô hình hóa dịch tễ học", "phân tích dữ liệu sức khỏe cộng đồng quy mô lớn"],
+      anh: ["hợp tác nghiên cứu y tế quốc tế & công bố học thuật", "làm việc với WHO, CDC và tổ chức y tế toàn cầu"]
+    }
+  }
+};
+
+
+
+
+/**
+ * Trả về { profession, nicheStr } cá nhân hóa theo profile người dùng
+ * @param {string} industry - Ngành của nghề
+ * @param {Object} hPct - Điểm Holland % của người dùng {R, I, A, S, E, C}
+ * @param {Object} thptScores - Điểm các môn THPT
+ * @param {string} ikigaiStrength - Câu trả lời Ikigai điểm mạnh
+ */
+function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength) {
+  const profMap = PROFESSION_MAP[industry || ''];
+  if (!profMap) return { profession: null, nicheStr: '' };
+
+  // 1. Xác định Holland code nổi trội của user
+  const userTopH = Object.entries(hPct || {})
+    .sort((a, b) => b[1] - a[1])[0]?.[0] || 'S';
+
+  // 2. Lấy pool ngách theo Holland
+  let nichePool = profMap.niches[userTopH] || profMap.niches.default || [];
+
+  // 3. Ưu tiên ngách theo môn học mạnh nhất (nếu có điểm THPT & mapping subjects)
+  let subjectNiches = [];
+  if (profMap.subjects && thptScores) {
+    const bestSubject = Object.entries(thptScores)
+      .filter(([, v]) => (v || 0) > 0)
+      .sort((a, b) => (b[1] || 0) - (a[1] || 0))[0];
+    if (bestSubject && profMap.subjects[bestSubject[0]]) {
+      subjectNiches = profMap.subjects[bestSubject[0]];
+    }
+  }
+
+  // 4. Ưu tiên ngách theo điểm mạnh Ikigai (nếu có)
+  const STRENGTH_HOLLAND = {
+    COMMUNICATE: 'E', ANALYZE: 'I', CREATE: 'A',
+    ORGANIZE: 'C', EMPATHIZE: 'S'
+  };
+  let strengthNiches = [];
+  if (ikigaiStrength && STRENGTH_HOLLAND[ikigaiStrength]) {
+    const sH = STRENGTH_HOLLAND[ikigaiStrength];
+    if (sH !== userTopH && profMap.niches[sH]) {
+      strengthNiches = profMap.niches[sH].slice(0, 1); // Lấy 1 ngách từ chiều mạnh
+    }
+  }
+
+  // 5. Kết hợp: subject → strength → holland → loại trùng → lấy tối đa 3
+  const combined = [...new Set([...subjectNiches, ...strengthNiches, ...nichePool])].slice(0, 3);
+
+  // 6. Xác định tên NGHỀ cụ thể: ưu tiên `bases[hollandCode]` nếu có, fallback về `base`
+  const professionName = (profMap.bases && profMap.bases[userTopH])
+    ? profMap.bases[userTopH]
+    : profMap.base;
+
+  const nicheStr = combined.length > 0 ? ` (${combined.join(', ')})` : '';
+  return { profession: professionName, nicheStr };
+}
+
 async function generateReportUI() {
   const profile = JSON.parse(localStorage.getItem("active_student_profile"));
   const answers = JSON.parse(localStorage.getItem("user_quiz_answers"));
@@ -395,12 +839,12 @@ async function generateReportUI() {
 
     // 4 key đơn tra num_mapping + trọng số (Passion tính riêng bên dưới)
     const NUM_KEYS = [
-      String(lifepathNum), // Tiềm năng  ×0.35
-      String(soulNum),     // Khát vọng  ×0.25
-      String(missionNum),  // Sứ mệnh    ×0.20
-      String(talentNum),   // Tài năng   ×0.10
+      String(lifepathNum), // Tiềm năng  ×0.25
+      String(soulNum),     // Khát vọng  ×0.10
+      String(missionNum),  // Sứ mệnh    ×0.30
+      String(talentNum),   // Tài năng   ×0.25
     ];
-    const NUM_W = [0.35, 0.25, 0.20, 0.10]; // Tổng 4 chỉ số = 0.90; Passion bù 0.10
+    const NUM_W = [0.25, 0.10, 0.30, 0.25]; // Tổng 4 chỉ số = 0.90; Passion bù 0.10
 
     // ══════════════════════════════════════════════════════════════════════════
     //  PHÂN HỆ B — HOLLAND & MBTI
@@ -494,6 +938,45 @@ async function generateReportUI() {
     const hasCare = CARE_KEYWORDS.some(k => dreamText.includes(k));
     const hasTech = TECH_KEYWORDS.some(k => dreamText.includes(k));
 
+    // ── Đọc 4 câu Ikigai mở rộng ─────────────────────────────────────────────
+    const ikigaiValue    = answers["Q_IKIGAI_VALUE"]    || null; // MONEY/IMPACT/FREEDOM/MASTERY/RECOGNITION
+    const ikigaiEnv      = answers["Q_IKIGAI_ENV"]      || null; // TEAM/SOLO/FIELD/REMOTE/MIXED
+    const ikigaiStrength = answers["Q_IKIGAI_STRENGTH"] || null; // COMMUNICATE/ANALYZE/CREATE/ORGANIZE/EMPATHIZE
+    const ikigaiAvoid    = answers["Q_IKIGAI_AVOID"]    || null; // AVOID_ROUTINE/AVOID_PEOPLE/AVOID_PRESSURE/AVOID_ABSTRACT/AVOID_RULES
+
+    // ── Ánh xạ VALUE → Holland bonus: MONEY→E, IMPACT→S, FREEDOM→A/I, MASTERY→I/C, RECOGNITION→E
+    const VALUE_HOLLAND_BOOST = {
+      MONEY:       { E: 8 },
+      IMPACT:      { S: 8 },
+      FREEDOM:     { A: 6, I: 4 },
+      MASTERY:     { I: 6, C: 4 },
+      RECOGNITION: { E: 6, S: 4 }
+    };
+    // ── Ánh xạ ENV → Holland bonus: TEAM→S/E, SOLO→I/C, FIELD→R/E, REMOTE→I/A, MIXED→không thay đổi
+    const ENV_HOLLAND_BOOST = {
+      TEAM:   { S: 6, E: 4 },
+      SOLO:   { I: 6, C: 4 },
+      FIELD:  { R: 6, E: 4 },
+      REMOTE: { I: 4, A: 4 },
+      MIXED:  {}
+    };
+    // ── Ánh xạ STRENGTH → Holland bonus
+    const STRENGTH_HOLLAND_BOOST = {
+      COMMUNICATE: { E: 8, S: 4 },
+      ANALYZE:     { I: 8, C: 4 },
+      CREATE:      { A: 8, I: 4 },
+      ORGANIZE:    { C: 8, R: 2 },
+      EMPATHIZE:   { S: 8, A: 4 }
+    };
+    // ── Ánh xạ AVOID → Holland penalty: trừ điểm các ngành lệch với giá trị né tránh
+    const AVOID_PENALTY_MAP = {
+      AVOID_ROUTINE:   { C: -10, R: -6 },   // Ghét lặp lại → phạt ngành C (kế toán, hành chính), R
+      AVOID_PEOPLE:    { S: -10, E: -6 },   // Ghét tiếp xúc nhiều → phạt ngành S, E
+      AVOID_PRESSURE:  { E: -8 },            // Ghét áp lực → phạt ngành kinh doanh E
+      AVOID_ABSTRACT:  { I: -8, A: -4 },    // Ghét lý thuyết → phạt I (nghiên cứu), A (nghệ thuật trừu tượng)
+      AVOID_RULES:     { C: -10 }            // Ghét quy trình → phạt ngành C (kế toán, hành chính)
+    };
+
     // Dominant talent dùng cho fallback
     const dominantTalent =
       (ikigaiTalent.SPEECH >= 4 || ikigaiTalent.STRATEGY >= 4) ? 'SPEECH_STRATEGY'
@@ -534,7 +1017,7 @@ async function generateReportUI() {
     // ══════════════════════════════════════════════════════════════════════════
     //  VÒNG 1 — SÀNG LỌC BẢN NGÃ TỐ CHẤT THUẦN TÚY (1001 → TOP 15)
     //  Chỉ dùng num_mapping + 5 chỉ số Nhân số học
-    //  S_identity = LP×0.35 + Soul×0.25 + Mission×0.20 + Talent×0.10 + Passion×0.10
+    //  S_identity = LP×0.25 + Soul×0.10 + Mission×0.30 + Talent×0.25 + Passion×0.10
     //  (num_mapping value 1–10) × 10 → thang 0–100
     // ══════════════════════════════════════════════════════════════════════════
     // ═══════════════════════════════════════════════════════════════════════
@@ -614,6 +1097,53 @@ async function generateReportUI() {
 
         // ── S_niche nền tảng (Holland 55% + MBTI 35%) ──────────────────────
         let S_niche = (hollandScore * 0.55) + (mbtiScore * 0.35);
+
+        // ══════════════════════════════════════════════════════════════════
+        //  IKIGAI EXTENDED — 4 câu giá trị/môi trường/điểm mạnh/né tránh
+        //  Điều chỉnh S_niche theo sự phù hợp giữa đặc tính nghề và
+        //  ưu tiên cá nhân của người dùng (max ±15 mỗi chiều)
+        // ══════════════════════════════════════════════════════════════════
+        const careerReq = c.holland_req || {};
+
+        // [VALUE] Cộng điểm nếu holland_req của nghề khớp với giá trị cốt lõi
+        if (ikigaiValue && VALUE_HOLLAND_BOOST[ikigaiValue]) {
+          let valueBonus = 0;
+          for (const [cat, pts] of Object.entries(VALUE_HOLLAND_BOOST[ikigaiValue])) {
+            if ((careerReq[cat] || 0) >= 6) valueBonus += pts;
+            else if ((careerReq[cat] || 0) >= 4) valueBonus += Math.round(pts * 0.5);
+          }
+          S_niche = Math.min(100, S_niche + Math.min(12, valueBonus));
+        }
+
+        // [ENV] Cộng điểm nếu môi trường làm việc của nghề khớp với sở thích
+        if (ikigaiEnv && ENV_HOLLAND_BOOST[ikigaiEnv]) {
+          let envBonus = 0;
+          for (const [cat, pts] of Object.entries(ENV_HOLLAND_BOOST[ikigaiEnv])) {
+            if ((careerReq[cat] || 0) >= 6) envBonus += pts;
+            else if ((careerReq[cat] || 0) >= 4) envBonus += Math.round(pts * 0.5);
+          }
+          S_niche = Math.min(100, S_niche + Math.min(10, envBonus));
+        }
+
+        // [STRENGTH] Cộng điểm nếu điểm mạnh bản thân khớp với đặc thù nghề
+        if (ikigaiStrength && STRENGTH_HOLLAND_BOOST[ikigaiStrength]) {
+          let strengthBonus = 0;
+          for (const [cat, pts] of Object.entries(STRENGTH_HOLLAND_BOOST[ikigaiStrength])) {
+            if ((careerReq[cat] || 0) >= 6) strengthBonus += pts;
+            else if ((careerReq[cat] || 0) >= 4) strengthBonus += Math.round(pts * 0.5);
+          }
+          S_niche = Math.min(100, S_niche + Math.min(12, strengthBonus));
+        }
+
+        // [AVOID] Trừ điểm nếu nghề vi phạm điều người dùng KHÔNG muốn
+        if (ikigaiAvoid && AVOID_PENALTY_MAP[ikigaiAvoid]) {
+          let avoidPenalty = 0;
+          for (const [cat, pts] of Object.entries(AVOID_PENALTY_MAP[ikigaiAvoid])) {
+            if ((careerReq[cat] || 0) >= 7) avoidPenalty += pts;       // Ngành đặc trưng mạnh → phạt đủ
+            else if ((careerReq[cat] || 0) >= 5) avoidPenalty += Math.round(pts * 0.5); // Trung bình → phạt nhẹ
+          }
+          S_niche = Math.max(0, S_niche + Math.max(-15, avoidPenalty)); // Tối đa phạt -15
+        }
 
         // ══════════════════════════════════════════════════════════════════
         //  IKIGAI TALENT BONUS — ĐẦY ĐỦ 3 CHIỀU + ARTS GATE
@@ -877,7 +1407,24 @@ async function generateReportUI() {
       card.className = 'career-card';
       card.style.borderLeftColor = BUCKET_COLOR[entry.bucket] || '#3182ce';
 
-      // ICI breakdown badge
+      // ── Tên nghề cá nhân hóa: Nghề tiếng Việt (ngách1, ngách2, ngách3) ────
+      const profInfo = getProfessionDisplay(
+        entry.industry,
+        hPct,
+        profile.thptScores,
+        ikigaiStrength
+      );
+      const profTitle = profInfo.profession
+        ? `${profInfo.profession}${profInfo.nicheStr}`
+        : entry.niche;  // Fallback về niche cũ nếu chưa có mapping
+
+      // Subtitle nhỏ hiển thị VỊ TRÍ VIỆC LÀM từ database (để tư vấn viên tham khảo)
+      const nicheSubtitle = profInfo.profession
+        ? `<div style="font-size:11px;color:#a0aec0;margin-top:3px;font-style:italic;">
+             <span style="color:#cbd5e0;font-style:normal;">📌 Vị trí việc làm tham khảo:</span> ${entry.niche}
+           </div>`
+        : '';
+
       const iciBreakdown = `<small style="color:#718096;font-size:11px;">
         (Id:${entry.S_identity} · Ni:${entry.S_niche} · Mk:${entry.S_market})</small>`;
 
@@ -893,9 +1440,9 @@ async function generateReportUI() {
             border-radius:99px;margin-left:5px;">🔢 Ngách Số học Đỉnh</span>`
         : '';
 
-      // Industry tag
+      // Lĩnh vực ngành — phân biệt với Ngành học
       const industryTag = entry.industry
-        ? `<div style="padding:4px 0 0 2px;font-size:12px;color:#718096;">— ${entry.industry}</div>`
+        ? `<div style="padding:4px 0 0 2px;font-size:11px;color:#a0aec0;">🏢 Lĩnh vực: <strong style="color:#718096">${entry.industry}</strong></div>`
         : '';
 
       // Study major tag — ngành học cần theo đuổi
@@ -944,9 +1491,10 @@ async function generateReportUI() {
 
       card.innerHTML = `
         <div class="career-header">
-          <span class="career-title">${idx + 1}. ${entry.niche}${dreamBadge}${peakBadge}</span>
+          <span class="career-title">${idx + 1}. ${profTitle}${dreamBadge}${peakBadge}</span>
           <span class="bucket-tag ${BUCKET_CLASS[entry.bucket] || 'bucket-match'}">${entry.bucket}</span>
         </div>
+        ${nicheSubtitle}
         ${industryTag}
         ${studyMajorTag}
         <div class="career-details">${detailsHTML}</div>
