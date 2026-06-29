@@ -18,7 +18,7 @@
 // 🔥 CẤU HÌNH HẠ TẦNG ĐÁM MÂY FIREBASE THỰC TẾ CỦA BẠN
 // =========================================================================
 const firebaseConfig = {
-  apiKey: "AIzaSyDXYwk4_lFXDGp3L8wcut9NEddvNsGL_t4",
+  apiKey: "AIzaSyDXYwk4_lfXDGp3L8wcUt9NEdduNsGl_t4",
   authDomain: "nghechonnguoi-f9eec.firebaseapp.com",
   projectId: "nghechonnguoi-f9eec",
   storageBucket: "nghechonnguoi-f9eec.firebasestorage.app",
