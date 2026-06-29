@@ -1320,21 +1320,38 @@ async function generateReportUI() {
       })
       .sort((a, b) => b.ICI - a.ICI);
 
-    // ── Diversity Guard: tối đa 2 ngành cùng industry trong TOP 5 ──────────
+    // ── Diversity Guard: tối đa 1 nghề mỗi ngành trong TOP 5 ──────────────
+    //  + Name-similarity guard: không hiện 2 nghề trùng tên chính
     const industryCount = {};
+    const usedProfessions = new Set();
     const top5 = [];
     for (const entry of round3) {
       if (top5.length >= 5) break;
       const ind = entry.industry || 'other';
-      if ((industryCount[ind] || 0) >= 2) continue;
+      // Lấy tên nghề rút gọn (trước dấu " - Ngành") để so sánh
+      const shortName = (entry.name || '').split(' - Ngành')[0].trim().toLowerCase();
+      // Bỏ qua nếu đã có nghề cùng ngành HOẶC trùng tên
+      if ((industryCount[ind] || 0) >= 1) continue;
+      if (usedProfessions.has(shortName)) continue;
       industryCount[ind] = (industryCount[ind] || 0) + 1;
+      usedProfessions.add(shortName);
       top5.push(entry);
     }
-    // Bù thiếu nếu filter lọc quá nhiều
+    // Bù thiếu nếu filter lọc quá nhiều (cho phép ngành lặp, nhưng không lặp tên)
+    for (const entry of round3) {
+      if (top5.length >= 5) break;
+      const shortName = (entry.name || '').split(' - Ngành')[0].trim().toLowerCase();
+      if (!top5.includes(entry) && !usedProfessions.has(shortName)) {
+        usedProfessions.add(shortName);
+        top5.push(entry);
+      }
+    }
+    // Fallback cuối: nếu vẫn chưa đủ 5, thêm bất kỳ
     for (const entry of round3) {
       if (top5.length >= 5) break;
       if (!top5.includes(entry)) top5.push(entry);
     }
+
 
     // ══════════════════════════════════════════════════════════════════════════
     //  ĐỔ DỮ LIỆU LÊN GIAO DIỆN
