@@ -1517,37 +1517,67 @@ async function generateReportUI() {
       })
       .sort((a, b) => b.ICI - a.ICI);
 
-    // ── Diversity Guard: tối đa 1 nghề mỗi ngành trong TOP 5 ──────────────
-    //  + Name-similarity guard: không hiện 2 nghề trùng tên chính
+    // ── Diversity Guard v3.0 ──────────────────────────────────────────────────
+    //  Hàm trích tên nghề cốt lõi: tách tại "(" hoặc " - Ngành" (lấy phần sớm hơn)
+    const getCoreJobName = (name) => {
+      const raw = name || '';
+      const atParen = raw.indexOf('(');
+      const atDash  = raw.indexOf(' - Ngành');
+      let cutAt = raw.length;
+      if (atParen > 0) cutAt = Math.min(cutAt, atParen);
+      if (atDash  > 0) cutAt = Math.min(cutAt, atDash);
+      return raw.substring(0, cutAt).trim().toLowerCase();
+    };
+
     const industryCount = {};
-    const usedProfessions = new Set();
+    const usedCoreNames = new Set();
     const top5 = [];
+
+    // Pass 1: Strict — tối đa 1 nghề/ngành + không lặp tên cốt lõi
     for (const entry of round3) {
       if (top5.length >= 5) break;
-      const ind = entry.industry || 'other';
-      // Lấy tên nghề rút gọn (trước dấu " - Ngành") để so sánh
-      const shortName = (entry.name || '').split(' - Ngành')[0].trim().toLowerCase();
-      // Bỏ qua nếu đã có nghề cùng ngành HOẶC trùng tên
-      if ((industryCount[ind] || 0) >= 1) continue;
-      if (usedProfessions.has(shortName)) continue;
+      const ind      = entry.industry || 'other';
+      const coreName = getCoreJobName(entry.name);
+      if ((industryCount[ind] || 0) >= 1) continue;   // max 1/ngành
+      if (usedCoreNames.has(coreName)) continue;        // không lặp tên
       industryCount[ind] = (industryCount[ind] || 0) + 1;
-      usedProfessions.add(shortName);
+      usedCoreNames.add(coreName);
       top5.push(entry);
     }
-    // Bù thiếu nếu filter lọc quá nhiều (cho phép ngành lặp, nhưng không lặp tên)
+
+    // Pass 2: Nới lỏng ngành (cho phép ngành lặp), VẪN giữ không lặp tên cốt lõi
     for (const entry of round3) {
       if (top5.length >= 5) break;
-      const shortName = (entry.name || '').split(' - Ngành')[0].trim().toLowerCase();
-      if (!top5.includes(entry) && !usedProfessions.has(shortName)) {
-        usedProfessions.add(shortName);
+      const coreName = getCoreJobName(entry.name);
+      if (!top5.includes(entry) && !usedCoreNames.has(coreName)) {
+        usedCoreNames.add(coreName);
         top5.push(entry);
       }
     }
-    // Fallback cuối: nếu vẫn chưa đủ 5, thêm bất kỳ
+
+    // Pass 3 (hiếm): Nới lỏng thêm — cho phép tên tương tự nếu niche khác nhau
     for (const entry of round3) {
       if (top5.length >= 5) break;
-      if (!top5.includes(entry)) top5.push(entry);
+      if (!top5.includes(entry)) {
+        // Chỉ thêm nếu niche thực sự khác với các entry đã có
+        const entryNiche = (entry.niche || '').toLowerCase().substring(0, 30);
+        const nicheAlreadyUsed = top5.some(e =>
+          (e.niche || '').toLowerCase().substring(0, 30) === entryNiche
+        );
+        if (!nicheAlreadyUsed) {
+          top5.push(entry);
+        }
+      }
     }
+
+    // Pass 4 (absolute fallback): Chỉ khi < 3 kết quả — thêm bất kỳ để tránh trang trắng
+    if (top5.length < 3) {
+      for (const entry of round3) {
+        if (top5.length >= 5) break;
+        if (!top5.includes(entry)) top5.push(entry);
+      }
+    }
+
 
 
     // ══════════════════════════════════════════════════════════════════════════
