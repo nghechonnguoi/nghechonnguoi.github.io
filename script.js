@@ -1212,8 +1212,8 @@ async function generateReportUI() {
       ? careers.filter(c => !RE_ARTS_HARD.test(c.name.toLowerCase()))
       : careers;
 
-    const round1 = candidateCareers
-
+    // Vòng 1: tính S_identity cho toàn bộ pool
+    const _r1All = candidateCareers
       .map(c => {
         let S_identity = 0;
         // 4 chỉ số đơn (LP, Soul, Mission, Talent)
@@ -1229,13 +1229,21 @@ async function generateReportUI() {
 
         return { c, S_identity: +S_identity.toFixed(4) };
       })
-      .sort((a, b) => b.S_identity - a.S_identity)
-      .slice(0, 30); // Mở rộng pool: TOP 30 → VÒNG 2 (tăng từ 20 để không bỏ sót ngành phù hợp)
+      .sort((a, b) => b.S_identity - a.S_identity);
+
+    // ── DIVERSITY PRE-FILTER SAU VÒNG 1: giữ tối đa 2 entries per industry ──
+    // Đảm bảo không có ngành nào chiếm quá nhiều slot trước khi vào Vòng 2
+    const round1 = (() => {
+      const _indCount = {};
+      return _r1All.filter(({ c }) => {
+        const ind = c.industry || 'other';
+        _indCount[ind] = (_indCount[ind] || 0) + 1;
+        return _indCount[ind] <= 2;
+      }).slice(0, 30);
+    })();
 
     // ══════════════════════════════════════════════════════════════════════════
     //  VÒNG 2 — ĐỊNH VỊ MÔI TRƯỜNG, NGÁCH & KỸ NĂNG (20 → TOP 10)
-    //
-    //  S_niche_base = Holland×0.55 + MBTI×0.35
     //  → RIASEC Hexagon Penalty: dist=3 → ×0.20 | dist=2 (cả 2) → ×0.70
     //  → IKIGAI CRAFT Bonus/Penalty
     //  → IKIGAI SPEECH/STRATEGY Bonus
@@ -1440,8 +1448,23 @@ async function generateReportUI() {
 
         return { c, S_identity, S_niche, dreamBonus, isDreamMatch, careerTopH };
       })
-      .sort((a, b) => b.S_niche - a.S_niche)
-      .slice(0, 15); // Tăng từ 10→15 để có đủ đa dạng ngành cho vòng 3
+      .sort((a, b) => b.S_niche - a.S_niche);
+
+    // ── DIVERSITY PRE-FILTER SAU VÒNG 2: giữ tối đa 2 entries per industry ──
+    // Tránh để 1 ngành chiếm hết slot trong Vòng 3
+    const round2Filtered = (() => {
+      const _indCount = {};
+      return round2.filter(({ c }) => {
+        const ind = c.industry || 'other';
+        _indCount[ind] = (_indCount[ind] || 0) + 1;
+        return _indCount[ind] <= 2;
+      }).slice(0, 15);
+    })();
+
+    // ── CLINICAL CONSTRAINT FLAGS (từ câu Q_CONSTRAINT_CLINICAL) ─────────────
+    const clinicalAnswer = answers["Q_CONSTRAINT_CLINICAL"] || "CLINICAL_NA";
+    const avoidsClinical = clinicalAnswer === "CLINICAL_AVOID";
+    const mildClinical   = clinicalAnswer === "CLINICAL_MILD";
 
     // ══════════════════════════════════════════════════════════════════════════
     //  VÒNG 3 — TỐI ƯU XU HƯỚNG & GIÁ TRỊ DÒNG TIỀN (10 → TOP 5)
@@ -1449,7 +1472,7 @@ async function generateReportUI() {
     //  ICI = S_identity×0.60 + S_niche×0.25 + S_market×0.15
     //  + Theory Penalty + Bucket Classification
     // ══════════════════════════════════════════════════════════════════════════
-    const round3 = round2
+    const round3 = round2Filtered
       .map(({ c, S_identity, S_niche, dreamBonus, isDreamMatch, careerTopH }) => {
         const demand = c.market_demand ?? 50;
         const salary = c.market_salary ?? 50;
@@ -1492,23 +1515,137 @@ async function generateReportUI() {
           else { bucket = 'RISK'; advice = 'Điểm chuẩn vượt xa năng lực hiện tại — cân nhắc kỹ trước khi đặt.'; }
         }
 
-        // Tổ hợp môn & kiến thức nền tảng (fallback thông minh)
+        // ── Tổ hợp môn & kiến thức nền tảng — mapping theo NGÀNH & TÊN NGHỀ ──
         let displayCombo = c.suggested_combinations || '';
         let displaySubjects = c.core_knowledge || '';
         if (!displayCombo) {
-          const nm = c.name.toLowerCase();
-          if (/thiết kế đồ họa|mỹ thuật|hội họa|nhiếp ảnh|hoạt hình|animation|nội thất|thời trang/i.test(nm)) {
+          const nm  = (c.name || '').toLowerCase();
+          const ind = (c.industry || '').toLowerCase();
+
+          // ── NGHỆ THUẬT / BIỂU DIỄN ────────────────────────────────────────
+          if (/thiết kế đồ họa|mỹ thuật|hội họa|nhiếp ảnh|hoạt hình|animation|nội thất|thời trang|concept art|illustration/i.test(nm)) {
             displayCombo = 'H01 / V01 (Toán - Văn - Vẽ Mỹ thuật)';
             displaySubjects = 'Hình họa khối, Bố cục màu sắc, Tư duy thẩm mỹ thị giác, Đồ họa kỹ thuật số.';
+
           } else if (/diễn viên|âm nhạc|thanh nhạc|múa|biên đạo|sân khấu|kịch/i.test(nm)) {
             displayCombo = 'N00 / N01 (Năng khiếu Âm nhạc / Sân khấu / Múa)';
             displaySubjects = 'Kỹ thuật thanh nhạc, Biểu diễn sân khấu, Ngôn ngữ cơ thể, Cảm thụ nghệ thuật.';
-          } else if (/truyền thông|marketing|báo chí|pr|quảng cáo/i.test(nm)) {
+
+          // ── Y DƯỢC & SỨC KHỎE (B00/B08 ưu tiên, A00 bổ sung) ─────────────
+          } else if (ind.includes('y dược') || ind.includes('sức khỏe')
+              || /bác sĩ|điều dưỡng|dược sĩ|y tá|hộ sinh|y học|y tế|chăm sóc sức khỏe|sinh lý|dịch tễ|dinh dưỡng|phục hồi chức năng|vật lý trị liệu/i.test(nm)) {
+            displayCombo = 'B00 / B08 / A00 (Toán - Hóa - Sinh / Toán - Hóa - Sinh / Toán - Lý - Hóa)';
+            displaySubjects = 'Sinh học tế bào & phân tử, Hóa sinh hữu cơ, Giải phẫu học nền tảng, Toán thống kê y tế.';
+
+          // ── KHOA HỌC SỨC KHỎE CỘNG ĐỒNG / TÂM LÝ Y TẾ ──────────────────
+          } else if (/tâm lý học|tham vấn tâm lý|trị liệu tâm lý|sức khỏe tâm thần|y tế công cộng|sức khỏe cộng đồng/i.test(nm)) {
+            displayCombo = 'B00 / D01 (Toán - Hóa - Sinh / Toán - Văn - Anh)';
+            displaySubjects = 'Sinh học hành vi, Tâm lý học đại cương, Thống kê y tế, Kỹ năng lắng nghe & tham vấn.';
+
+          // ── CÔNG NGHỆ THÔNG TIN / LẬP TRÌNH / AI ─────────────────────────
+          } else if (ind.includes('công nghệ thông tin') || ind.includes('phần mềm')
+              || /lập trình|phần mềm|công nghệ thông tin|kỹ sư phần mềm|data|ai|machine learning|trí tuệ nhân tạo|an ninh mạng|blockchain|devops|cloud/i.test(nm)) {
+            displayCombo = 'A00 / A01 (Toán - Lý - Hóa / Toán - Lý - Anh)';
+            displaySubjects = 'Toán rời rạc & giải tích, Vật lý điện tử, Lập trình nền tảng, Tiếng Anh kỹ thuật.';
+
+          // ── KỸ THUẬT & CÔNG NGHỆ (Cơ, Điện, Tự động hóa) ────────────────
+          } else if (ind.includes('kỹ thuật') || /kỹ sư cơ khí|kỹ sư điện|tự động hóa|robot|cơ điện tử|chế tạo máy|điện lạnh|điện tử|kỹ thuật hóa học/i.test(nm)) {
+            displayCombo = 'A00 / A01 (Toán - Lý - Hóa / Toán - Lý - Anh)';
+            displaySubjects = 'Vật lý điện từ & cơ học, Toán giải tích, Hóa kỹ thuật, Kỹ năng đo lường & thực hành.';
+
+          // ── KHOA HỌC TỰ NHIÊN / NGHIÊN CỨU ──────────────────────────────
+          } else if (ind.includes('khoa học tự nhiên') || /nhà nghiên cứu|khoa học gia|vật lý|hóa học|sinh học phân tử|hóa sinh|vi sinh|công nghệ sinh học/i.test(nm)) {
+            displayCombo = 'A00 / B00 (Toán - Lý - Hóa / Toán - Hóa - Sinh)';
+            displaySubjects = 'Tư duy logic khoa học, Hóa hữu cơ & vô cơ, Sinh học phân tử, Thống kê nghiên cứu.';
+
+          // ── NÔNG LÂM NGƯ NGHIỆP ───────────────────────────────────────────
+          } else if (ind.includes('nông') || /nông nghiệp|lâm nghiệp|thủy sản|thú y|trồng trọt|chăn nuôi|giống cây|giống vật/i.test(nm)) {
+            displayCombo = 'B00 / A00 (Toán - Hóa - Sinh / Toán - Lý - Hóa)';
+            displaySubjects = 'Sinh học thực vật & động vật, Hóa học nông nghiệp, Khoa học đất & môi trường.';
+
+          // ── MÔI TRƯỜNG & NĂNG LƯỢNG XANH ─────────────────────────────────
+          } else if (ind.includes('môi trường') || /năng lượng tái tạo|điện mặt trời|điện gió|xử lý nước thải|ô nhiễm|carbon|esg|môi trường/i.test(nm)) {
+            displayCombo = 'A00 / B00 (Toán - Lý - Hóa / Toán - Hóa - Sinh)';
+            displaySubjects = 'Hóa học môi trường, Vật lý năng lượng, Sinh thái học, Toán mô hình hóa.';
+
+          // ── XÂY DỰNG & KIẾN TRÚC ──────────────────────────────────────────
+          } else if (ind.includes('xây dựng') || /kiến trúc sư|kỹ sư xây dựng|kết cấu|cầu đường|nội thất không gian|quy hoạch|đô thị/i.test(nm)) {
+            displayCombo = 'A00 / V01 (Toán - Lý - Hóa / Toán - Văn - Vẽ)';
+            displaySubjects = 'Toán kỹ thuật, Vật lý kết cấu, Mỹ học kiến trúc, Hình họa & Bản vẽ kỹ thuật.';
+
+          // ── KINH TẾ & TÀI CHÍNH ───────────────────────────────────────────
+          } else if (ind.includes('kinh tế') || ind.includes('tài chính')
+              || /kế toán|kiểm toán|tài chính|ngân hàng|đầu tư|chứng khoán|bảo hiểm|fintech|wealth|cfo/i.test(nm)) {
+            displayCombo = 'A01 / D01 (Toán - Lý - Anh / Toán - Văn - Anh)';
+            displaySubjects = 'Toán tài chính, Kinh tế vi mô & vĩ mô, Tiếng Anh thương mại, Thống kê ứng dụng.';
+
+          // ── QUẢN TRỊ & MARKETING ──────────────────────────────────────────
+          } else if (ind.includes('quản trị') || /marketing|kinh doanh|bán hàng|thương mại|quản lý doanh nghiệp|brand|pr/i.test(nm)) {
+            displayCombo = 'D01 / A01 (Toán - Văn - Anh / Toán - Lý - Anh)';
+            displaySubjects = 'Kinh tế học nền tảng, Kỹ năng viết thuyết phục, Tiếng Anh thương mại, Tư duy phân tích thị trường.';
+
+          // ── TRUYỀN THÔNG & BÁO CHÍ ────────────────────────────────────────
+          } else if (ind.includes('truyền thông') || /truyền thông|báo chí|phóng viên|biên tập|content|podcast|social media/i.test(nm)) {
             displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
-            displaySubjects = 'Kỹ năng viết lách sáng tạo, Tư duy truyền thông số, Ngôn ngữ, Quan hệ công chúng.';
+            displaySubjects = 'Kỹ năng viết lách sáng tạo, Tư duy truyền thông số, Ngôn ngữ học, Quan hệ công chúng.';
+
+          // ── PHÁP LUẬT & TƯ PHÁP ───────────────────────────────────────────
+          } else if (ind.includes('pháp luật') || /luật sư|pháp lý|tư pháp|công chứng|hòa giải|tranh tụng/i.test(nm)) {
+            displayCombo = 'C00 / D01 (Văn - Sử - Địa / Toán - Văn - Anh)';
+            displaySubjects = 'Ngữ văn lập luận, Lịch sử pháp luật, Địa chính trị, Tiếng Anh pháp lý.';
+
+          // ── GIÁO DỤC & ĐÀO TẠO ───────────────────────────────────────────
+          } else if (ind.includes('giáo dục') || /giáo viên|giảng viên|nhà đào tạo|huấn luyện viên|sư phạm|hướng nghiệp|life coach|khai vấn/i.test(nm)) {
+            displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
+            displaySubjects = 'Ngôn ngữ & giao tiếp, Tâm lý giáo dục, Phương pháp giảng dạy, Kiến thức chuyên ngành sâu.';
+
+          // ── NGÔN NGỮ & VĂN HÓA / NGOẠI GIAO ─────────────────────────────
+          } else if (ind.includes('ngôn ngữ') || /phiên dịch|biên dịch|ngoại giao|ngôn ngữ học|văn hóa nước ngoài/i.test(nm)) {
+            displayCombo = 'D01 / D96 (Toán - Văn - Anh / Văn - Anh - Sử hoặc chứng chỉ ngoại ngữ)';
+            displaySubjects = 'Tiếng Anh nâng cao, Ngữ văn, Lịch sử & văn hóa thế giới, Ngôn ngữ học đại cương.';
+
+          // ── QUẢN TRỊ NHÂN SỰ ──────────────────────────────────────────────
+          } else if (ind.includes('nhân sự') || /nhân sự|hr |tuyển dụng|đào tạo nhân viên/i.test(nm)) {
+            displayCombo = 'D01 / A01 (Toán - Văn - Anh / Toán - Lý - Anh)';
+            displaySubjects = 'Tâm lý học tổ chức, Kinh tế lao động, Tiếng Anh thương mại, Kỹ năng giao tiếp.';
+
+          // ── DU LỊCH & KHÁCH SẠN ───────────────────────────────────────────
+          } else if (ind.includes('du lịch') || /hướng dẫn du lịch|khách sạn|lễ tân|nhà hàng|quản lý resort/i.test(nm)) {
+            displayCombo = 'D01 / D96 (Toán - Văn - Anh / + Ngoại ngữ 2)';
+            displaySubjects = 'Tiếng Anh giao tiếp du lịch, Địa lý du lịch, Văn hóa & lịch sử Việt Nam, Nghiệp vụ lễ tân.';
+
+          // ── DỊCH VỤ CÁ NHÂN & LIFESTYLE ──────────────────────────────────
+          } else if (ind.includes('dịch vụ') || /làm đẹp|tóc|nail|spa|massage|bếp|ẩm thực|barista|cà phê chuyên nghiệp/i.test(nm)) {
+            displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa) hoặc học nghề';
+            displaySubjects = 'Kỹ thuật thực hành nghề, Hóa mỹ phẩm cơ bản, Dinh dưỡng ẩm thực, Kỹ năng chăm sóc khách hàng.';
+
+          // ── HÀNH CHÍNH & DỊCH VỤ CÔNG ────────────────────────────────────
+          } else if (ind.includes('hành chính') || /công chức|hành chính nhà nước|dịch vụ công|cán bộ|quản lý nhà nước/i.test(nm)) {
+            displayCombo = 'C00 / D01 (Văn - Sử - Địa / Toán - Văn - Anh)';
+            displaySubjects = 'Luật hành chính, Kinh tế chính trị, Ngữ văn lập luận, Lịch sử & địa lý quốc gia.';
+
+          // ── THỂ THAO & PHÁT TRIỂN THỂ LỰC ───────────────────────────────
+          } else if (ind.includes('thể thao') || /vận động viên|huấn luyện viên thể thao|thể dục|yoga|personal trainer/i.test(nm)) {
+            displayCombo = 'B00 / D01 (Toán - Hóa - Sinh / Toán - Văn - Anh) hoặc Năng khiếu TDTT';
+            displaySubjects = 'Sinh lý học vận động, Giải phẫu học thể thao, Dinh dưỡng thể thao, Kỹ thuật môn thể thao chuyên sâu.';
+
+          // ── KHOA HỌC THẦN KINH / BIOTECH / KHÔNG GIAN / LƯỢNG TỬ ─────────
+          } else if (/thần kinh|neuroscience|bci|não bộ|lượng tử|quantum|không gian|vũ trụ|nanotechnology|vật liệu tiên tiến|genomic|bioinformatics/i.test(nm)) {
+            displayCombo = 'A00 / B00 (Toán - Lý - Hóa / Toán - Hóa - Sinh)';
+            displaySubjects = 'Toán cao cấp & vật lý lý thuyết, Hóa sinh phân tử, Lập trình khoa học, Tiếng Anh học thuật chuyên sâu.';
+
+          // ── TÂM LÝ HỌC ỨNG DỤNG (không phải y tế lâm sàng) ──────────────
+          } else if (ind.includes('tâm lý') || /executive coach|life coach|tư vấn tâm lý|khai vấn|art therapist/i.test(nm)) {
+            displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
+            displaySubjects = 'Tâm lý học đại cương, Khoa học hành vi, Ngôn ngữ & giao tiếp, Xã hội học.';
+
+          // ── FALLBACK DỰA VÀO HOLLAND TOP ──────────────────────────────────
           } else if (careerTopH === 'R' || careerTopH === 'I') {
             displayCombo = 'A00 / B00 (Toán - Lý - Hóa / Toán - Hóa - Sinh)';
             displaySubjects = 'Tư duy logic toán, Khoa học tự nhiên, Kỹ thuật ứng dụng, Lập trình nền tảng.';
+          } else if (careerTopH === 'A') {
+            displayCombo = 'H01 / D01 (Toán - Văn - Vẽ / Toán - Văn - Anh)';
+            displaySubjects = 'Tư duy sáng tạo, Mỹ học & thẩm mỹ, Ngôn ngữ nghệ thuật, Thực hành nghề sáng tạo.';
           } else {
             displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
             displaySubjects = 'Khoa học xã hội, Ngôn ngữ, Kỹ năng giao tiếp thuyết phục, Quản trị nền tảng.';
@@ -1536,11 +1673,13 @@ async function generateReportUI() {
       })
       .sort((a, b) => b.ICI - a.ICI);
 
-    // ── Diversity Guard v4.0 — BEST-PER-INDUSTRY STRATEGY ────────────────────
-    //  Chiến lược: lấy nghề TỐT NHẤT mỗi ngành từ toàn bộ round3 pool,
-    //  sau đó sort nhóm đó theo ICI → TOP 5 từ 5 NGÀNH KHÁC NHAU.
-    //  Chỉ fallback khi số ngành trong pool < 5.
+    // ── Diversity Guard v5.0 — STRICT 1-PER-INDUSTRY + NICHE DEDUP ──────────
+    //  Thuật toán 3 lớp:
+    //  Lớp 1: 1 nghề tốt nhất mỗi INDUSTRY (industry bảo vệ cốt lõi)
+    //  Lớp 2: Chặn tên nghề NICHE gần giống (so sánh token)
+    //  Lớp 3: Fallback thông minh nếu pool < 5
 
+    // Helper: trích xuất niche label (phần trước dấu '-' hoặc '(')
     const getCoreJobName = (name) => {
       const raw = name || '';
       const atParen = raw.indexOf('(');
@@ -1551,48 +1690,76 @@ async function generateReportUI() {
       return raw.substring(0, cutAt).trim().toLowerCase();
     };
 
-    // Bước 1: Nhóm round3 theo ngành — lấy nghề ICI cao nhất mỗi ngành
-    //         (round3 đã sort theo ICI giảm dần nên .find() sẽ lấy cái tốt nhất)
-    const industryBestMap = {};       // industry → best entry
-    const usedCoreNamesInBest = new Set();
+    // Helper: tokenize để so sánh similarity (loại bỏ stop words)
+    const STOP = new Set(['và','&','hoặc','của','cho','trong','với','về','theo','là',
+                          'kỹ','sư','chuyên','gia','nhà','viên','người','quản','lý']);
+    const tokenize = (s) => s.toLowerCase()
+      .replace(/[^a-záàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđ\s]/g, '')
+      .split(/\s+/)
+      .filter(w => w.length > 2 && !STOP.has(w));
 
+    // Kiểm tra 2 tên có quá tương đồng không (≥2 token chung → similar)
+    const isTooSimilar = (nameA, nameB) => {
+      const tokA = new Set(tokenize(nameA));
+      const tokB = new Set(tokenize(nameB));
+      let shared = 0;
+      for (const t of tokA) { if (tokB.has(t)) shared++; }
+      return shared >= 2;
+    };
+
+    // LỚP 1: Lấy 1 nghề tốt nhất mỗi industry (round3 đã sort ICI giảm dần)
+    const industryBestMap = {};
     for (const entry of round3) {
-      const ind      = entry.industry || 'other';
-      const coreName = getCoreJobName(entry.name);
-      // Chỉ nhận entry này nếu: chưa có ngành đó (hoặc cái này tốt hơn) & tên chưa lặp
-      if (!industryBestMap[ind] && !usedCoreNamesInBest.has(coreName)) {
+      const ind = entry.industry || 'other';
+      if (!industryBestMap[ind]) {
         industryBestMap[ind] = entry;
-        usedCoreNamesInBest.add(coreName);
       }
     }
 
-    // Bước 2: Sort các ngành đã chọn theo ICI, lấy top 5
-    const bestPerIndustry = Object.values(industryBestMap)
+    // Bước 2: Sort theo ICI → danh sách ứng viên chính
+    const primaryCandidates = Object.values(industryBestMap)
       .sort((a, b) => b.ICI - a.ICI);
 
-    const top5 = bestPerIndustry.slice(0, 5);
+    // LỚP 2: Từ primaryCandidates, lọc tiếp bằng niche similarity
+    const top5 = [];
+    const usedNiches = []; // danh sách tên đã chọn để so sánh
 
-    // Bước 3 (fallback): Nếu pool ít hơn 5 ngành, bổ sung từ round3 (khác tên)
+    for (const entry of primaryCandidates) {
+      if (top5.length >= 5) break;
+      const entryNiche = entry.niche || entry.name;
+      // Kiểm tra xem niche này có quá giống bất kỳ niche đã chọn không
+      const tooSimilar = usedNiches.some(n => isTooSimilar(entryNiche, n));
+      if (!tooSimilar) {
+        top5.push(entry);
+        usedNiches.push(entryNiche);
+      }
+    }
+
+    // LỚP 3: Fallback — nếu vẫn < 5, thêm từ round3 với kiểm tra tên
     if (top5.length < 5) {
-      const usedNames = new Set(top5.map(e => getCoreJobName(e.name)));
+      const usedCoreNames = new Set(top5.map(e => getCoreJobName(e.name)));
       for (const entry of round3) {
         if (top5.length >= 5) break;
+        if (top5.includes(entry)) continue;
         const coreName = getCoreJobName(entry.name);
-        if (!top5.includes(entry) && !usedNames.has(coreName)) {
-          usedNames.add(coreName);
+        const entryNiche = entry.niche || entry.name;
+        const isDupeName = usedCoreNames.has(coreName);
+        const isDupeSimilar = usedNiches.some(n => isTooSimilar(entryNiche, n));
+        if (!isDupeName && !isDupeSimilar) {
           top5.push(entry);
+          usedCoreNames.add(coreName);
+          usedNiches.push(entryNiche);
         }
       }
     }
 
-    // Bước 4 (absolute fallback): tránh trang trắng khi < 3 kết quả
+    // Absolute fallback: tránh trang trắng (chấp nhận trùng ngành, không trùng object)
     if (top5.length < 3) {
       for (const entry of round3) {
         if (top5.length >= 5) break;
         if (!top5.includes(entry)) top5.push(entry);
       }
     }
-
 
 
     // ══════════════════════════════════════════════════════════════════════════
