@@ -284,6 +284,17 @@
                 { "value": "AVOID_ABSTRACT", "text": "Chỉ làm việc với lý thuyết, số liệu, không thấy kết quả thực tế rõ ràng" },
                 { "value": "AVOID_RULES", "text": "Bị kiểm soát chặt chẽ bởi quy trình, không có không gian sáng tạo hay tự quyết" }
             ]
+        },
+        {
+            "id": "Q_CONSTRAINT_CLINICAL",
+            "type": "ikigai_choice",
+            "question": "🏥 Nếu bạn làm việc trong lĩnh vực Y tế / Sức khỏe, bạn cảm thấy thế nào về việc tiếp xúc trực tiếp với bệnh nhân, máu và thương tích?",
+            "options": [
+                { "value": "CLINICAL_OK", "text": "✅ Hoàn toàn thoải mái — tôi muốn trực tiếp chăm sóc, điều trị bệnh nhân" },
+                { "value": "CLINICAL_MILD", "text": "🟡 Tạm ổn — có thể chịu được, nhưng không phải thế mạnh của tôi" },
+                { "value": "CLINICAL_AVOID", "text": "❌ Tôi sợ máu / không muốn tiếp xúc thương tích — tôi muốn làm y tế theo hướng khác (nghiên cứu, quản lý, tâm lý, công nghệ...)" },
+                { "value": "CLINICAL_NA", "text": "➖ Không liên quan — tôi không định làm trong lĩnh vực y tế" }
+            ]
         }
     ]
 }

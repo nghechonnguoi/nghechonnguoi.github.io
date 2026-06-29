@@ -1082,7 +1082,12 @@ async function generateReportUI() {
     // ── Regex phân loại đặc tính ngành nghề ────────────────────────────────
     const RE_CRAFT_DOMAIN = /kỹ thuật|cơ khí|xây dựng|thủ công|lắp đặt|vận hành|chế tạo|thợ|spa|ẩm thực|bếp|nail|make.?up|barista|cắt tóc|massage|sửa chữa|điện lạnh/i;
 
-    // GIÁO VIÊN: dạy học sinh/sinh viên trong trường, môi trường giáo dục chính quy
+    // NGHỀ Y TẾ LÂM SÀNG — tiếp xúc trực tiếp máu/bệnh nhân/thương tích
+    const RE_CLINICAL_DIRECT = /bác sĩ|điều dưỡng|y tá|phẫu thuật|cấp cứu|phòng mổ|hộ sinh|kỹ thuẫt viên y tế|phục hồi chức năng lâm sàng|vật lý trị liệu lâm sàng|xét nghiệm lâm sàng/i;
+
+    // NGHỀ Y TẾ PHI LÂM SÀNG — không cần tiếp xúc máu (phù hợp người sợ máu)
+    const RE_CLINICAL_SAFE = /tâm lý|y tế công cộng|sức khỏe cộng đồng|nghiên cứu dược|dược phẩm|quản lý y tế|quản lý bệnh viện|chính sách y tế|dinh dưỡng|healthtech|genomic|dịch tễ|y học dự phòng|y học từ xa|telehealth/i;
+
     const RE_TEACHER_DOMAIN = /giáo viên|giảng dạy học sinh|dạy học|trường tiểu học|trường trung học|trường phổ thông|sư phạm|giảng viên đại học|hướng nghiệp học sinh|giáo dục đặc biệt|học viên|lớp học|phòng thí nghiệm trường/i;
 
     // NHÀ ĐÀO TẠO: đào tạo người lớn/doanh nghiệp, kỹ năng, coaching, workshop
@@ -1453,11 +1458,25 @@ async function generateReportUI() {
         const theoryPenalty = RE_THEORY_PENALTY.test(c.name) && demand < 75 ? 0.60 : 1.0;
         const S_market = (demand * theoryPenalty * 0.55) + (salary * theoryPenalty * 0.45);
 
+        // ── CLINICAL CONSTRAINT PENALTY (sợ máu / tránh lâm sàng) ───────────
+        const nameLC2 = (c.name + ' ' + (c.niche || '')).toLowerCase();
+        const isClinicalDirect = RE_CLINICAL_DIRECT.test(nameLC2);
+        const isClinicalSafe   = RE_CLINICAL_SAFE.test(nameLC2);
+        let clinicalMultiplier = 1.0;
+        let clinicalBoost = 0;
+        if (avoidsClinical) {
+          if (isClinicalDirect) clinicalMultiplier = 0.50;  // phạt nặng: Bác sĩ, Điều dưỡng cạnh giường
+          if (isClinicalSafe)   clinicalBoost = +10;         // boost: Tâm lý, Y tế Công cộng, Nghiên cứu Dược
+        } else if (mildClinical) {
+          if (isClinicalDirect) clinicalMultiplier = 0.85;  // phạt nhẹ
+          if (isClinicalSafe)   clinicalBoost = +4;
+        }
+
         // Công thức ICI 3 lớp cốt lõi
         const ICI = Math.min(100,
-          (S_identity * 0.60) +
+          ((S_identity * 0.60) +
           (S_niche * 0.25) +
-          (S_market * 0.15)
+          (S_market * 0.15)) * clinicalMultiplier + clinicalBoost
         );
 
         // Điểm chuẩn tham chiếu mô phỏng
