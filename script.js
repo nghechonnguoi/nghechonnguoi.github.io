@@ -914,11 +914,18 @@ async function generateReportUI() {
     };
     const dreamText = (answers["Q_IKIGAI_DREAM"] || "").toLowerCase().trim();
 
-    // Regex phân loại đặc tính ngành nghề
-    // RE_SPEECH_DOMAIN: nghề mà KỸ NĂNG NGÔN Từ / DẠY / TƯ VẤN là cốt lõi
-    // Ghi chú: truyền thông (media), báo chí được tính bình thường theo Holland Score
+    // ── Regex phân loại đặc tính ngành nghề ────────────────────────────────
     const RE_CRAFT_DOMAIN = /kỹ thuật|cơ khí|xây dựng|thủ công|lắp đặt|vận hành|chế tạo|thợ|spa|ẩm thực|bếp|nail|make.?up|barista|cắt tóc|massage|sửa chữa|điện lạnh/i;
-    const RE_SPEECH_DOMAIN = /giảng dạy|đào tạo viên|huấn luyện viên|hướng dẫn|tư vấn|coach|khai vấn|diễn giả|speaker|thuyết trình|giảng viên|giáo viên|hướng nghiệp|tham vấn|mc chương trình/i;
+
+    // GIÁO VIÊN: dạy học sinh/sinh viên trong trường, môi trường giáo dục chính quy
+    const RE_TEACHER_DOMAIN = /giáo viên|giảng dạy học sinh|dạy học|trường tiểu học|trường trung học|trường phổ thông|sư phạm|giảng viên đại học|hướng nghiệp học sinh|giáo dục đặc biệt|học viên|lớp học|phòng thí nghiệm trường/i;
+
+    // NHÀ ĐÀO TẠO: đào tạo người lớn/doanh nghiệp, kỹ năng, coaching, workshop
+    const RE_TRAINER_DOMAIN = /đào tạo viên|huấn luyện viên|trainer|coach|khai vấn|diễn giả|speaker|thuyết trình|đào tạo doanh nghiệp|đào tạo kỹ năng|đào tạo nhân sự|workshop|bootcamp|facilitator|mentoring|đào tạo lãnh đạo|đào tạo kinh doanh|đào tạo bán hàng/i;
+
+    // SPEECH chung (dùng cho các nghề tư vấn, hướng dẫn không phân loại rõ)
+    const RE_SPEECH_DOMAIN = /tư vấn|hướng dẫn|tham vấn|mc chương trình|giảng dạy|đào tạo viên|huấn luyện viên|coach|khai vấn|diễn giả|speaker|thuyết trình|giảng viên|giáo viên|hướng nghiệp/i;
+
     const RE_STRATEGY_DOMAIN = /quản trị|chiến lược|phân tích|kế hoạch|tâm lý|nghiên cứu|khai vấn|tư vấn|marketing|thương hiệu|consultant|advisor|strategy|brand/i;
     const RE_THEORY_PENALTY = /ngôn ngữ học|văn học thuần|triết học|toán học thuần|vật lý lý thuyết|hóa học thuần|sinh học thuần|lý thuyết thuần/i;
 
@@ -1176,16 +1183,41 @@ async function generateReportUI() {
           }
         }
 
-        // [2] SPEECH — Ngôn từ, truyền đạt, đào tạo
-        const isSpeechCareer = RE_SPEECH_DOMAIN.test(nameLC);
+        // [2a] GIÁO VIÊN — Dạy học chính quy (cần SPEECH + EMPATHIZE/F)
+        const isTeacherCareer = RE_TEACHER_DOMAIN.test(nameLC);
+        if (isTeacherCareer) {
+          const isEmpathetic = (mbtiCode.includes('F') || ikigaiStrength === 'EMPATHIZE' || ikigaiStrength === 'COMMUNICATE');
+          if (ikigaiTalent.SPEECH >= 4 && isEmpathetic) {
+            S_niche = Math.min(100, S_niche + 15); // Giáo viên: SPEECH + đồng cảm ✓
+          } else if (ikigaiTalent.SPEECH >= 4) {
+            S_niche = Math.min(100, S_niche + 8);  // Có khả năng truyền đạt nhưng thiếu đồng cảm
+          } else if (ikigaiTalent.SPEECH <= 2) {
+            S_niche *= 0.75; // Khó truyền đạt → giảm điểm
+          }
+        }
+
+        // [2b] NHÀ ĐÀO TẠO — Đào tạo người lớn/doanh nghiệp (cần SPEECH + STRATEGY)
+        const isTrainerCareer = RE_TRAINER_DOMAIN.test(nameLC);
+        if (isTrainerCareer) {
+          const isResultsDriven = (mbtiCode.includes('E') || mbtiCode.includes('J') || ikigaiStrength === 'COMMUNICATE');
+          if (ikigaiTalent.SPEECH >= 4 && ikigaiTalent.STRATEGY >= 4) {
+            S_niche = Math.min(100, S_niche + 18); // Nhà đào tạo đỉnh: SPEECH + STRATEGY ✓✓
+          } else if (ikigaiTalent.SPEECH >= 4 && isResultsDriven) {
+            S_niche = Math.min(100, S_niche + 12); // SPEECH mạnh + hướng kết quả ✓
+          } else if (ikigaiTalent.SPEECH <= 2) {
+            S_niche *= 0.65; // Thiếu kỹ năng truyền đạt → phạt nặng hơn giáo viên
+          }
+        }
+
+        // [2c] SPEECH chung (tư vấn, hướng dẫn không phân loại rõ)
+        const isSpeechCareer = !isTeacherCareer && !isTrainerCareer && RE_SPEECH_DOMAIN.test(nameLC);
         // [3] STRATEGY — Chiến lược, tâm lý, tư vấn
         const isStrategyCareer = RE_STRATEGY_DOMAIN.test(nameLC);
 
         if (isSpeechCareer || isStrategyCareer) {
           if (ikigaiTalent.SPEECH >= 4 || ikigaiTalent.STRATEGY >= 4) {
-            S_niche = Math.min(100, S_niche + 15); // Ưu thế ngôn từ/chiến lược
+            S_niche = Math.min(100, S_niche + 12);
           }
-          // Cộng dồn nếu cả hai đều mạnh (chuyên gia đỉnh cao)
           if (ikigaiTalent.SPEECH >= 4 && ikigaiTalent.STRATEGY >= 4) {
             S_niche = Math.min(100, S_niche + 5);
           }
