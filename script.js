@@ -109,31 +109,16 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const studentProfile = {
-      fullName: document.getElementById("fullName").value.trim(),
+      fullName:  document.getElementById("fullName").value.trim(),
       birthDate: document.getElementById("birthDate").value.trim(),
-      email: document.getElementById("customerEmail").value.trim(),
-      phone: document.getElementById("customerPhone").value.trim(),
-      thptScores: {
-        toan: parseFloat(document.getElementById("score_toan").value) || 0,
-        van: parseFloat(document.getElementById("score_van").value) || 0,
-        anh: parseFloat(document.getElementById("score_anh").value) || 0,
-        ly: parseFloat(document.getElementById("score_ly").value) || 0,
-        hoa: parseFloat(document.getElementById("score_hoa").value) || 0,
-        sinh: parseFloat(document.getElementById("score_sinh").value) || 0,
-        su: parseFloat(document.getElementById("score_su").value) || 0,
-        dia: parseFloat(document.getElementById("score_dia").value) || 0,
-        gdcd: parseFloat(document.getElementById("score_gdcd").value) || 0,
-      },
-      gpa: parseFloat(document.getElementById("gpaManual").value) || 0,
-      gpaFileName: document.getElementById("gpaFile").files[0]?.name || null,
-      dgnl: {
-        hsa: parseInt(document.getElementById("dgnlHsa").value) || 0,
-        hcm: parseInt(document.getElementById("dgnlHcm").value) || 0,
-      },
-      languageCertification: {
-        type: document.getElementById("langType").value,
-        score: document.getElementById("langScore").value.trim()
-      }
+      email:     document.getElementById("customerEmail").value.trim(),
+      phone:     document.getElementById("customerPhone").value.trim(),
+      // Điểm số không thu thập nữa — để mặc định 0 cho thuật toán
+      thptScores: { toan: 0, van: 0, anh: 0, ly: 0, hoa: 0, sinh: 0, su: 0, dia: 0, gdcd: 0 },
+      gpa: 0,
+      gpaFileName: null,
+      dgnl: { hsa: 0, hcm: 0 },
+      languageCertification: { type: '', score: '' }
     };
 
     localStorage.setItem("active_student_profile", JSON.stringify(studentProfile));
