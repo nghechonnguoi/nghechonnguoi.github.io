@@ -32,6 +32,7 @@ const firebaseConfig = {
 // Khởi tạo các phân hệ đám mây (Giữ nguyên phần code khởi tạo phía dưới)
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db   = firebase.firestore();  // 🗄️ Khởi tạo Firestore để lưu dữ liệu khách hàng
 // LẮNG NGHE TRẠNG THÁI TÀI KHOẢN (TỰ ĐỘNG ĐÓNG/MỞ KHÓA WEBAPP)
 auth.onAuthStateChanged((user) => {
   const authView = document.getElementById("auth-container");
@@ -122,6 +123,16 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     localStorage.setItem("active_student_profile", JSON.stringify(studentProfile));
+
+    // 🗄️ Lưu thông tin khách hàng lên Firestore (không block luồng quiz)
+    db.collection("customers").add({
+      fullName:  studentProfile.fullName,
+      birthDate: studentProfile.birthDate,
+      email:     studentProfile.email,
+      phone:     studentProfile.phone,
+      uid:       firebase.auth().currentUser?.uid || null,
+      submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(err => console.warn("Firestore save warning:", err));
 
     document.getElementById("profile-container").classList.add("hidden");
     document.getElementById("quiz-container").classList.remove("hidden");
