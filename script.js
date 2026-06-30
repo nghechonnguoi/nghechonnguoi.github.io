@@ -1673,13 +1673,14 @@ async function generateReportUI() {
       })
       .sort((a, b) => b.ICI - a.ICI);
 
-    // ── Diversity Guard v5.0 — STRICT 1-PER-INDUSTRY + NICHE DEDUP ──────────
-    //  Thuật toán 3 lớp:
+    // ── Diversity Guard v5.1 — STRICT 1-PER-INDUSTRY + PROF-TITLE DEDUP ──────
+    //  Thuật toán 4 lớp:
+    //  Tiền xử lý: Tính profTitle thực tế cho mỗi entry (tên hiển thị cho người dùng)
     //  Lớp 1: 1 nghề tốt nhất mỗi INDUSTRY (industry bảo vệ cốt lõi)
-    //  Lớp 2: Chặn tên nghề NICHE gần giống (so sánh token)
+    //  Lớp 2: Chặn tên nghề PROFESSION TITLE giống nhau hoặc gần giống (dedup thực)
     //  Lớp 3: Fallback thông minh nếu pool < 5
 
-    // Helper: trích xuất niche label (phần trước dấu '-' hoặc '(')
+    // Helper: trích xuất core name (phần trước dấu '-' hoặc '(')
     const getCoreJobName = (name) => {
       const raw = name || '';
       const atParen = raw.indexOf('(');
@@ -1707,6 +1708,13 @@ async function generateReportUI() {
       return shared >= 2;
     };
 
+    // ── TIỀN XỬ LÝ: Gắn profTitle thực tế vào từng entry (tên hiển thị = tên nghề người dùng thấy) ──
+    // Đây là bước cốt lõi: dedup phải dựa trên TÊN HIỂN THỊ, không phải entry.niche từ database
+    for (const entry of round3) {
+      const pInfo = getProfessionDisplay(entry.industry, hPct, profile.thptScores, ikigaiStrength);
+      entry._profTitle = pInfo.profession || entry.niche || entry.name;
+    }
+
     // LỚP 1: Lấy 1 nghề tốt nhất mỗi industry (round3 đã sort ICI giảm dần)
     const industryBestMap = {};
     for (const entry of round3) {
@@ -1716,44 +1724,44 @@ async function generateReportUI() {
       }
     }
 
-    // Bước 2: Sort theo ICI → danh sách ứng viên chính
+    // Sort theo ICI → danh sách ứng viên chính
     const primaryCandidates = Object.values(industryBestMap)
       .sort((a, b) => b.ICI - a.ICI);
 
-    // LỚP 2: Từ primaryCandidates, lọc tiếp bằng niche similarity
+    // LỚP 2: Lọc tiếp bằng PROFESSION TITLE dedup (tên hiển thị thực tế)
     const top5 = [];
-    const usedNiches = []; // danh sách tên đã chọn để so sánh
+    const usedProfTitles = []; // Dùng profTitle (tên hiển thị) để so sánh, không dùng niche
 
     for (const entry of primaryCandidates) {
       if (top5.length >= 5) break;
-      const entryNiche = entry.niche || entry.name;
-      // Kiểm tra xem niche này có quá giống bất kỳ niche đã chọn không
-      const tooSimilar = usedNiches.some(n => isTooSimilar(entryNiche, n));
-      if (!tooSimilar) {
+      const entryProfTitle = entry._profTitle;
+      // Chặn nếu tên nghề hiển thị đã giống với nghề đã chọn
+      const isDupProf = usedProfTitles.some(p =>
+        p === entryProfTitle || isTooSimilar(entryProfTitle, p)
+      );
+      if (!isDupProf) {
         top5.push(entry);
-        usedNiches.push(entryNiche);
+        usedProfTitles.push(entryProfTitle);
       }
     }
 
-    // LỚP 3: Fallback — nếu vẫn < 5, thêm từ round3 với kiểm tra tên
+    // LỚP 3: Fallback — nếu vẫn < 5, thêm từ toàn bộ round3 với kiểm tra profTitle
     if (top5.length < 5) {
-      const usedCoreNames = new Set(top5.map(e => getCoreJobName(e.name)));
       for (const entry of round3) {
         if (top5.length >= 5) break;
         if (top5.includes(entry)) continue;
-        const coreName = getCoreJobName(entry.name);
-        const entryNiche = entry.niche || entry.name;
-        const isDupeName = usedCoreNames.has(coreName);
-        const isDupeSimilar = usedNiches.some(n => isTooSimilar(entryNiche, n));
-        if (!isDupeName && !isDupeSimilar) {
+        const entryProfTitle = entry._profTitle;
+        const isDupProf = usedProfTitles.some(p =>
+          p === entryProfTitle || isTooSimilar(entryProfTitle, p)
+        );
+        if (!isDupProf) {
           top5.push(entry);
-          usedCoreNames.add(coreName);
-          usedNiches.push(entryNiche);
+          usedProfTitles.push(entryProfTitle);
         }
       }
     }
 
-    // Absolute fallback: tránh trang trắng (chấp nhận trùng ngành, không trùng object)
+    // Absolute fallback: tránh trang trắng (chấp nhận trùng tên, không trùng object)
     if (top5.length < 3) {
       for (const entry of round3) {
         if (top5.length >= 5) break;
@@ -1833,13 +1841,15 @@ async function generateReportUI() {
       card.className = 'career-card';
       card.style.borderLeftColor = BUCKET_COLOR[entry.bucket] || '#3182ce';
 
-      // ── Tên nghề cá nhân hóa: Nghề tiếng Việt (ngách1, ngách2, ngách3) ────
+      // ── Tên nghề cá nhân hóa: dùng profInfo đã được pre-compute trong dedup ────
+      // Tính nicheStr (ngách) cần gọi thêm 1 lần để lấy phần nicheStr
       const profInfo = getProfessionDisplay(
         entry.industry,
         hPct,
         profile.thptScores,
         ikigaiStrength
       );
+      // Dùng _profTitle đã pre-compute để đảm bảo nhất quán với dedup
       const profTitle = profInfo.profession
         ? `${profInfo.profession}${profInfo.nicheStr}`
         : entry.niche;  // Fallback về niche cũ nếu chưa có mapping
