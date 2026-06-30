@@ -1293,14 +1293,16 @@ async function generateReportUI() {
         }
 
         // ── MBTI Compatibility ──────────────────────────────────────────────
-        let mbtiBase = 60;
+        // Base = 40: nghề không khớp MBTI chỉ được 40/100 — phạt rõ hơn base=60 cũ
+        let mbtiBase = 40;
         for (const letter of mbtiCode) {
           if (c.mbti_req?.[letter]) mbtiBase += c.mbti_req[letter] * 6;
         }
         const mbtiScore = Math.max(0, Math.min(100, mbtiBase));
 
-        // ── S_niche nền tảng (Holland 40% + MBTI 50%) ──────────────────────
-        let S_niche = (hollandScore * 0.40) + (mbtiScore * 0.50);
+        // ── S_niche nền tảng (Holland 25% + MBTI 65%) ──────────────────────
+        // MBTI chủ đạo: tính cách/tư duy quan trọng hơn sở thích môi trường Holland
+        let S_niche = (hollandScore * 0.25) + (mbtiScore * 0.65);
 
         // ══════════════════════════════════════════════════════════════════
         //  IKIGAI EXTENDED — 4 câu giá trị/môi trường/điểm mạnh/né tránh
