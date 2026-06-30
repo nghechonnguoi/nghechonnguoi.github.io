@@ -2002,11 +2002,8 @@ async function generateReportUI() {
             border-radius:99px;font-weight:700;margin-left:6px;">✨ Khớp Ước Mơ</span>`
         : '';
 
-      // Numerology peak badge
-      const peakBadge = entry.numerology_peak
-        ? `<span style="background:#e9d8fd;color:#553c9a;font-size:10px;padding:2px 7px;
-            border-radius:99px;margin-left:5px;">🔢 Ngách Số học Đỉnh</span>`
-        : '';
+      // Numerology peak badge — ẩn nhãn, vẫn giữ logic tính điểm
+      const peakBadge = '';
 
       // Lĩnh vực ngành — phân biệt với Ngành học
       const industryTag = entry.industry
