@@ -134,11 +134,55 @@ document.addEventListener("DOMContentLoaded", () => {
       submittedAt: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(err => console.warn("Firestore save warning:", err));
 
+    // 📧 Tự động subscribe email vào Mailchimp list (không block luồng quiz)
+    if (studentProfile.email) {
+      subscribeToMailchimp(studentProfile.email, studentProfile.fullName);
+    }
+
     document.getElementById("profile-container").classList.add("hidden");
     document.getElementById("quiz-container").classList.remove("hidden");
     startQuizEngine();
   });
 });
+
+// ─── MAILCHIMP EMAIL MARKETING INTEGRATION ───────────────────────────────────
+// Dùng JSONP endpoint — không cần backend, không cần API key trong code
+function subscribeToMailchimp(email, fullName) {
+  const firstName = (fullName || '').split(' ').pop(); // Lấy tên (từ cuối)
+
+  const MC_URL = 'https://github.us16.list-manage.com/subscribe/post-json'
+    + '?u=630590139fc72edbf5d6bf957'
+    + '&id=9b70639067'
+    + '&f_id=00a158e2f0'
+    + `&EMAIL=${encodeURIComponent(email)}`
+    + `&FNAME=${encodeURIComponent(firstName)}`
+    + '&c=_mcjsCallback';
+
+  // Callback nhận kết quả từ Mailchimp
+  window._mcjsCallback = function(data) {
+    if (data.result === 'success') {
+      console.log('✅ Mailchimp: Đã thêm subscriber thành công');
+    } else {
+      // Không báo lỗi ra UI — subscriber có thể đã tồn tại
+      console.info('ℹ️ Mailchimp note:', data.msg);
+    }
+    // Dọn sạch
+    const s = document.getElementById('_mc_jsonp');
+    if (s) s.remove();
+    delete window._mcjsCallback;
+  };
+
+  // Xóa script cũ nếu còn
+  const old = document.getElementById('_mc_jsonp');
+  if (old) old.remove();
+
+  // Kích hoạt JSONP request
+  const script = document.createElement('script');
+  script.id = '_mc_jsonp';
+  script.src = MC_URL;
+  document.head.appendChild(script);
+}
+
 
 // ─── NẠP VÀ CHẠY CÂU HỎI ────────────────────────────────────────────────────
 async function startQuizEngine() {
