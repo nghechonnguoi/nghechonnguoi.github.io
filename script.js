@@ -456,9 +456,10 @@ const PROFESSION_MAP = {
     base: "Nghệ sĩ / Nhà Thiết kế",
     niches: {
       A: ["thiết kế nhận diện thương hiệu & bao bì sản phẩm", "vẽ minh họa & sáng tác concept art", "chụp ảnh & dàn dựng hình ảnh thương mại"],
-      E: ["đạo diễn sản xuất nội dung thương mại", "điều hành studio sáng tạo & agency", "kinh doanh tác phẩm nghệ thuật & IP"],
+      E: ["điều hành studio sáng tạo & agency thiết kế", "kinh doanh tác phẩm nghệ thuật & IP sáng tạo", "xây dựng thương hiệu nghệ sĩ & phân phối tác phẩm"],
       S: ["dùng nghệ thuật để trị liệu & chữa lành tâm lý", "giảng dạy mỹ thuật & kỹ năng sáng tạo", "tổ chức nghệ thuật cộng đồng & triển lãm"],
-      I: ["nghiên cứu lịch sử mỹ thuật & phê bình nghệ thuật", "bảo tồn di vật & quản lý bộ sưu tập bảo tàng", "phân tích xu hướng thẩm mỹ & design"],
+      I: ["nghiên cứu lịch sử mỹ thuật & phê bình nghệ thuật", "bảo tồn di vật & quản lý bộ sưu tập bảo tàng", "phân tích xu hướng thẩm mỹ & thiết kế thương mại"],
+      R: ["thiết kế in ấn & sản xuất vật liệu nghệ thuật", "chế tác thủ công mỹ nghệ & nghệ thuật sắp đặt", "kỹ thuật số & xử lý hình ảnh chuyên nghiệp"],
       default: ["thiết kế đồ họa & hình ảnh thương mại", "biểu diễn & sáng tác nghệ thuật", "tạo nội dung sáng tạo đa nền tảng"]
     }
   },
@@ -514,8 +515,8 @@ const PROFESSION_MAP = {
       // NHÀ ĐÀO TẠO (E): doanh nghiệp, kết quả đo lường, người lớn
       E: ["đào tạo kỹ năng lãnh đạo & quản lý cho doanh nghiệp", "huấn luyện đội ngũ kinh doanh & bán hàng đạt target", "thiết kế & triển khai chương trình đào tạo nội bộ (L&D)"],
       // GIẢNG VIÊN ĐH (I): hàn lâm, nghiên cứu, chuyên sâu
-      I: ["giảng dạy & nghiên cứu chuyên ngành bậc đại học", "phát triển chương trình giảng dạy & tài liệu học thuật", "hướng dẫn nghiên cứu sinh & nghịān siến"],
-      // GIÁO VIÊN NGHỆ THUẪT (A)
+      I: ["giảng dạy & nghiên cứu chuyên ngành bậc đại học", "phát triển chương trình giảng dạy & tài liệu học thuật", "hướng dẫn nghiên cứu sinh & thực hiện công trình khoa học"],
+      // GIÁO VIÊN NGHỆ THUẤT (A)
       A: ["dạy mỹ thuật, âm nhạc & kỹ năng sáng tạo", "đào tạo diễn xuất, MC & kỹ năng biểu diễn", "giảng dạy thiết kế & thời trang"],
       // CHUYÊN VIÊN QUẢN LÝ (C): hệ thống, kiểm định, điều hành
       C: ["quản lý giáo dục & điều hành nhà trường", "kiểm định & đánh giá chất lượng chương trình học", "thiết kế hệ thống đào tạo & quy trình chuẩn hóa"],
@@ -596,7 +597,7 @@ const PROFESSION_MAP = {
     nichesByCombo: {
       "SI": ["trị liệu tâm lý cá nhân & đồng hành thoát khỏi sang chấn", "tư vấn mối quan hệ & đời sống gia đình"],
       "IS": ["chẩn đoán tâm lý lâm sàng & xây dựng lộ trình trị liệu", "nghiên cứu hành vi & thiết kế công cụ trắc nghiệm"],
-      "SA": ["khai vấn hướng dẫn cá nhân khám phá mục đích sống", "đồng hành chuyển đổi cuộc đời & sự nghiệp (Life Transition Coach)", "họ cách tư dân để phát triển tư duy tương thượng"],
+      "SA": ["khai vấn hướng dẫn cá nhân khám phá mục đích sống", "đồng hành chuyển đổi cuộc đời & sự nghiệp (Life Transition Coach)", "huấn luyện tư duy tích cực & phát triển tiềm năng bản thân"],
       "ES": ["coaching hiệu suất nhân sự & văn hóa công ty", "tư vấn tâm lý quản lý stress & burnout tại doanh nghiệp"],
       "SE": ["tư vấn phát triển sự nghiệp & định vị bản thân", "có mặt trên sân khấu để truyền cảm hứng và chia sẻ"]
     }
@@ -841,6 +842,54 @@ const PROFESSION_MAP = {
       toan: ["thống kê y tế & mô hình hóa dịch tễ học", "phân tích dữ liệu sức khỏe cộng đồng quy mô lớn"],
       anh: ["hợp tác nghiên cứu y tế quốc tế & công bố học thuật", "làm việc với WHO, CDC và tổ chức y tế toàn cầu"]
     }
+  },
+  "Công an & An ninh Quốc gia": {
+    base: "Sĩ quan Cảnh sát Nhân dân",
+    bases: {
+      E: "Sĩ quan Cảnh sát Điều tra / Chỉ huy An ninh Trật tự",
+      I: "Điều tra viên Hình sự / Chuyên gia Phân tích Tình báo",
+      C: "Chuyên viên Hành chính Cảnh sát / Kinh tế Nội vụ",
+      R: "Kỹ thuật viên Pháp y / Giám định Kỹ thuật Hình sự",
+      S: "Cảnh sát Khu vực / Giao tiếp & Phòng ngừa Cộng đồng"
+    },
+    niches: {
+      E: ["điều tra & xử lý vụ án hình sự phức tạp", "chỉ huy lực lượng an ninh trật tự địa bàn", "phòng chống tội phạm có tổ chức & tội phạm xuyên quốc gia"],
+      I: ["điều tra tội phạm mạng & gian lận tài chính số", "phân tích tình báo & xây dựng hồ sơ tội phạm", "nghiên cứu phương thức tội phạm & đề xuất biện pháp phòng ngừa"],
+      C: ["quản lý hành chính tư pháp & hồ sơ tội phạm", "kiểm soát tài chính nội bộ & phòng chống tham nhũng", "giám sát thi hành án & quản lý trại giam"],
+      R: ["giám định kỹ thuật hình sự & pháp y hiện trường", "vận hành thiết bị trinh sát & kỹ thuật đặc biệt", "bảo đảm hậu cần kỹ thuật chiến đấu"],
+      S: ["giao tiếp cộng đồng & hỗ trợ nạn nhân tội phạm", "tuần tra & bảo vệ an ninh khu dân cư", "phổ biến pháp luật & nâng cao ý thức cộng đồng"],
+      default: ["bảo vệ an ninh trật tự & phòng ngừa tội phạm", "điều tra & xử lý vi phạm pháp luật hình sự", "thi hành pháp luật & bảo vệ quyền lợi nhân dân"]
+    },
+    subjects: {
+      toan: ["thống kê tội phạm học & phân tích dữ liệu hình sự", "toán logic ứng dụng trong điều tra số"],
+      van: ["ngữ văn pháp luật & soạn thảo văn bản tư pháp", "kỹ năng thẩm vấn & giao tiếp thuyết phục"],
+      su: ["lịch sử pháp luật & hình thành lực lượng vũ trang Việt Nam", "lịch sử tội phạm học & điều tra hình sự quốc tế"],
+      anh: ["tiếng Anh tình báo & tội phạm học quốc tế", "phối hợp với Interpol & cảnh sát quốc tế"]
+    }
+  },
+  "Quân sự & Quốc phòng": {
+    base: "Sĩ quan Quân đội Nhân dân Việt Nam",
+    bases: {
+      E: "Sĩ quan Chỉ huy / Tham mưu Tác chiến",
+      R: "Kỹ sư Kỹ thuật Quân sự / Chuyên gia Vũ khí Trang bị",
+      I: "Chuyên gia Tình báo Quân sự / An ninh Mạng Quân đội",
+      C: "Chuyên viên Hậu cần / Quản lý Hành chính Quân sự",
+      S: "Sĩ quan Chính trị / Công tác Đảng trong Quân đội"
+    },
+    niches: {
+      E: ["chỉ huy tác chiến & lập kế hoạch chiến lược quân sự", "điều phối lực lượng & quản lý đơn vị chiến đấu", "tham gia gìn giữ hòa bình quốc tế & hợp tác quân sự song phương"],
+      R: ["thiết kế & phát triển vũ khí trang bị quốc phòng", "bảo đảm kỹ thuật hệ thống vũ khí & khí tài hiện đại", "ứng dụng công nghệ quốc phòng vào lĩnh vực dân sự"],
+      I: ["tác chiến không gian mạng & phòng thủ hệ thống thông tin quân sự", "phân tích tình báo & đánh giá mối đe dọa an ninh quốc gia", "nghiên cứu chiến lược quốc phòng & địa chính trị"],
+      C: ["quản lý hậu cần cung ứng trang bị & vũ khí quân sự", "điều phối ngân sách & tài chính quốc phòng", "quản lý hành chính & nhân lực bộ đội"],
+      S: ["công tác chính trị tư tưởng & xây dựng đoàn kết đơn vị", "tuyên truyền quốc phòng toàn dân & giáo dục lòng yêu nước", "hỗ trợ chiến sĩ & giải quyết tâm tư nguyện vọng bộ đội"],
+      default: ["bảo vệ chủ quyền lãnh thổ & an ninh quốc gia", "thực hiện nhiệm vụ quân sự & huấn luyện chiến đấu", "xây dựng quân đội chính quy hiện đại"]
+    },
+    subjects: {
+      toan: ["toán kỹ thuật & vật lý ứng dụng trong quân sự", "mô hình hóa chiến thuật & phân tích tình huống"],
+      ly: ["vật lý vũ khí & đạn đạo học", "kỹ thuật điện tử & hệ thống thông tin quân sự"],
+      su: ["lịch sử chiến tranh & nghệ thuật quân sự Việt Nam", "địa lý quân sự & địa chính trị quốc phòng"],
+      anh: ["tiếng Anh quân sự & hợp tác quốc phòng quốc tế", "tài liệu kỹ thuật quân sự & tình báo điện tử"]
+    }
   }
 };
 
@@ -893,40 +942,39 @@ function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength, mbtiCo
     professionName = profMap.base;
   }
 
-  // 3. Lấy pool ngách: Ưu tiên nichesByCombo nếu có, rồi mới đến niches
+  // 3. Xác định nichePool và strengthNiches — tách biệt để tránh near-duplicate
+  const hasComboMatch = !!(profMap.nichesByCombo && profMap.nichesByCombo[comboKey]);
   let nichePool;
-  if (profMap.nichesByCombo && profMap.nichesByCombo[comboKey]) {
+  let strengthNiches = [];
+
+  if (hasComboMatch) {
+    // Khi có combo match chính xác → dùng nichesByCombo, KHÔNG mix strengthNiches
+    // (tránh near-duplicate giữa nichesByCombo và niches[sH] cùng chủ đề)
     nichePool = profMap.nichesByCombo[comboKey];
   } else {
-    nichePool = profMap.niches[userTopH] || profMap.niches.default || [];
-  }
-
-  // 4. Ưu tiên ngách theo môn học mạnh nhất (nếu có điểm THPT & mapping subjects)
-  let subjectNiches = [];
-  if (profMap.subjects && thptScores) {
-    const bestSubject = Object.entries(thptScores)
-      .filter(([, v]) => (v || 0) > 0)
-      .sort((a, b) => (b[1] || 0) - (a[1] || 0))[0];
-    if (bestSubject && profMap.subjects[bestSubject[0]]) {
-      subjectNiches = profMap.subjects[bestSubject[0]];
+    // Fallback: dùng niches[userTopH] và bổ sung Ikigai strength nếu khác chiều
+    nichePool = profMap.niches?.[userTopH] || profMap.niches?.default || [];
+    const STRENGTH_HOLLAND = {
+      COMMUNICATE: 'E', ANALYZE: 'I', CREATE: 'A',
+      ORGANIZE: 'C', EMPATHIZE: 'S'
+    };
+    if (ikigaiStrength && STRENGTH_HOLLAND[ikigaiStrength]) {
+      const sH = STRENGTH_HOLLAND[ikigaiStrength];
+      if (sH !== userTopH && profMap.niches?.[sH]) {
+        strengthNiches = profMap.niches[sH].slice(0, 1);
+      }
     }
   }
 
-  // 5. Ưu tiên ngách theo điểm mạnh Ikigai (nếu có)
-  const STRENGTH_HOLLAND = {
-    COMMUNICATE: 'E', ANALYZE: 'I', CREATE: 'A',
-    ORGANIZE: 'C', EMPATHIZE: 'S'
-  };
-  let strengthNiches = [];
-  if (ikigaiStrength && STRENGTH_HOLLAND[ikigaiStrength]) {
-    const sH = STRENGTH_HOLLAND[ikigaiStrength];
-    if (sH !== userTopH && profMap.niches[sH]) {
-      strengthNiches = profMap.niches[sH].slice(0, 1); // Lấy 1 ngách từ chiều mạnh
-    }
+  // 4. Nếu nichePool ngắn (<3), bổ sung từ niches[userTopH] để đủ 3 ngách
+  let fillPool = [];
+  if (nichePool.length < 3) {
+    const fillSource = profMap.niches?.[userTopH] || profMap.niches?.default || [];
+    fillPool = fillSource.filter(n => !nichePool.includes(n));
   }
 
-  // 6. Kết hợp: subject → combo/strength → holland → loại trùng → lấy tối đa 3
-  const combined = [...new Set([...subjectNiches, ...strengthNiches, ...nichePool])].slice(0, 3);
+  // 5. Kết hợp: nichePool → strength (nếu fallback) → fill → loại trùng chính xác → tối đa 3
+  const combined = [...new Set([...nichePool, ...strengthNiches, ...fillPool])].slice(0, 3);
 
   // 7. professionName đã xác định ở bước 2 (combo → bases → base)
   const nicheStr = combined.length > 0 ? ` (${combined.join(', ')})` : '';
@@ -1487,7 +1535,19 @@ async function generateReportUI() {
     const avoidsClinical = clinicalAnswer === "CLINICAL_AVOID";
     const mildClinical   = clinicalAnswer === "CLINICAL_MILD";
 
-    // ══════════════════════════════════════════════════════════════════════════
+    // ── CONSTRAINT FLAGS — 4 ngành đặc thù mới ────────────────────────────────
+    const artsAnswer     = answers["Q_CONSTRAINT_ARTS"]     || "ARTS_NA";
+    const eduAnswer      = answers["Q_CONSTRAINT_EDU"]      || "EDU_NA";
+    const bizAnswer      = answers["Q_CONSTRAINT_BIZ"]      || null;
+    const lawAnswer      = answers["Q_CONSTRAINT_LAW"]      || "LAW_NA";
+
+    // Regex nhận diện các ngành đặc thù — dùng trong Vòng 3 penalty/boost
+    const RE_ARTS_PERF    = /diễn viên|ca sĩ|vũ công|nhạc sĩ|biên đạo|biểu diễn nghệ thuật|sân khấu|khởi cười|vũ đoàn|thanh nhạc/i;
+    const RE_EDU_DOMAIN   = /giáo viên|giảng viên|nhà đào tạo|huấn luyện viên|sư phạm|đào tạo viên|life coach|khai vấn|hướng nghiệp|trainer|facilitator|đứng lớp|truyền đạt kiến thức/i;
+    const RE_BIZ_STARTUP  = /khởi nghiệp|doanh nhân|startup|founder|giám đốc điều hành|ceo|tự kinh doanh|chủ doanh nghiệp/i;
+    const RE_LAW          = /luật sư|pháp chế|công tố viên|thẩm phán|kiểm sát viên|trọng tài|luật gia|pháp luật|luật công ty/i;
+
+
     //  VÒNG 3 — TỐI ƯU XU HƯỚNG & GIÁ TRỊ DÒNG TIỀN (10 → TOP 5)
     //  S_market = demand×0.55 + salary×0.45
     //  ICI = S_identity×0.60 + S_niche×0.25 + S_market×0.15
@@ -1516,11 +1576,49 @@ async function generateReportUI() {
           if (isClinicalSafe)   clinicalBoost = +4;
         }
 
+        // ── ARTS CONSTRAINT PENALTY ───────────────────────────────────────────
+        let artsMultiplier = 1.0;
+        let artsBoost = 0;
+        if (RE_ARTS_PERF.test(nameLC2)) {
+          if (artsAnswer === 'ARTS_AVOID') artsMultiplier = 0.50; // Không muốn biểu diễn → phạt nặng
+          else if (artsAnswer === 'ARTS_MILD') artsMultiplier = 0.80; // Do dự → phạt nhẹ
+          else if (artsAnswer === 'ARTS_OK')   artsBoost = +10;        // Sẵn sàng → boost
+        }
+
+        // ── EDU CONSTRAINT PENALTY ─────────────────────────────────────────
+        let eduMultiplier = 1.0;
+        let eduBoost = 0;
+        if (RE_EDU_DOMAIN.test(nameLC2)) {
+          if (eduAnswer === 'EDU_AVOID') eduMultiplier = 0.55;   // Không muốn dạy học → phạt nặng
+          else if (eduAnswer === 'EDU_MILD') eduMultiplier = 0.82; // Do dự → phạt nhẹ
+          else if (eduAnswer === 'EDU_OK')   eduBoost = +12;       // Yêu thích dạy học → boost mạnh
+        }
+
+        // ── BIZ CONSTRAINT PENALTY ──────────────────────────────────────────────
+        let bizMultiplier = 1.0;
+        let bizBoost = 0;
+        if (RE_BIZ_STARTUP.test(nameLC2)) {
+          if (bizAnswer === 'BIZ_AVOID')  bizMultiplier = 0.65; // Muốn việc ổn định → phạt startup
+          else if (bizAnswer === 'BIZ_MILD') bizBoost = +4;     // Muốn thử → boost nhẹ
+          else if (bizAnswer === 'BIZ_OK')   bizBoost = +12;    // Sẵn sàng rủi ro → boost mạnh
+        }
+
+        // ── LAW CONSTRAINT PENALTY ───────────────────────────────────────────────
+        let lawMultiplier = 1.0;
+        let lawBoost = 0;
+        if (RE_LAW.test(nameLC2)) {
+          if (lawAnswer === 'LAW_AVOID')  lawMultiplier = 0.55; // Không muốn ngành luật
+          else if (lawAnswer === 'LAW_MILD') lawBoost = +4;
+          else if (lawAnswer === 'LAW_OK')   lawBoost = +8;
+        }
+
         // Công thức ICI 3 lớp cốt lõi
         const ICI = Math.min(100,
           ((S_identity * 0.60) +
           (S_niche * 0.25) +
-          (S_market * 0.15)) * clinicalMultiplier + clinicalBoost
+          (S_market * 0.15))
+          * clinicalMultiplier * artsMultiplier * eduMultiplier * bizMultiplier * lawMultiplier
+          + clinicalBoost + artsBoost + eduBoost + bizBoost + lawBoost
         );
 
         // Điểm chuẩn tham chiếu mô phỏng
@@ -1545,7 +1643,7 @@ async function generateReportUI() {
 
           // ── NGHỆ THUẬT / BIỂU DIỄN ────────────────────────────────────────
           if (/thiết kế đồ họa|mỹ thuật|hội họa|nhiếp ảnh|hoạt hình|animation|nội thất|thời trang|concept art|illustration/i.test(nm)) {
-            displayCombo = 'H01 / V01 (Toán - Văn - Vẽ Mỹ thuật)';
+            displayCombo = 'H01 / D01 (Toán - Văn - Vẽ Mỹ thuật / Toán - Văn - Anh)';
             displaySubjects = 'Hình họa khối, Bố cục màu sắc, Tư duy thẩm mỹ thị giác, Đồ họa kỹ thuật số.';
 
           } else if (/diễn viên|âm nhạc|thanh nhạc|múa|biên đạo|sân khấu|kịch/i.test(nm)) {
@@ -1555,13 +1653,13 @@ async function generateReportUI() {
           // ── Y DƯỢC & SỨC KHỎE (B00/B08 ưu tiên, A00 bổ sung) ─────────────
           } else if (ind.includes('y dược') || ind.includes('sức khỏe')
               || /bác sĩ|điều dưỡng|dược sĩ|y tá|hộ sinh|y học|y tế|chăm sóc sức khỏe|sinh lý|dịch tễ|dinh dưỡng|phục hồi chức năng|vật lý trị liệu/i.test(nm)) {
-            displayCombo = 'B00 / B08 / A00 (Toán - Hóa - Sinh / Toán - Hóa - Sinh / Toán - Lý - Hóa)';
+            displayCombo = 'B00 / B08 / A00 (Toán - Hóa - Sinh / Toán - Sinh - Anh / Toán - Lý - Hóa)';
             displaySubjects = 'Sinh học tế bào & phân tử, Hóa sinh hữu cơ, Giải phẫu học nền tảng, Toán thống kê y tế.';
 
-          // ── KHOA HỌC SỨC KHỎE CỘNG ĐỒNG / TÂM LÝ Y TẾ ──────────────────
+          // ── TÂM LÝ HỌC / SỨC KHỎE TÂM THẦN (Khoa học Xã hội) ──────────────
           } else if (/tâm lý học|tham vấn tâm lý|trị liệu tâm lý|sức khỏe tâm thần|y tế công cộng|sức khỏe cộng đồng/i.test(nm)) {
-            displayCombo = 'B00 / D01 (Toán - Hóa - Sinh / Toán - Văn - Anh)';
-            displaySubjects = 'Sinh học hành vi, Tâm lý học đại cương, Thống kê y tế, Kỹ năng lắng nghe & tham vấn.';
+            displayCombo = 'C00 / D01 (Văn - Sử - Địa / Toán - Văn - Anh)';
+            displaySubjects = 'Tâm lý học đại cương, Xã hội học, Kỹ năng lắng nghe & tham vấn, Thống kê ứng dụng.';
 
           // ── CÔNG NGHỆ THÔNG TIN / LẬP TRÌNH / AI ─────────────────────────
           } else if (ind.includes('công nghệ thông tin') || ind.includes('phần mềm')
@@ -1591,7 +1689,7 @@ async function generateReportUI() {
 
           // ── XÂY DỰNG & KIẾN TRÚC ──────────────────────────────────────────
           } else if (ind.includes('xây dựng') || /kiến trúc sư|kỹ sư xây dựng|kết cấu|cầu đường|nội thất không gian|quy hoạch|đô thị/i.test(nm)) {
-            displayCombo = 'A00 / V01 (Toán - Lý - Hóa / Toán - Văn - Vẽ)';
+            displayCombo = 'A00 / H01 (Toán - Lý - Hóa / Toán - Văn - Vẽ Mỹ thuật)';
             displaySubjects = 'Toán kỹ thuật, Vật lý kết cấu, Mỹ học kiến trúc, Hình họa & Bản vẽ kỹ thuật.';
 
           // ── KINH TẾ & TÀI CHÍNH ───────────────────────────────────────────
@@ -1622,7 +1720,7 @@ async function generateReportUI() {
 
           // ── NGÔN NGỮ & VĂN HÓA / NGOẠI GIAO ─────────────────────────────
           } else if (ind.includes('ngôn ngữ') || /phiên dịch|biên dịch|ngoại giao|ngôn ngữ học|văn hóa nước ngoài/i.test(nm)) {
-            displayCombo = 'D01 / D96 (Toán - Văn - Anh / Văn - Anh - Sử hoặc chứng chỉ ngoại ngữ)';
+            displayCombo = 'D01 / D14 (Toán - Văn - Anh / Văn - Sử - Anh)';
             displaySubjects = 'Tiếng Anh nâng cao, Ngữ văn, Lịch sử & văn hóa thế giới, Ngôn ngữ học đại cương.';
 
           // ── QUẢN TRỊ NHÂN SỰ ──────────────────────────────────────────────
@@ -1632,7 +1730,7 @@ async function generateReportUI() {
 
           // ── DU LỊCH & KHÁCH SẠN ───────────────────────────────────────────
           } else if (ind.includes('du lịch') || /hướng dẫn du lịch|khách sạn|lễ tân|nhà hàng|quản lý resort/i.test(nm)) {
-            displayCombo = 'D01 / D96 (Toán - Văn - Anh / + Ngoại ngữ 2)';
+            displayCombo = 'D01 / D14 (Toán - Văn - Anh / Văn - Sử - Anh)';
             displaySubjects = 'Tiếng Anh giao tiếp du lịch, Địa lý du lịch, Văn hóa & lịch sử Việt Nam, Nghiệp vụ lễ tân.';
 
           // ── DỊCH VỤ CÁ NHÂN & LIFESTYLE ──────────────────────────────────
@@ -1647,13 +1745,29 @@ async function generateReportUI() {
 
           // ── THỂ THAO & PHÁT TRIỂN THỂ LỰC ───────────────────────────────
           } else if (ind.includes('thể thao') || /vận động viên|huấn luyện viên thể thao|thể dục|yoga|personal trainer/i.test(nm)) {
-            displayCombo = 'B00 / D01 (Toán - Hóa - Sinh / Toán - Văn - Anh) hoặc Năng khiếu TDTT';
+            displayCombo = 'T00 / D01 (Toán - Văn - Năng khiếu TDTT / Toán - Văn - Anh)';
             displaySubjects = 'Sinh lý học vận động, Giải phẫu học thể thao, Dinh dưỡng thể thao, Kỹ thuật môn thể thao chuyên sâu.';
 
           // ── KHOA HỌC THẦN KINH / BIOTECH / KHÔNG GIAN / LƯỢNG TỬ ─────────
           } else if (/thần kinh|neuroscience|bci|não bộ|lượng tử|quantum|không gian|vũ trụ|nanotechnology|vật liệu tiên tiến|genomic|bioinformatics/i.test(nm)) {
             displayCombo = 'A00 / B00 (Toán - Lý - Hóa / Toán - Hóa - Sinh)';
             displaySubjects = 'Toán cao cấp & vật lý lý thuyết, Hóa sinh phân tử, Lập trình khoa học, Tiếng Anh học thuật chuyên sâu.';
+
+          // ── CÔNG AN & AN NINH QUỐC GIA ─────────────────────────────────────
+          } else if (ind.includes('công an') || ind.includes('an ninh quốc gia')
+              || /sĩ quan cảnh sát|điều tra viên hình sự|cảnh sát nhân dân|an ninh nhân dân|tội phạm mạng.*công an|pháp y hình sự/i.test(nm)) {
+            displayCombo = 'A00 / C00 / D01 (Toán - Lý - Hóa / Văn - Sử - Địa / Toán - Văn - Anh)';
+            displaySubjects = 'Toán học logic, Ngữ văn pháp luật, Lịch sử & địa lý quốc phòng, Thể lực chiến đấu.';
+
+          // ── QUÂN SỰ & QUỐC PHÒNG ────────────────────────────────────────────
+          } else if (ind.includes('quân sự') || ind.includes('quốc phòng')
+              || /sĩ quan quân đội|kỹ sư kỹ thuật quân sự|tình báo điện tử|an ninh mạng quân|sĩ quan chỉ huy|vũ khí trang bị|hậu cần quân/i.test(nm)) {
+            if (/kỹ sư|kỹ thuật quân sự|vũ khí|an ninh mạng quân|cyber warfare/i.test(nm)) {
+              displayCombo = 'A00 / A01 (Toán - Lý - Hóa / Toán - Lý - Anh)';
+            } else {
+              displayCombo = 'A00 / C00 (Toán - Lý - Hóa / Văn - Sử - Địa)';
+            }
+            displaySubjects = 'Toán kỹ thuật, Vật lý ứng dụng, Lịch sử & địa lý quốc phòng, Thể lực chiến đấu, Tiếng Anh quân sự.';
 
           // ── TÂM LÝ HỌC ỨNG DỤNG (không phải y tế lâm sàng) ──────────────
           } else if (ind.includes('tâm lý') || /executive coach|life coach|tư vấn tâm lý|khai vấn|art therapist/i.test(nm)) {

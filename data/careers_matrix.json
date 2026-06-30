@@ -47552,8 +47552,79 @@
       "market_demand": 70,
       "market_salary": 63,
       "advice": "Cắm hoa nghệ thuật + thiết kế không gian xanh đang trở thành xu hướng lifestyle mạnh. Kinh doanh tiệm hoa + dạy nghề online + trang trí sự kiện = 3 nguồn thu bền vững."
+    },
+    {
+      "id": "C_POLICE_OFFICER",
+      "industry": "Công an & An ninh Quốc gia",
+      "study_major": "Cảnh sát Nhân dân / Điều tra Hình sự / An ninh Trật tự",
+      "name": "Sĩ quan Cảnh sát Nhân dân & Điều tra viên Hình sự - Ngành Công an & An ninh Quốc gia",
+      "niche": "Sĩ quan Cảnh sát Điều tra / Chỉ huy An ninh Trật tự",
+      "num_mapping": { "1": 8, "2": 5, "3": 4, "4": 9, "5": 6, "6": 8, "7": 7, "8": 9, "9": 7, "11": 6 },
+      "mbti_req": { "E": 3, "I": 2, "S": 4, "N": 2, "T": 5, "F": -2, "J": 5, "P": -3 },
+      "hover_req": { "R": 5, "I": 6, "A": 1, "S": 5, "E": 8, "C": 8 },
+      "holland_req": { "R": 5, "I": 6, "A": 1, "S": 5, "E": 8, "C": 8 },
+      "market_demand": 85,
+      "market_salary": 75,
+      "advice": "Ngành công an tuyển sinh qua điểm THPT + kiểm tra thể lực & sức khỏe. Sự nghiệp ổn định suốt đời với phúc lợi nhà nước đặc biệt. Cần thể lực tốt, bản lĩnh, kỷ luật cao và tinh thần phục vụ nhân dân."
+    },
+    {
+      "id": "C_POLICE_CYBER",
+      "industry": "Công an & An ninh Quốc gia",
+      "study_major": "An ninh Mạng / Tội phạm học Công nghệ / Cảnh sát Kinh tế",
+      "name": "Điều tra viên Tội phạm Mạng & Chuyên gia An ninh Thông tin Công an - Ngành Công an & An ninh Quốc gia",
+      "niche": "Điều tra viên Tội phạm Mạng / Chuyên gia An ninh Thông tin (Cảnh sát Công nghệ)",
+      "num_mapping": { "1": 8, "2": 4, "3": 5, "4": 9, "5": 5, "6": 6, "7": 9, "8": 8, "9": 6, "11": 7 },
+      "mbti_req": { "E": -1, "I": 4, "S": 3, "N": 4, "T": 6, "F": -3, "J": 4, "P": -1 },
+      "hover_req": { "R": 7, "I": 9, "A": 2, "S": 3, "E": 5, "C": 8 },
+      "holland_req": { "R": 7, "I": 9, "A": 2, "S": 3, "E": 5, "C": 8 },
+      "market_demand": 90,
+      "market_salary": 82,
+      "advice": "Tội phạm mạng & gian lận tài chính số tăng mạnh — nhu cầu điều tra viên CNTT trong lực lượng công an rất cao. Kết hợp nền tảng kỹ thuật số + nghiệp vụ điều tra + pháp lý hình sự là bộ kỹ năng hiếm và đắt giá."
+    },
+    {
+      "id": "C_MILITARY_OFFICER",
+      "industry": "Quân sự & Quốc phòng",
+      "study_major": "Chỉ huy - Tham mưu / Quản lý Quân sự / Quân sự Chính trị",
+      "name": "Sĩ quan Chỉ huy Quân sự & Quản lý Quốc phòng - Ngành Quân sự & Quốc phòng",
+      "niche": "Sĩ quan Chỉ huy Quân đội / Tham mưu Tác chiến (Bộ đội Chính quy)",
+      "num_mapping": { "1": 9, "2": 5, "3": 4, "4": 10, "5": 5, "6": 7, "7": 6, "8": 9, "9": 7, "11": 5 },
+      "mbti_req": { "E": 4, "I": 1, "S": 5, "N": 2, "T": 6, "F": -3, "J": 6, "P": -4 },
+      "hover_req": { "R": 6, "I": 4, "A": 1, "S": 6, "E": 9, "C": 8 },
+      "holland_req": { "R": 6, "I": 4, "A": 1, "S": 6, "E": 9, "C": 8 },
+      "market_demand": 82,
+      "market_salary": 78,
+      "advice": "Con đường sĩ quan chính quy đòi hỏi thể lực xuất sắc, tư duy chiến lược và tinh thần phục vụ Tổ quốc. Lộ trình thăng tiến rõ ràng từ Thiếu úy lên các cấp với chế độ phúc lợi đặc thù và cơ hội hợp tác quân sự quốc tế."
+    },
+    {
+      "id": "C_MILITARY_ENGINEER",
+      "industry": "Quân sự & Quốc phòng",
+      "study_major": "Kỹ thuật Quân sự / Vũ khí Trang bị / Công nghệ Quốc phòng",
+      "name": "Kỹ sư Kỹ thuật Quân sự & Công nghệ Vũ khí Trang bị - Ngành Quân sự & Quốc phòng",
+      "niche": "Kỹ sư Kỹ thuật Quân sự / Chuyên gia Vũ khí & Trang bị Quốc phòng",
+      "num_mapping": { "1": 8, "2": 4, "3": 5, "4": 9, "5": 5, "6": 5, "7": 9, "8": 8, "9": 5, "11": 6 },
+      "mbti_req": { "E": -1, "I": 4, "S": 4, "N": 3, "T": 6, "F": -3, "J": 5, "P": -2 },
+      "hover_req": { "R": 9, "I": 8, "A": 2, "S": 3, "E": 4, "C": 8 },
+      "holland_req": { "R": 9, "I": 8, "A": 2, "S": 3, "E": 4, "C": 8 },
+      "market_demand": 84,
+      "market_salary": 80,
+      "advice": "Học viện Kỹ thuật Quân sự đào tạo kỹ sư quốc phòng trình độ cao — nền tảng kỹ thuật vững chắc kết hợp đặc quyền nghề nghiệp trong lĩnh vực công nghệ quốc phòng và cơ hội chuyển đổi sang lĩnh vực dân sự sau này."
+    },
+    {
+      "id": "C_MILITARY_CYBERSEC",
+      "industry": "Quân sự & Quốc phòng",
+      "study_major": "An ninh Mạng Quân sự / Tình báo Điện tử / Tác chiến Không gian mạng",
+      "name": "Chuyên gia An ninh Mạng Quân đội & Tình báo Điện tử - Ngành Quân sự & Quốc phòng",
+      "niche": "Chuyên gia An ninh Mạng Quân sự / Sĩ quan Tình báo Điện tử (Cyber Warfare)",
+      "num_mapping": { "1": 8, "2": 4, "3": 5, "4": 9, "5": 5, "6": 5, "7": 10, "8": 8, "9": 5, "11": 7 },
+      "mbti_req": { "E": -2, "I": 5, "S": 3, "N": 5, "T": 6, "F": -3, "J": 4, "P": -1 },
+      "hover_req": { "R": 7, "I": 10, "A": 2, "S": 2, "E": 4, "C": 8 },
+      "holland_req": { "R": 7, "I": 10, "A": 2, "S": 2, "E": 4, "C": 8 },
+      "market_demand": 88,
+      "market_salary": 83,
+      "advice": "Tác chiến không gian mạng là ưu tiên chiến lược quốc gia — nhu cầu chuyên gia an ninh mạng quân sự tăng mạnh. Con đường này kết hợp kỹ năng IT cao cấp + tư duy chiến lược quốc phòng + đặc quyền sĩ quan."
     }
   ]
 }
+
 
 

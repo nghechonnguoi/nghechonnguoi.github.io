@@ -111,6 +111,14 @@ label {
   font-size: 13px;
 }
 
+.label-note {
+  font-weight: 400;
+  font-size: 11px;
+  color: #e07a00;
+  font-style: italic;
+  margin-left: 4px;
+}
+
 input,
 select {
   width: 100%;

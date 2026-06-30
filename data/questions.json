@@ -6,23 +6,13 @@
             "category": "R"
         },
         {
-            "id": "Q_R2",
-            "text": "Khi học Vật Lý hoặc Hóa học, bạn thích phần thí nghiệm thực hành trong phòng lab hơn là ngồi ghi chép lý thuyết trên lớp.",
-            "category": "R"
-        },
-        {
             "id": "Q_R3",
             "text": "Bạn cảm thấy hứng thú khi nhìn thấy một công trình xây dựng, một cỗ máy vận hành, hoặc khi xem phim tài liệu về kỹ thuật chế tạo.",
             "category": "R"
         },
         {
             "id": "Q_R4",
-            "text": "Nếu được chọn, bạn thích học nghề có kết quả 'nhìn thấy rõ ràng bằng mắt' hơn (ví dụ: sản phẩm hoàn chỉnh, công trình, thiết bị) so với công việc xử lý thông tin trừu tượng.",
-            "category": "R"
-        },
-        {
-            "id": "Q_R5",
-            "text": "Bạn thích tham gia các hoạt động vận động ngoài trời, thể thao, hoặc chăm sóc vật nuôi/cây cối nhiều hơn các hoạt động ngồi yên trong phòng.",
+            "text": "Nếu được chọn, bạn thích học nghề có kết quả nhìn thấy rõ ràng bằng mắt hơn (ví dụ: sản phẩm hoàn chỉnh, công trình, thiết bị) so với công việc xử lý thông tin trựu tượng.",
             "category": "R"
         },
         {
@@ -41,33 +31,13 @@
             "category": "I"
         },
         {
-            "id": "Q_I4",
-            "text": "Bạn thích tự mình ngồi suy nghĩ một mình để phân tích vấn đề đến tận gốc rễ, hơn là hỏi ngay người khác khi gặp khó khăn.",
-            "category": "I"
-        },
-        {
-            "id": "Q_I5",
-            "text": "Bạn thường đặt ra câu hỏi kiểu 'Tại sao lại thế này? Nếu thay đổi điều này thì sẽ ra sao?' ngay cả với những thứ mà bạn bè xung quanh thấy hiển nhiên.",
-            "category": "I"
-        },
-        {
             "id": "Q_A1",
             "text": "Bạn có thói quen tự viết nhật ký, sáng tác thơ/truyện ngắn, vẽ phác thảo, hoặc biên tập video/ảnh theo phong cách riêng của mình.",
             "category": "A"
         },
         {
-            "id": "Q_A2",
-            "text": "Khi được giao làm bài thuyết trình nhóm, bạn là người chủ động nghĩ ra ý tưởng trình bày độc đáo, hình ảnh đẹp mắt — dù tốn thêm thời gian.",
-            "category": "A"
-        },
-        {
             "id": "Q_A3",
             "text": "Bạn dễ dàng nhận ra sự khác biệt tinh tế về màu sắc, bố cục, phong cách thẩm mỹ (trong trang phục, thiết kế phòng, bao bì sản phẩm...) mà nhiều người không để ý.",
-            "category": "A"
-        },
-        {
-            "id": "Q_A4",
-            "text": "Bạn cảm thấy bức bối, không thoải mái khi phải làm việc trong môi trường quá cứng nhắc, rập khuôn theo một quy trình duy nhất không được sáng tạo thêm.",
             "category": "A"
         },
         {
@@ -86,18 +56,8 @@
             "category": "S"
         },
         {
-            "id": "Q_S3",
-            "text": "Bạn từng tình nguyện giảng lại bài cho bạn kém hơn, tham gia hoạt động cộng đồng, hoặc chăm sóc người thân — và cảm thấy thực sự vui khi làm vậy.",
-            "category": "S"
-        },
-        {
             "id": "Q_S4",
             "text": "Bạn có khả năng đọc được cảm xúc, tâm trạng của người khác khá tốt — biết khi nào nên nói, khi nào nên im lặng và lắng nghe.",
-            "category": "S"
-        },
-        {
-            "id": "Q_S5",
-            "text": "Bạn thấy mình phù hợp và hứng thú với các môi trường làm việc có nhiều tương tác người-người (trường học, bệnh viện, tổ chức cộng đồng, dịch vụ khách hàng) hơn là làm việc một mình với máy móc hoặc dữ liệu.",
             "category": "S"
         },
         {
@@ -106,18 +66,8 @@
             "category": "E"
         },
         {
-            "id": "Q_E2",
-            "text": "Bạn không ngại tranh luận để bảo vệ quan điểm hoặc thuyết phục người khác thay đổi ý kiến khi bạn chắc chắn mình đúng.",
-            "category": "E"
-        },
-        {
             "id": "Q_E3",
             "text": "Bạn đã từng bán hàng online, làm affiliate, tổ chức sự kiện nhỏ kiếm tiền, hoặc mơ về việc tự kinh doanh riêng — dù chỉ ở giai đoạn thử nghiệm.",
-            "category": "E"
-        },
-        {
-            "id": "Q_E4",
-            "text": "Bạn coi trọng việc có tầm ảnh hưởng đến người xung quanh và tìm thấy động lực từ sự cạnh tranh lành mạnh, từ việc vươn lên dẫn đầu trong tập thể.",
             "category": "E"
         },
         {
@@ -139,22 +89,12 @@
             "id": "Q_C3",
             "text": "Bạn thấy thoải mái, thậm chí thích thú khi làm việc với bảng tính Excel, sổ theo dõi quỹ lớp, hoặc bất kỳ hệ thống ghi chép số liệu có cấu trúc nào.",
             "category": "C"
-        },
-        {
-            "id": "Q_C4",
-            "text": "Bạn thích tuân theo quy trình và nội quy đã được thống nhất hơn là tự mình phá vỡ quy tắc, vì bạn tin rằng hệ thống rõ ràng tạo ra kết quả tốt hơn.",
-            "category": "C"
-        },
-        {
-            "id": "Q_C5",
-            "text": "Bạn thấy mình phù hợp với công việc đòi hỏi sự tỉ mỉ, nhất quán và kiên nhẫn xử lý từng chi tiết nhỏ — hơn là các công việc sáng tạo tự phát.",
-            "category": "C"
         }
     ],
     "mbti_questions": [
         {
             "id": "Q_M1",
-            "text": "Sau một tuần học tập mệt mỏi, bạn nạp lại năng lượng bằng cách nào nhiều hơn? (A) Ra ngoài gặp bạn bè, đi chơi, tụ tập đông vui / (B) Ở một mình trong phòng, đọc sách, nghe nhạc hoặc xem phim yêu thích.",
+            "text": "Sau một tuần học tập mệt mỏi, bạn nạp lại năng lượng bằng cách nào nhiều hơn? (A) Ra ngoài gặp bạn bè, đi chơi, tụ tập đông vui / (B) ở một mình trong phòng, đọc sách, nghe nhạc hoặc xem phim yêu thích.",
             "dimension": "EI"
         },
         {
@@ -229,7 +169,7 @@
             "id": "Q_IKIGAI_TALENT_2",
             "type": "ikigai_talent",
             "category": "TALENT_STRATEGY",
-            "question": "Khi đối mặt với một vấn đề phức tạp, bạn thường nhanh chóng nhìn thấy bức tranh tổng thể, phân tích được nguyên nhân gốc và vạch ra hướng giải quyết rõ ràng — bạn đánh giá năng lực này của mình ở mức nào?"
+            "question": "Bạn có khả năng nhìn thấy bức tranh tổng thể, phân tích tình huống phức tạp, hoặc đưa ra kế hoạch / chiến lược trong các tình huống khó — bạn tự đánh giá năng lực chiến lược & tâm lý của mình ở mức nào?"
         },
         {
             "id": "Q_IKIGAI_TALENT_3",
@@ -242,23 +182,26 @@
             "type": "ikigai_choice",
             "question": "Trong tương lai, điều nào quan trọng nhất với bạn trong công việc?",
             "options": [
-                { "value": "MONEY", "text": "Thu nhập cao — sự ổn định tài chính là nền tảng của mọi thứ" },
-                { "value": "IMPACT", "text": "Tạo ra tác động tích cực — công việc phải có ý nghĩa với cộng đồng" },
-                { "value": "FREEDOM", "text": "Tự do — tự quyết thời gian, địa điểm và cách làm việc" },
-                { "value": "MASTERY", "text": "Làm chủ chuyên môn — trở thành người giỏi nhất trong một lĩnh vực" },
-                { "value": "RECOGNITION", "text": "Được công nhận — có địa vị, danh tiếng và sự ngưỡng mộ từ xã hội" }
-            ]
-        },
-        {
-            "id": "Q_IKIGAI_ENV",
-            "type": "ikigai_choice",
-            "question": "Môi trường làm việc lý tưởng mà bạn hình dung cho bản thân là?",
-            "options": [
-                { "value": "TEAM", "text": "Làm việc nhóm sôi nổi, tương tác nhiều, họp hành và cộng tác liên tục" },
-                { "value": "SOLO", "text": "Làm việc độc lập, tập trung sâu, ít bị gián đoạn" },
-                { "value": "FIELD", "text": "Năng động ngoài thực địa — gặp gỡ nhiều người, di chuyển thường xuyên" },
-                { "value": "REMOTE", "text": "Làm online, linh hoạt địa điểm, có thể làm từ bất cứ đâu" },
-                { "value": "MIXED", "text": "Kết hợp — vừa có thời gian tập trung độc lập, vừa có tương tác nhóm" }
+                {
+                    "value": "MONEY",
+                    "text": "Thu nhập cao — sự ổn định tài chính là nền tảng của mọi thứ"
+                },
+                {
+                    "value": "IMPACT",
+                    "text": "Tạo ra tác động tích cực — công việc phải có ý nghĩa với cộng đồng"
+                },
+                {
+                    "value": "FREEDOM",
+                    "text": "Tự do — tự quyết thời gian, địa điểm và cách làm việc"
+                },
+                {
+                    "value": "MASTERY",
+                    "text": "Làm chủ chuyên môn — trở thành người giỏi nhất trong một lĩnh vực"
+                },
+                {
+                    "value": "RECOGNITION",
+                    "text": "Được công nhận — có địa vị, danh tiếng và sự ngưỡng mộ từ xã hội"
+                }
             ]
         },
         {
@@ -266,11 +209,26 @@
             "type": "ikigai_choice",
             "question": "Bạn bè hoặc thầy cô thường khen bạn nhất về điều gì?",
             "options": [
-                { "value": "COMMUNICATE", "text": "Nói chuyện cuốn hút, diễn đạt rõ ràng, dễ thuyết phục người khác" },
-                { "value": "ANALYZE", "text": "Tư duy sắc bén, phân tích vấn đề sâu, luôn hỏi Tại sao?" },
-                { "value": "CREATE", "text": "Sáng tạo, luôn có ý tưởng mới lạ, nhìn mọi thứ theo góc độ khác biệt" },
-                { "value": "ORGANIZE", "text": "Ngăn nắp, có tổ chức, luôn làm mọi thứ bài bản và đúng hạn" },
-                { "value": "EMPATHIZE", "text": "Đồng cảm tốt, biết lắng nghe, mọi người cảm thấy được hiểu khi ở cạnh bạn" }
+                {
+                    "value": "COMMUNICATE",
+                    "text": "Nói chuyện cuốn hút, diễn đạt rõ ràng, dễ thuyết phục người khác"
+                },
+                {
+                    "value": "ANALYZE",
+                    "text": "Tư duy sắc bén, phân tích vấn đề sâu, luôn hỏi Tại sao?"
+                },
+                {
+                    "value": "CREATE",
+                    "text": "Sáng tạo, luôn có ý tưởng mới lạ, nhìn mọi thứ theo góc độ khác biệt"
+                },
+                {
+                    "value": "ORGANIZE",
+                    "text": "Ngăn nắp, có tổ chức, luôn làm mọi thứ bài bản và đúng hạn"
+                },
+                {
+                    "value": "EMPATHIZE",
+                    "text": "Đồng cảm tốt, biết lắng nghe, mọi người cảm thấy được hiểu khi ở cạnh bạn"
+                }
             ]
         },
         {
@@ -278,11 +236,26 @@
             "type": "ikigai_choice",
             "question": "Điều nào dưới đây bạn chắc chắn KHÔNG muốn có trong công việc tương lai?",
             "options": [
-                { "value": "AVOID_ROUTINE", "text": "Làm đi làm lại một việc không đổi ngày qua ngày" },
-                { "value": "AVOID_PEOPLE", "text": "Phải tiếp xúc với quá nhiều người lạ liên tục, không có không gian riêng" },
-                { "value": "AVOID_PRESSURE", "text": "Áp lực cao, deadline dồn dập, luôn trong tình trạng khẩn cấp" },
-                { "value": "AVOID_ABSTRACT", "text": "Chỉ làm việc với lý thuyết, số liệu, không thấy kết quả thực tế rõ ràng" },
-                { "value": "AVOID_RULES", "text": "Bị kiểm soát chặt chẽ bởi quy trình, không có không gian sáng tạo hay tự quyết" }
+                {
+                    "value": "AVOID_ROUTINE",
+                    "text": "Làm đi làm lại một việc không đổi ngày qua ngày"
+                },
+                {
+                    "value": "AVOID_PEOPLE",
+                    "text": "Phải tiếp xúc với quá nhiều người lạ liên tục, không có không gian riêng"
+                },
+                {
+                    "value": "AVOID_PRESSURE",
+                    "text": "Áp lực cao, deadline dồn dập, luôn trong tình trạng khẩn cấp"
+                },
+                {
+                    "value": "AVOID_ABSTRACT",
+                    "text": "Chỉ làm việc với lý thuyết, số liệu, không thấy kết quả thực tế rõ ràng"
+                },
+                {
+                    "value": "AVOID_RULES",
+                    "text": "Bị kiểm soát chặt chẽ bởi quy trình, không có không gian sáng tạo hay tự quyết"
+                }
             ]
         },
         {
@@ -290,10 +263,110 @@
             "type": "ikigai_choice",
             "question": "🏥 Nếu bạn làm việc trong lĩnh vực Y tế / Sức khỏe, bạn cảm thấy thế nào về việc tiếp xúc trực tiếp với bệnh nhân, máu và thương tích?",
             "options": [
-                { "value": "CLINICAL_OK", "text": "✅ Hoàn toàn thoải mái — tôi muốn trực tiếp chăm sóc, điều trị bệnh nhân" },
-                { "value": "CLINICAL_MILD", "text": "🟡 Tạm ổn — có thể chịu được, nhưng không phải thế mạnh của tôi" },
-                { "value": "CLINICAL_AVOID", "text": "❌ Tôi sợ máu / không muốn tiếp xúc thương tích — tôi muốn làm y tế theo hướng khác (nghiên cứu, quản lý, tâm lý, công nghệ...)" },
-                { "value": "CLINICAL_NA", "text": "➖ Không liên quan — tôi không định làm trong lĩnh vực y tế" }
+                {
+                    "value": "CLINICAL_OK",
+                    "text": "✅ Hoàn toàn thoải mái — tôi muốn trực tiếp chăm sóc, điều trị bệnh nhân"
+                },
+                {
+                    "value": "CLINICAL_MILD",
+                    "text": "🟡 Tạm ổn — có thể chịu được, nhưng không phải thế mạnh của tôi"
+                },
+                {
+                    "value": "CLINICAL_AVOID",
+                    "text": "❌ Tôi sợ máu / không muốn tiếp xúc thương tích — tôi muốn làm y tế theo hướng khác"
+                },
+                {
+                    "value": "CLINICAL_NA",
+                    "text": "➖ Không liên quan — tôi không định làm trong lĩnh vực y tế"
+                }
+            ]
+        },
+        {
+            "id": "Q_CONSTRAINT_ARTS",
+            "type": "ikigai_choice",
+            "question": "🎭 Nếu nghề Nghệ sĩ biểu diễn / Diễn viên / Ca sĩ / Vũ công được gợi ý — bạn cảm thấy thế nào về thu nhập không ổn định trong nhiều năm đầu?",
+            "options": [
+                {
+                    "value": "ARTS_OK",
+                    "text": "✅ Tôi chấp nhận — đam mê và biểu diễn quan trọng hơn thu nhập ổn định"
+                },
+                {
+                    "value": "ARTS_MILD",
+                    "text": "🟡 Tôi do dự — thích nhưng lo ngại rủi ro tài chính dài hạn"
+                },
+                {
+                    "value": "ARTS_AVOID",
+                    "text": "❌ Tôi không muốn nghề biểu diễn sân khấu/truyền thông — hướng sáng tạo khác hơn"
+                },
+                {
+                    "value": "ARTS_NA",
+                    "text": "➖ Không liên quan — tôi không có định hướng nghệ thuật biểu diễn"
+                }
+            ]
+        },
+        {
+            "id": "Q_CONSTRAINT_EDU",
+            "type": "ikigai_choice",
+            "question": "🏫 Nếu nghề Giáo viên / Giảng viên / Nhà đào tạo được gợi ý — bạn cảm thấy thế nào về việc gắn bó lâu dài với môi trường dạy học và truyền đạt kiến thức?",
+            "options": [
+                {
+                    "value": "EDU_OK",
+                    "text": "✅ Tôi rất muốn — dạy học và truyền cảm hứng là điều tôi thực sự yêu thích"
+                },
+                {
+                    "value": "EDU_MILD",
+                    "text": "🟡 Có thể — tôi thích chia sẻ nhưng chưa chắc muốn làm đây là nghề chính"
+                },
+                {
+                    "value": "EDU_AVOID",
+                    "text": "❌ Không phù hợp — tôi không muốn đứng lớp hoặc đào tạo lâu dài"
+                },
+                {
+                    "value": "EDU_NA",
+                    "text": "➖ Không liên quan — tôi không có định hướng vào giáo dục"
+                }
+            ]
+        },
+        {
+            "id": "Q_CONSTRAINT_BIZ",
+            "type": "ikigai_choice",
+            "question": "💼 Nếu nghề Doanh nhân / Khởi nghiệp / Tự kinh doanh được gợi ý — bạn cảm thấy thế nào về rủi ro thất bại và thu nhập không cố định?",
+            "options": [
+                {
+                    "value": "BIZ_OK",
+                    "text": "✅ Tôi chấp nhận rủi ro — tôi thích làm chủ và không ngại bắt đầu lại từ đầu"
+                },
+                {
+                    "value": "BIZ_MILD",
+                    "text": "🟡 Tôi muốn thử — nhưng muốn có lương ổn định trước rồi mới khởi nghiệp"
+                },
+                {
+                    "value": "BIZ_AVOID",
+                    "text": "❌ Tôi muốn việc làm ổn định, không thích rủi ro tài chính cao"
+                }
+            ]
+        },
+        {
+            "id": "Q_CONSTRAINT_LAW",
+            "type": "ikigai_choice",
+            "question": "⚖️ Nếu nghề Luật sư / Pháp chế / Công tố viên được gợi ý — bạn có sẵn sàng theo học ngành Luật (5+ năm) và vượt qua các kỳ thi chứng chỉ hành nghề khắt khe?",
+            "options": [
+                {
+                    "value": "LAW_OK",
+                    "text": "✅ Hoàn toàn sẵn sàng — tôi thích môi trường pháp lý, tranh tụng và bảo vệ quyền lợi"
+                },
+                {
+                    "value": "LAW_MILD",
+                    "text": "🟡 Có thể cân nhắc — nếu hướng nghề phù hợp tôi sẵn sàng đầu tư thời gian"
+                },
+                {
+                    "value": "LAW_AVOID",
+                    "text": "❌ Không — tôi không muốn ngành pháp lý dù nó phù hợp tố chất"
+                },
+                {
+                    "value": "LAW_NA",
+                    "text": "➖ Không liên quan — tôi chưa nghĩ đến hướng này"
+                }
             ]
         }
     ]
