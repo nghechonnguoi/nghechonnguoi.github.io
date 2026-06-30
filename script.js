@@ -1280,8 +1280,8 @@ async function generateReportUI() {
         }
         const mbtiScore = Math.max(0, Math.min(100, mbtiBase));
 
-        // ── S_niche nền tảng (Holland 55% + MBTI 35%) ──────────────────────
-        let S_niche = (hollandScore * 0.55) + (mbtiScore * 0.35);
+        // ── S_niche nền tảng (Holland 40% + MBTI 50%) ──────────────────────
+        let S_niche = (hollandScore * 0.40) + (mbtiScore * 0.50);
 
         // ══════════════════════════════════════════════════════════════════
         //  IKIGAI EXTENDED — 4 câu giá trị/môi trường/điểm mạnh/né tránh
