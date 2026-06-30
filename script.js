@@ -854,7 +854,7 @@ const PROFESSION_MAP = {
  * @param {Object} thptScores - Điểm các môn THPT
  * @param {string} ikigaiStrength - Câu trả lời Ikigai điểm mạnh
  */
-function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength) {
+function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength, mbtiCode) {
   const profMap = PROFESSION_MAP[industry || ''];
   if (!profMap) return { profession: null, nicheStr: '' };
 
@@ -862,7 +862,26 @@ function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength) {
   const sortedH = Object.entries(hPct || {}).sort((a, b) => b[1] - a[1]);
   const userTopH  = sortedH[0]?.[0] || 'S';
   const userTop2H = sortedH[1]?.[0] || 'S';
-  const comboKey  = userTopH + userTop2H;
+  let comboKey  = userTopH + userTop2H;
+
+  // 1b. MBTI Override — Extraverted (E) users prefer Trainer over Teacher,
+  //     Executive Coach over Counselor trong cùng Holland combo
+  //  Lý do: Holland S+A cho ra "Giáo viên Nghệ thuật" (phù hợp ISFJ/INFJ)
+  //          nhưng ENFP/ENFJ cần "Nhà đào tạo / Trainer" (E-dominant careers)
+  if (mbtiCode && mbtiCode.includes('E') && profMap.combos) {
+    // Các combo Teacher/Counselor/Giảng viên thuần — cần override nếu user là E
+    const INTROVERTED_COMBOS = new Set(['SS','SA','SR','SC','RS','CS','IS','SI','IC','IA']);
+    if (INTROVERTED_COMBOS.has(comboKey)) {
+      // Thử E + top2Holland (EA, ES, EC...) → nếu có trong combos thì dùng
+      const tryCombo1 = 'E' + userTop2H; // e.g. EA, ES, EC
+      const tryCombo2 = userTop2H + 'E'; // e.g. AE, SE
+      const tryCombo3 = 'E' + userTopH;  // e.g. ES, EI
+      if (profMap.combos[tryCombo1])      comboKey = tryCombo1;
+      else if (profMap.combos[tryCombo2]) comboKey = tryCombo2;
+      else if (profMap.combos[tryCombo3]) comboKey = tryCombo3;
+      else if (profMap.combos['ES'])      comboKey = 'ES'; // safe fallback → Nhà đào tạo
+    }
+  }
 
   // 2. Ưu tiên combo top1+top2 → phân biệt chính xác 5 nghề đào tạo
   let professionName;
@@ -1711,7 +1730,7 @@ async function generateReportUI() {
     // ── TIỀN XỬ LÝ: Gắn profTitle thực tế vào từng entry (tên hiển thị = tên nghề người dùng thấy) ──
     // Đây là bước cốt lõi: dedup phải dựa trên TÊN HIỂN THỊ, không phải entry.niche từ database
     for (const entry of round3) {
-      const pInfo = getProfessionDisplay(entry.industry, hPct, profile.thptScores, ikigaiStrength);
+      const pInfo = getProfessionDisplay(entry.industry, hPct, profile.thptScores, ikigaiStrength, mbtiCode);
       entry._profTitle = pInfo.profession || entry.niche || entry.name;
     }
 
@@ -1842,12 +1861,13 @@ async function generateReportUI() {
       card.style.borderLeftColor = BUCKET_COLOR[entry.bucket] || '#3182ce';
 
       // ── Tên nghề cá nhân hóa: dùng profInfo đã được pre-compute trong dedup ────
-      // Tính nicheStr (ngách) cần gọi thêm 1 lần để lấy phần nicheStr
+      // Truyền mbtiCode vào để override Teacher → Trainer cho MBTI E (ENFP/ENFJ/ESFP...)
       const profInfo = getProfessionDisplay(
         entry.industry,
         hPct,
         profile.thptScores,
-        ikigaiStrength
+        ikigaiStrength,
+        mbtiCode
       );
       // Dùng _profTitle đã pre-compute để đảm bảo nhất quán với dedup
       const profTitle = profInfo.profession
