@@ -2013,13 +2013,7 @@ async function generateReportUI() {
     document.getElementById('res-mbti').innerText = mbtiCode;
     document.getElementById('res-holland').innerText = sortedHolland.slice(0, 2).map(x => x[0]).join(' & ');
 
-    // — Điểm xét tuyển / Chế độ —
-    const scoreEl = document.getElementById('res-score');
-    if (!hasScores) {
-      scoreEl.innerText = 'Chế độ: Hướng nghiệp sớm (Dưới lớp 12)';
-    } else {
-      scoreEl.innerText = `${finalUserScore.toFixed(2)} (Khối ${bestComboName})`;
-    }
+    // (Đã bỏ phần Điểm xét tuyển)
 
     // — Banner lộ trình —
     const bannerEl = document.getElementById('vocational-route-banner');
@@ -2071,11 +2065,8 @@ async function generateReportUI() {
         </div>
         
         <div style="text-align: center; border-top: 1px dashed #334155; padding-top: 25px;">
-          <h3 style="color: #fca5a5; font-size: 22px; font-weight: bold; margin-bottom: 8px;">MỞ KHÓA TOÀN BỘ & TẢI FILE PDF</h3>
-          <p style="color: #4ade80; font-size: 18px; font-weight: bold; margin-bottom: 25px;">Giá ưu đãi: 568.000 VNĐ</p>
-          
           <button id="btn-show-qr" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white; border: none; padding: 14px 30px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 15px rgba(234, 88, 12, 0.4); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            💳 THANH TOÁN QUA MÃ QR
+            🔓 MỞ KHÓA TOÀN BỘ & FILE PDF
           </button>
           
           <p style="color: #64748b; font-size: 12px; margin-top: 15px; font-style: italic;">
@@ -2151,6 +2142,7 @@ async function generateReportUI() {
 
         qrArea.innerHTML = `
           <h4 style="color: #0f172a; margin-bottom: 10px;">Quét mã QR dưới đây để thanh toán</h4>
+          <p style="color: #10b981; font-size: 18px; font-weight: bold; margin-bottom: 10px;">Giá ưu đãi: 568.000 VNĐ</p>
           <p style="color: #ef4444; font-weight: bold; margin-bottom: 15px;">Nội dung chuyển khoản: <span style="color:#2563eb">${data.description}</span></p>
           
           <img src="${qrImgUrl}" alt="QR Code PayOS" style="max-width: 250px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">

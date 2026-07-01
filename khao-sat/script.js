@@ -1971,13 +1971,7 @@ async function generateReportUI() {
     document.getElementById('res-mbti').innerText = mbtiCode;
     document.getElementById('res-holland').innerText = sortedHolland.slice(0, 2).map(x => x[0]).join(' & ');
 
-    // — Điểm xét tuyển / Chế độ —
-    const scoreEl = document.getElementById('res-score');
-    if (!hasScores) {
-      scoreEl.innerText = 'Chế độ: Hướng nghiệp sớm (Dưới lớp 12)';
-    } else {
-      scoreEl.innerText = `${finalUserScore.toFixed(2)} (Khối ${bestComboName})`;
-    }
+    // (Đã bỏ phần Điểm xét tuyển)
 
     // — Banner lộ trình —
     const bannerEl = document.getElementById('vocational-route-banner');
