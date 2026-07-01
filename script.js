@@ -2103,56 +2103,119 @@ async function generateReportUI() {
     `;
 
     // Logic xử lý khi bấm nút "Thanh toán QR"
-    document.getElementById('btn-show-qr').addEventListener('click', function() {
-      this.style.display = 'none';
-      document.getElementById('qr-payment-area').style.display = 'block';
-    });
-    
-    // Logic khi bấm "Tôi đã chuyển khoản thành công" -> Kích hoạt API PDF
-    document.getElementById('btn-confirm-payment').addEventListener('click', function() {
+    document.getElementById('btn-show-qr').addEventListener('click', async function() {
       const btn = this;
-      btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin 1s linear infinite;"></span> Đang xác nhận...';
+      btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin 1s linear infinite;"></span> Đang kết nối PayOS...';
       btn.disabled = true;
       btn.style.opacity = '0.7';
-      
-      // Giả lập thời gian chờ hệ thống duyệt (hoặc gọi API trực tiếp tạo PDF)
-      setTimeout(() => {
-        btn.innerHTML = 'Đang tải file PDF...';
-        
-        // Gọi API tạo PDF
-        fetch('https://nghechonnguoi.com/api/generate-pdf', {
+
+      const orderId = window.pdfPayload.MA_SO_HO_SO; // VD: NCN-1234
+      const amount = 568000;
+      // Chỉ lấy phần số của orderId làm orderCode cho PayOS (PayOS yêu cầu orderCode là số nguyên dương <= 9007199254740991)
+      const orderCodeNum = parseInt(orderId.replace(/[^0-9]/g, '')) || Math.floor(Math.random() * 1000000);
+
+      try {
+        // 1. Tạo đơn hàng PENDING trên Firestore
+        await db.collection('orders').doc(orderCodeNum.toString()).set({
+          orderId: orderId,
+          orderCode: orderCodeNum,
+          amount: amount,
+          status: 'PENDING',
+          customerName: profile.fullName,
+          customerPhone: profile.phone,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // 2. Gọi API PayOS để lấy thông tin thanh toán
+        const res = await fetch('https://nghechonnguoi.com/api/payos/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(window.pdfPayload)
-        })
-        .then(res => {
-          if (!res.ok) throw new Error("Lỗi tải PDF");
-          return res.blob();
-        })
-        .then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = \`Bao-Cao-Dinh-Vi-Tuong-Lai-\${profile.fullName.replace(/\\s+/g, '-')}.pdf\`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          
-          document.getElementById('qr-payment-area').innerHTML = \`
-            <div style="padding: 20px 0;">
-              <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tải Báo cáo thành công!</h3>
-              <p style="color: #475569; font-weight: 500;">File PDF đã được lưu vào máy của bạn. Chúc bạn có một hành trình định vị bản thân tuyệt vời!</p>
-            </div>
-          \`;
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Lỗi kết nối khi tạo PDF. Vui lòng liên hệ Admin đọc mã giao dịch để nhận báo cáo thủ công.");
-          btn.innerHTML = 'Thử lại';
-          btn.disabled = false;
-          btn.style.opacity = '1';
+          body: JSON.stringify({
+            orderCode: orderCodeNum,
+            amount: amount,
+            description: `NCN ${orderCodeNum}`,
+            buyerName: profile.fullName,
+            buyerPhone: profile.phone
+          })
         });
-      }, 2000);
+        
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || "Không thể tạo link thanh toán");
+
+        btn.style.display = 'none';
+        
+        // 3. Hiển thị QR Code từ PayOS
+        const qrArea = document.getElementById('qr-payment-area');
+        qrArea.style.display = 'block';
+        
+        // Tạo URL QR VietQR chuẩn từ thông tin PayOS trả về
+        const qrImgUrl = data.qrCode || `https://img.vietqr.io/image/${data.bin}-${data.accountNumber}-compact2.png?amount=${data.amount}&addInfo=${encodeURIComponent(data.description)}&accountName=${encodeURIComponent(data.accountName)}`;
+
+        qrArea.innerHTML = `
+          <h4 style="color: #0f172a; margin-bottom: 10px;">Quét mã QR dưới đây để thanh toán</h4>
+          <p style="color: #ef4444; font-weight: bold; margin-bottom: 15px;">Nội dung chuyển khoản: <span style="color:#2563eb">${data.description}</span></p>
+          
+          <img src="${qrImgUrl}" alt="QR Code PayOS" style="max-width: 250px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
+          
+          <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Hệ thống đang tự động lắng nghe giao dịch. Vui lòng không đóng trang này.</p>
+          
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #f59e0b; font-weight: bold; font-size: 14px;">
+            <span class="spinner" style="width:16px;height:16px;border:2px solid #f59e0b;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin 1s linear infinite;"></span> Đang chờ thanh toán...
+          </div>
+        `;
+
+        // 4. Lắng nghe Realtime Firestore để tự động tải PDF khi trạng thái chuyển sang PAID
+        const unsubscribe = db.collection('orders').doc(orderCodeNum.toString())
+          .onSnapshot(async (doc) => {
+            if (doc.exists && doc.data().status === 'PAID') {
+              unsubscribe(); // Dừng lắng nghe
+              
+              qrArea.innerHTML = `
+                <div style="padding: 20px 0;">
+                  <h3 style="color: #10b981; margin-bottom: 15px;">🎉 Đã nhận thanh toán! Đang tạo Báo cáo...</h3>
+                  <div class="spinner" style="margin: 0 auto; width:30px;height:30px;border:3px solid #10b981;border-top-color:transparent;border-radius:50%;display:block;animation:spin 1s linear infinite;"></div>
+                </div>
+              `;
+
+              // Gọi API tạo PDF
+              try {
+                const pdfRes = await fetch('https://nghechonnguoi.com/api/generate-pdf', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(window.pdfPayload)
+                });
+                
+                if (!pdfRes.ok) throw new Error("Lỗi tải PDF");
+                const blob = await pdfRes.blob();
+                
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = \`Bao-Cao-Dinh-Vi-Tuong-Lai-\${profile.fullName.replace(/\\s+/g, '-')}.pdf\`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                
+                qrArea.innerHTML = `
+                  <div style="padding: 20px 0;">
+                    <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tải Báo cáo thành công!</h3>
+                    <p style="color: #475569; font-weight: 500;">File PDF đã được lưu vào máy của bạn. Chúc bạn có một hành trình định vị bản thân tuyệt vời!</p>
+                  </div>
+                `;
+              } catch (pdfErr) {
+                console.error(pdfErr);
+                qrArea.innerHTML = \`<div style="color: red; padding: 20px 0;">Thanh toán thành công nhưng có lỗi khi xuất PDF. Vui lòng liên hệ Admin đọc mã \${orderCodeNum} để nhận file thủ công.</div>\`;
+              }
+            }
+          });
+
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi kết nối PayOS: " + err.message);
+        btn.innerHTML = '💳 THANH TOÁN QUA MÃ QR';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
     });
 
   } catch (err) {
