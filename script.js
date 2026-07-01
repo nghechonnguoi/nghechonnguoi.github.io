@@ -2138,12 +2138,12 @@ async function generateReportUI() {
         qrArea.style.display = 'block';
         
         // Tạo URL QR VietQR chuẩn từ thông tin PayOS trả về
-        const qrImgUrl = data.qrCode || `https://img.vietqr.io/image/${data.bin}-${data.accountNumber}-compact2.png?amount=${data.amount}&addInfo=${encodeURIComponent(data.description)}&accountName=${encodeURIComponent(data.accountName)}`;
+        const qrImgUrl = `https://img.vietqr.io/image/${data.data.bin}-${data.data.accountNumber}-compact2.png?amount=${data.data.amount}&addInfo=${encodeURIComponent(data.data.description)}&accountName=${encodeURIComponent(data.data.accountName)}`;
 
         qrArea.innerHTML = `
           <h4 style="color: #0f172a; margin-bottom: 10px;">Quét mã QR dưới đây để thanh toán</h4>
           <p style="color: #10b981; font-size: 18px; font-weight: bold; margin-bottom: 10px;">Giá ưu đãi: 568.000 VNĐ</p>
-          <p style="color: #ef4444; font-weight: bold; margin-bottom: 15px;">Nội dung chuyển khoản: <span style="color:#2563eb">${data.description}</span></p>
+          <p style="color: #ef4444; font-weight: bold; margin-bottom: 15px;">Nội dung chuyển khoản: <span style="color:#2563eb">${data.data.description}</span></p>
           
           <img src="${qrImgUrl}" alt="QR Code PayOS" style="max-width: 250px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
           
