@@ -2125,7 +2125,7 @@ async function generateReportUI() {
         });
 
         // 2. Gọi API PayOS để lấy thông tin thanh toán
-        const res = await fetch('https://nghechonnguoi.com/api/payos/create', {
+        const res = await fetch('https://ncn-academy-web.vercel.app/api/payos/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -2177,7 +2177,7 @@ async function generateReportUI() {
 
               // Gọi API tạo PDF
               try {
-                const pdfRes = await fetch('https://nghechonnguoi.com/api/generate-pdf', {
+                const pdfRes = await fetch('https://ncn-academy-web.vercel.app/api/generate-pdf', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(window.pdfPayload)
