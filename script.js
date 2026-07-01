@@ -2045,12 +2045,10 @@ async function generateReportUI() {
     const space = document.getElementById('career-recommendations-space');
     
     // Đổi tiêu đề banner
-    const titleEl = document.getElementById('career-section-title');
     titleEl.innerHTML = '🔒 ĐỂ BIẾT CHÍNH XÁC NGHỀ NÀO DÀNH CHO BẠN?';
     titleEl.style.color = '#f59e0b'; // Màu cam/vàng cảnh báo
     
     // Xóa banner cũ (nếu có)
-    const bannerEl = document.getElementById('vocational-route-banner');
     if (bannerEl) bannerEl.innerHTML = '';
 
     space.innerHTML = `
@@ -2191,7 +2189,7 @@ async function generateReportUI() {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = \`Bao-Cao-Dinh-Vi-Tuong-Lai-\${profile.fullName.replace(/\\s+/g, '-')}.pdf\`;
+                a.download = `Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf`;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
@@ -2204,7 +2202,7 @@ async function generateReportUI() {
                 `;
               } catch (pdfErr) {
                 console.error(pdfErr);
-                qrArea.innerHTML = \`<div style="color: red; padding: 20px 0;">Thanh toán thành công nhưng có lỗi khi xuất PDF. Vui lòng liên hệ Admin đọc mã \${orderCodeNum} để nhận file thủ công.</div>\`;
+                qrArea.innerHTML = `<div style="color: red; padding: 20px 0;">Thanh toán thành công nhưng có lỗi khi xuất PDF. Vui lòng liên hệ Admin đọc mã ${orderCodeNum} để nhận file thủ công.</div>`;
               }
             }
           });
