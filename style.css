@@ -489,3 +489,4 @@ select option { background: #1a1040; color: #f1f5f9; }
 .auth-divider::before { left: 0; }
 .auth-divider::after  { right: 0; }
 
+.hidden { display: none !important; }
