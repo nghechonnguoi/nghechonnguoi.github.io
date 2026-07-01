@@ -1961,9 +1961,13 @@ async function generateReportUI() {
 
 
     // ══════════════════════════════════════════════════════════════════════════
-    //  TẠO BÁO CÁO PDF BẰNG AI API TRƯỚC (PHƯƠNG ÁN 3)
+    //  ĐỔ DỮ LIỆU LÊN GIAO DIỆN & HIỂN THỊ PAYWALL (MÔ HÌNH FREEMIUM 568K)
     // ══════════════════════════════════════════════════════════════════════════
-    const payload = {
+    document.getElementById('quiz-container').classList.add('hidden');
+    document.getElementById('report-container').classList.remove('hidden');
+
+    // Cấu hình payload cho Báo cáo PDF (sẽ dùng khi thanh toán xong)
+    window.pdfPayload = {
       HOTEN: profile.fullName,
       EMAIL: profile.email || "Không cung cấp",
       DIEN_THOAI: profile.phone || "Không cung cấp",
@@ -1978,63 +1982,16 @@ async function generateReportUI() {
     top5.forEach((entry, idx) => {
       const i = idx + 1;
       const profInfo = getProfessionDisplay(entry.industry, hPct, profile.thptScores, ikigaiStrength, mbtiCode);
-      payload[`TOP${i}_TITLE`] = profInfo.profession ? `${profInfo.profession}${profInfo.nicheStr}` : entry.niche;
-      payload[`TOP${i}_NICHE`] = entry.niche;
-      payload[`TOP${i}_REF`] = entry.industry || "Chưa phân loại";
-      payload[`TOP${i}_FIELD`] = entry.study_major || "Đa ngành";
-      payload[`TOP${i}_ICI`] = entry.ICI;
-      payload[`TOP${i}_ICI_DETAIL`] = `Id:${entry.S_identity} · Ni:${entry.S_niche} · Mk:${entry.S_market}`;
-      payload[`TOP${i}_SUBJECTS`] = entry.displayCombo || "Theo trường";
-      payload[`TOP${i}_KNOWLEDGE`] = entry.displaySubjects || "";
-      payload[`TOP${i}_ADVICE`] = entry.advice || "";
+      window.pdfPayload[`TOP${i}_TITLE`] = profInfo.profession ? `${profInfo.profession}${profInfo.nicheStr}` : entry.niche;
+      window.pdfPayload[`TOP${i}_NICHE`] = entry.niche;
+      window.pdfPayload[`TOP${i}_REF`] = entry.industry || "Chưa phân loại";
+      window.pdfPayload[`TOP${i}_FIELD`] = entry.study_major || "Đa ngành";
+      window.pdfPayload[`TOP${i}_ICI`] = entry.ICI;
+      window.pdfPayload[`TOP${i}_ICI_DETAIL`] = `Id:${entry.S_identity} · Ni:${entry.S_niche} · Mk:${entry.S_market}`;
+      window.pdfPayload[`TOP${i}_SUBJECTS`] = entry.displayCombo || "Theo trường";
+      window.pdfPayload[`TOP${i}_KNOWLEDGE`] = entry.displaySubjects || "";
+      window.pdfPayload[`TOP${i}_ADVICE`] = entry.advice || "";
     });
-
-    document.getElementById('question-content').innerHTML = `
-      <div style="text-align: center; padding: 40px 0;">
-        <h3 style="color: #60a5fa; margin-bottom: 15px;">Đang phân tích & tạo Báo cáo PDF chuyên sâu...</h3>
-        <p style="color: #94a3b8;">Hệ thống AI đang viết đánh giá dành riêng cho bạn. Vui lòng không đóng trang (mất khoảng 15-30 giây).</p>
-        <div class="spinner" style="margin: 20px auto; width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-left-color: #60a5fa; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-      </div>
-      <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
-    `;
-    document.getElementById('options-space').innerHTML = '';
-
-    fetch('https://nghechonnguoi.com/api/generate-pdf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-    .then(res => {
-      if (!res.ok) throw new Error("Lỗi tải PDF");
-      return res.blob();
-    })
-    .then(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\\s+/g, '-')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      document.getElementById('question-content').innerHTML = `
-        <div style="text-align: center; padding: 40px 0;">
-          <h3 style="color: #4ade80;">🎉 Tải Báo cáo thành công!</h3>
-          <p style="color: #94a3b8;">File PDF của bạn đã được tải xuống máy. Hãy mở ra xem nhé!</p>
-        </div>
-      `;
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Đã có lỗi xảy ra khi tạo PDF tự động. Hệ thống sẽ hiển thị báo cáo tóm tắt trên màn hình.");
-      document.getElementById('quiz-container').classList.add('hidden');
-      document.getElementById('report-container').classList.remove('hidden');
-    });
-
-    // ══════════════════════════════════════════════════════════════════════════
-    //  ĐỔ DỮ LIỆU LÊN GIAO DIỆN (LÀM FALLBACK)
-    // ══════════════════════════════════════════════════════════════════════════
-    // document.getElementById('quiz-container').classList.add('hidden');
-    // document.getElementById('report-container').classList.remove('hidden');
 
     // — Header —
     const contactInfo = [
@@ -2084,118 +2041,118 @@ async function generateReportUI() {
       bannerEl.innerHTML = '';
     }
 
-    // — Màu sắc & nhãn bucket —
-    const BUCKET_COLOR = {
-      DREAM: '#805ad5', MATCH: '#3182ce', SAFE: '#38a169', RISK: '#e53e3e', 'PHÙ HỢP': '#3182ce'
-    };
-    const BUCKET_CLASS = {
-      DREAM: 'bucket-dream', MATCH: 'bucket-match', SAFE: 'bucket-safe', RISK: 'bucket-risk', 'PHÙ HỢP': 'bucket-match'
-    };
-
-    // ── Render 5 thẻ kết quả ──────────────────────────────────────────────────
+    // ── Render Khóa Paywall ──────────────────────────────────────────────────
     const space = document.getElementById('career-recommendations-space');
-    space.innerHTML = '';
+    
+    // Đổi tiêu đề banner
+    const titleEl = document.getElementById('career-section-title');
+    titleEl.innerHTML = '🔒 ĐỂ BIẾT CHÍNH XÁC NGHỀ NÀO DÀNH CHO BẠN?';
+    titleEl.style.color = '#f59e0b'; // Màu cam/vàng cảnh báo
+    
+    // Xóa banner cũ (nếu có)
+    const bannerEl = document.getElementById('vocational-route-banner');
+    if (bannerEl) bannerEl.innerHTML = '';
 
-    top5.forEach((entry, idx) => {
-      const card = document.createElement('div');
-      card.className = 'career-card';
-      card.style.borderLeftColor = BUCKET_COLOR[entry.bucket] || '#3182ce';
-
-      // ── Tên nghề cá nhân hóa: dùng profInfo đã được pre-compute trong dedup ────
-      // Truyền mbtiCode vào để override Teacher → Trainer cho MBTI E (ENFP/ENFJ/ESFP...)
-      const profInfo = getProfessionDisplay(
-        entry.industry,
-        hPct,
-        profile.thptScores,
-        ikigaiStrength,
-        mbtiCode
-      );
-      // Dùng _profTitle đã pre-compute để đảm bảo nhất quán với dedup
-      const profTitle = profInfo.profession
-        ? `${profInfo.profession}${profInfo.nicheStr}`
-        : entry.niche;  // Fallback về niche cũ nếu chưa có mapping
-
-      // Subtitle nhỏ hiển thị VỊ TRÍ VIỆC LÀM từ database (để tư vấn viên tham khảo)
-      const nicheSubtitle = profInfo.profession
-        ? `<div style="font-size:11px;color:#a0aec0;margin-top:3px;font-style:italic;">
-             <span style="color:#cbd5e0;font-style:normal;">📌 Vị trí việc làm tham khảo:</span> ${entry.niche}
-           </div>`
-        : '';
-
-      const iciBreakdown = `<small style="color:#718096;font-size:11px;">
-        (Id:${entry.S_identity} · Ni:${entry.S_niche} · Mk:${entry.S_market})</small>`;
-
-      // Dream badge — chỉ hiện khi isDreamMatch = true (Holland đủ ngưỡng cụ thể)
-      const dreamBadge = entry.isDreamMatch
-        ? `<span style="background:#faf089;color:#744210;font-size:11px;padding:2px 8px;
-            border-radius:99px;font-weight:700;margin-left:6px;">✨ Khớp Ước Mơ</span>`
-        : '';
-
-      // Numerology peak badge — ẩn nhãn, vẫn giữ logic tính điểm
-      const peakBadge = '';
-
-      // Lĩnh vực ngành — phân biệt với Ngành học
-      const industryTag = entry.industry
-        ? `<div style="padding:4px 0 0 2px;font-size:11px;color:#a0aec0;">🏢 Lĩnh vực: <strong style="color:#718096">${entry.industry}</strong></div>`
-        : '';
-
-      // Study major tag — ngành học cần theo đuổi
-      const studyMajorTag = entry.study_major
-        ? `<div style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;
-            padding:5px 12px;background:linear-gradient(135deg,#ebf4ff,#e6fffa);
-            border:1px solid #bee3f8;border-radius:8px;font-size:12px;color:#2c5282;"
-           title="Ngành học đại học phù hợp để làm nghề này">
-            🎓 <strong>Ngành học:</strong>&nbsp;${entry.study_major}
-          </div>`
-        : '';
-
-      // Nội dung chi tiết — phân nhánh động theo đối tượng
-      let detailsHTML = '';
-      let footerNote = '';
-
-      if (!hasScores) {
-        // ── CHẾ ĐỘ DƯỚI LỚP 12 ───────────────────────────────────────────
-        //    Ẩn điểm chuẩn & trường ĐH
-        //    Hiện: tổ hợp môn + khối kiến thức nền tảng THPT
-        detailsHTML = `
-          <span>Độ tương thích ICI: <strong>${entry.ICI}%</strong> ${iciBreakdown}</span>
-          <span>Tổ hợp môn cần chuẩn bị: <strong>${entry.displayCombo}</strong></span>
-          <span>Xu hướng thị trường: <strong>${entry.S_market >= 70 ? 'Cao ⚡' : 'Ổn định'}</strong></span>`;
-        footerNote = `
-          <div style="margin-top:8px;padding:10px 14px;background:#ebf8ff;border-radius:8px;
-            font-size:13px;color:#2b6cb0;line-height:1.65;">
-            📖 <strong>Khối kiến thức & kỹ năng nền tảng THPT cần xây dựng sớm:</strong><br>
-            ${entry.displaySubjects}
-          </div>`;
-      } else {
-        // ── CHẾ ĐỘ ĐẠI HỌC ──────────────────────────────────────────────
-        //    Hiển thị đầy đủ điểm chuẩn, tổ hợp môn, kiến thức trọng tâm
-        detailsHTML = `
-          <span>Độ tương thích ICI: <strong>${entry.ICI}%</strong> ${iciBreakdown}</span>
-          <span>Điểm sàn tham chiếu: <strong>${entry.cutoff}</strong></span>
-          <span>Điểm xét tuyển của bạn: <strong>${finalUserScore.toFixed(2)}</strong></span>
-          <span>Tổ hợp môn gợi ý: <strong>${entry.displayCombo}</strong></span>`;
-        footerNote = `
-          <div style="margin-top:8px;padding:10px 14px;background:#f0fff4;border-radius:8px;
-            font-size:13px;color:#276749;line-height:1.65;">
-            📖 <strong>Kiến thức & kỹ năng trọng tâm:</strong><br>
-            ${entry.displaySubjects}
-          </div>`;
-      }
-
-      card.innerHTML = `
-        <div class="career-header">
-          <span class="career-title">${idx + 1}. ${profTitle}${dreamBadge}${peakBadge}</span>
-          <span class="bucket-tag ${BUCKET_CLASS[entry.bucket] || 'bucket-match'}">${entry.bucket}</span>
+    space.innerHTML = `
+      <div style="background: #1e293b; border: 2px solid #334155; border-radius: 12px; padding: 25px; margin-top: 10px;">
+        <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+          Mở khóa <strong>BÁO CÁO PDF ĐỘC QUYỀN (12 TRANG)</strong> phân tích riêng cho bạn để xem chi tiết:
+        </p>
+        
+        <div style="background: #0f172a; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+          <h4 style="color: #94a3b8; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">📄 MỤC LỤC BÁO CÁO BẠN SẼ NHẬN ĐƯỢC:</h4>
+          <ul style="color: #e2e8f0; font-size: 14px; line-height: 1.8; list-style-type: none; padding-left: 0;">
+            <li style="margin-bottom: 8px;"><span style="color:#7c3aed; font-weight:bold; width: 85px; display:inline-block;">CHƯƠNG I</span> Bạn Là Ai? (Xu hướng vận hành tự nhiên & Nhận thức)</li>
+            <li style="margin-bottom: 8px;"><span style="color:#7c3aed; font-weight:bold; width: 85px; display:inline-block;">CHƯƠNG I</span> Trí Tuệ Cảm Xúc & Năng lực vượt trội</li>
+            <li style="margin-bottom: 8px;"><span style="color:#7c3aed; font-weight:bold; width: 85px; display:inline-block;">CHƯƠNG II</span> Top 5 Hướng Đi Tiềm Năng & Tổ Hợp Môn</li>
+            <li style="margin-bottom: 8px;"><span style="color:#7c3aed; font-weight:bold; width: 85px; display:inline-block;">CHƯƠNG II</span> Khám Phá Sự Phù Hợp (Phân tích chi tiết 5 nghề)</li>
+            <li style="margin-bottom: 8px;"><span style="color:#7c3aed; font-weight:bold; width: 85px; display:inline-block;">CHƯƠNG III</span> Đặc Điểm Cần Cải Thiện & Quản Trị Rủi Ro</li>
+            <li style="margin-bottom: 8px;"><span style="color:#7c3aed; font-weight:bold; width: 85px; display:inline-block;">CHƯƠNG IV</span> Môi Trường Làm Việc Tối Ưu & Kỹ Năng Bổ Trợ</li>
+            <li style="margin-bottom: 8px;"><span style="color:#7c3aed; font-weight:bold; width: 85px; display:inline-block;">CHƯƠNG V</span> Lời Kết & Khung Cam Kết Hành Động</li>
+          </ul>
         </div>
-        ${nicheSubtitle}
-        ${industryTag}
-        ${studyMajorTag}
-        <div class="career-details">${detailsHTML}</div>
-        ${footerNote}
-        <div class="career-advice">⚡ Lời khuyên chiến thuật: ${entry.advice}</div>`;
+        
+        <div style="text-align: center; border-top: 1px dashed #334155; padding-top: 25px;">
+          <h3 style="color: #fca5a5; font-size: 22px; font-weight: bold; margin-bottom: 8px;">MỞ KHÓA TOÀN BỘ & TẢI FILE PDF</h3>
+          <p style="color: #4ade80; font-size: 18px; font-weight: bold; margin-bottom: 25px;">Giá ưu đãi: 568.000 VNĐ</p>
+          
+          <button id="btn-show-qr" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white; border: none; padding: 14px 30px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 15px rgba(234, 88, 12, 0.4); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            💳 THANH TOÁN QUA MÃ QR
+          </button>
+          
+          <p style="color: #64748b; font-size: 12px; margin-top: 15px; font-style: italic;">
+            (Hệ thống sẽ tự động tạo và gửi Báo cáo PDF 12 trang siêu chi tiết vào email của bạn ngay lập tức sau khi thanh toán thành công)
+          </p>
+        </div>
+        
+        <!-- Khu vực hiển thị mã QR (Ẩn mặc định) -->
+        <div id="qr-payment-area" style="display: none; margin-top: 25px; text-align: center; background: #fff; padding: 20px; border-radius: 8px;">
+          <h4 style="color: #0f172a; margin-bottom: 10px;">Quét mã QR dưới đây để thanh toán</h4>
+          <p style="color: #ef4444; font-weight: bold; margin-bottom: 15px;">Nội dung chuyển khoản: <span style="color:#2563eb">${profile.phone || profile.fullName}</span></p>
+          
+          <!-- Mã QR mẫu, sẽ thay bằng API PayOS hoặc link img.vietqr.io sau -->
+          <img src="https://img.vietqr.io/image/970422-0979607622-compact2.png?amount=568000&addInfo=${encodeURIComponent(profile.phone || profile.fullName)}&accountName=NGUYEN%20HUU%20NGAN" alt="QR Code" style="max-width: 250px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
+          
+          <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Vui lòng chuyển khoản đúng nội dung để hệ thống tự động xác nhận.</p>
+          
+          <button id="btn-confirm-payment" style="background: #10b981; color: white; border: none; padding: 12px 25px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 0 auto;">
+            <span>Tôi đã chuyển khoản thành công</span>
+          </button>
+        </div>
+      </div>
+    `;
 
-      space.appendChild(card);
+    // Logic xử lý khi bấm nút "Thanh toán QR"
+    document.getElementById('btn-show-qr').addEventListener('click', function() {
+      this.style.display = 'none';
+      document.getElementById('qr-payment-area').style.display = 'block';
+    });
+    
+    // Logic khi bấm "Tôi đã chuyển khoản thành công" -> Kích hoạt API PDF
+    document.getElementById('btn-confirm-payment').addEventListener('click', function() {
+      const btn = this;
+      btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin 1s linear infinite;"></span> Đang xác nhận...';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      
+      // Giả lập thời gian chờ hệ thống duyệt (hoặc gọi API trực tiếp tạo PDF)
+      setTimeout(() => {
+        btn.innerHTML = 'Đang tải file PDF...';
+        
+        // Gọi API tạo PDF
+        fetch('https://nghechonnguoi.com/api/generate-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(window.pdfPayload)
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("Lỗi tải PDF");
+          return res.blob();
+        })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = \`Bao-Cao-Dinh-Vi-Tuong-Lai-\${profile.fullName.replace(/\\s+/g, '-')}.pdf\`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          
+          document.getElementById('qr-payment-area').innerHTML = \`
+            <div style="padding: 20px 0;">
+              <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tải Báo cáo thành công!</h3>
+              <p style="color: #475569; font-weight: 500;">File PDF đã được lưu vào máy của bạn. Chúc bạn có một hành trình định vị bản thân tuyệt vời!</p>
+            </div>
+          \`;
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Lỗi kết nối khi tạo PDF. Vui lòng liên hệ Admin đọc mã giao dịch để nhận báo cáo thủ công.");
+          btn.innerHTML = 'Thử lại';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        });
+      }, 2000);
     });
 
   } catch (err) {
