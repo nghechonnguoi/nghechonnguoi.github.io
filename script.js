@@ -1961,10 +1961,80 @@ async function generateReportUI() {
 
 
     // ══════════════════════════════════════════════════════════════════════════
-    //  ĐỔ DỮ LIỆU LÊN GIAO DIỆN
+    //  TẠO BÁO CÁO PDF BẰNG AI API TRƯỚC (PHƯƠNG ÁN 3)
     // ══════════════════════════════════════════════════════════════════════════
-    document.getElementById('quiz-container').classList.add('hidden');
-    document.getElementById('report-container').classList.remove('hidden');
+    const payload = {
+      HOTEN: profile.fullName,
+      EMAIL: profile.email || "Không cung cấp",
+      DIEN_THOAI: profile.phone || "Không cung cấp",
+      NGAY_SINH: profile.birthDate || "Không cung cấp",
+      MA_SO_HO_SO: `NCN-${Math.floor(Math.random()*10000)}`,
+      NGAY_XUAT_BAN: new Date().toLocaleDateString('vi-VN'),
+      R_PCT: hPct.R, I_PCT: hPct.I, A_PCT: hPct.A, S_PCT: hPct.S, E_PCT: hPct.E, C_PCT: hPct.C,
+      MBTI: mbtiCode,
+      HOLLAND: sortedHolland.slice(0, 3).map(x => x[0]).join(''),
+    };
+    
+    top5.forEach((entry, idx) => {
+      const i = idx + 1;
+      const profInfo = getProfessionDisplay(entry.industry, hPct, profile.thptScores, ikigaiStrength, mbtiCode);
+      payload[`TOP${i}_TITLE`] = profInfo.profession ? `${profInfo.profession}${profInfo.nicheStr}` : entry.niche;
+      payload[`TOP${i}_NICHE`] = entry.niche;
+      payload[`TOP${i}_REF`] = entry.industry || "Chưa phân loại";
+      payload[`TOP${i}_FIELD`] = entry.study_major || "Đa ngành";
+      payload[`TOP${i}_ICI`] = entry.ICI;
+      payload[`TOP${i}_ICI_DETAIL`] = `Id:${entry.S_identity} · Ni:${entry.S_niche} · Mk:${entry.S_market}`;
+      payload[`TOP${i}_SUBJECTS`] = entry.displayCombo || "Theo trường";
+      payload[`TOP${i}_KNOWLEDGE`] = entry.displaySubjects || "";
+      payload[`TOP${i}_ADVICE`] = entry.advice || "";
+    });
+
+    document.getElementById('question-content').innerHTML = `
+      <div style="text-align: center; padding: 40px 0;">
+        <h3 style="color: #60a5fa; margin-bottom: 15px;">Đang phân tích & tạo Báo cáo PDF chuyên sâu...</h3>
+        <p style="color: #94a3b8;">Hệ thống AI đang viết đánh giá dành riêng cho bạn. Vui lòng không đóng trang (mất khoảng 15-30 giây).</p>
+        <div class="spinner" style="margin: 20px auto; width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-left-color: #60a5fa; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      </div>
+      <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+    `;
+    document.getElementById('options-space').innerHTML = '';
+
+    fetch('https://nghechonnguoi.com/api/generate-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Lỗi tải PDF");
+      return res.blob();
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\\s+/g, '-')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      document.getElementById('question-content').innerHTML = `
+        <div style="text-align: center; padding: 40px 0;">
+          <h3 style="color: #4ade80;">🎉 Tải Báo cáo thành công!</h3>
+          <p style="color: #94a3b8;">File PDF của bạn đã được tải xuống máy. Hãy mở ra xem nhé!</p>
+        </div>
+      `;
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Đã có lỗi xảy ra khi tạo PDF tự động. Hệ thống sẽ hiển thị báo cáo tóm tắt trên màn hình.");
+      document.getElementById('quiz-container').classList.add('hidden');
+      document.getElementById('report-container').classList.remove('hidden');
+    });
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  ĐỔ DỮ LIỆU LÊN GIAO DIỆN (LÀM FALLBACK)
+    // ══════════════════════════════════════════════════════════════════════════
+    // document.getElementById('quiz-container').classList.add('hidden');
+    // document.getElementById('report-container').classList.remove('hidden');
 
     // — Header —
     const contactInfo = [
