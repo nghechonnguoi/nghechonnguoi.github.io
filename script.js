@@ -2091,7 +2091,7 @@ async function generateReportUI() {
           <p style="color: #ef4444; font-weight: bold; margin-bottom: 15px;">Nội dung chuyển khoản: <span style="color:#2563eb">${profile.phone || profile.fullName} - ${window.pdfPayload.MA_SO_HO_SO}</span></p>
           
           <!-- Mã QR mẫu, sẽ thay bằng API PayOS hoặc link img.vietqr.io sau -->
-          <img src="https://img.vietqr.io/image/970422-0979607622-compact2.png?amount=568000&addInfo=${encodeURIComponent((profile.phone || profile.fullName) + " " + window.pdfPayload.MA_SO_HO_SO)}&accountName=NGUYEN%20HUU%20NGAN" alt="QR Code" style="max-width: 250px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
+          <img src="https://img.vietqr.io/image/OCB-61666666-compact2.png?amount=568000&addInfo=${encodeURIComponent((profile.phone || profile.fullName) + " " + window.pdfPayload.MA_SO_HO_SO)}&accountName=PHAM%20THI%20NGAN" alt="QR Code" style="max-width: 250px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
           
           <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Vui lòng chuyển khoản đúng nội dung để hệ thống tự động xác nhận.</p>
           
