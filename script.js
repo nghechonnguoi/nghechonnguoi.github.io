@@ -56,9 +56,24 @@ async function handleGoogleLogin() {
   const provider = new firebase.auth.GoogleAuthProvider();
   try {
     await auth.signInWithPopup(provider);
-    alert("Đăng nhập tài khoản Google thành công!");
+    // Đăng nhập thành công — onAuthStateChanged tự xử lý UI
   } catch (error) {
-    alert("Lỗi đăng nhập Google: " + error.message);
+    // Người dùng tự đóng popup → bỏ qua, không hiện thông báo lỗi
+    if (error.code === 'auth/popup-closed-by-user' ||
+        error.code === 'auth/cancelled-popup-request') {
+      return;
+    }
+    // Trình duyệt chặn popup → tự động chuyển sang redirect
+    if (error.code === 'auth/popup-blocked') {
+      try {
+        await auth.signInWithRedirect(provider);
+      } catch (redirectError) {
+        alert('Không thể đăng nhập Google. Vui lòng thử Email/Mật khẩu.');
+      }
+      return;
+    }
+    // Các lỗi khác → hiện thông báo rõ ràng
+    alert('Lỗi đăng nhập Google: ' + error.message);
   }
 }
 
