@@ -2065,12 +2065,19 @@ async function generateReportUI() {
         </div>
         
         <div style="text-align: center; border-top: 1px dashed #334155; padding-top: 25px;">
+          <!-- Khung nhập mã ưu đãi -->
+          <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 10px;">
+            <input type="text" id="promo-code-input" placeholder="Nhập mã ưu đãi (nếu có)" style="padding: 10px 15px; border-radius: 6px; border: 1px solid #475569; background: #1e293b; color: white; width: 200px; text-transform: uppercase;">
+            <button id="btn-apply-promo" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">Áp dụng</button>
+          </div>
+          <p id="promo-message" style="font-size: 13px; margin-top: -10px; margin-bottom: 15px;"></p>
+          
           <button id="btn-show-qr" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white; border: none; padding: 14px 30px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 15px rgba(234, 88, 12, 0.4); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
             🔓 MỞ KHÓA TOÀN BỘ & FILE PDF
           </button>
           
           <p style="color: #64748b; font-size: 12px; margin-top: 15px; font-style: italic;">
-            (Hệ thống sẽ tự động tạo và gửi Báo cáo PDF 12 trang siêu chi tiết vào email của bạn ngay lập tức sau khi thanh toán thành công)
+            (Hệ thống sẽ tự động tạo và gửi Báo cáo PDF 12 trang siêu chi tiết vào email của bạn ngay lập tức)
           </p>
         </div>
         
@@ -2091,18 +2098,68 @@ async function generateReportUI() {
       </div>
     `;
 
+    let finalAmount = 568000;
+    
+    document.getElementById('btn-apply-promo').addEventListener('click', function() {
+      const code = document.getElementById('promo-code-input').value.trim().toUpperCase();
+      const msgEl = document.getElementById('promo-message');
+      
+      if (code === 'GIADINH') {
+        finalAmount = 568000 - 500000;
+        msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Đã giảm 500.000đ</span>';
+      } else if (code === 'GIAM50') {
+        finalAmount = 568000 - 50000;
+        msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Đã giảm 50.000đ</span>';
+      } else if (code === 'MIENPHI1') {
+        finalAmount = 0;
+        msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Miễn phí 100%</span>';
+      } else {
+        finalAmount = 568000;
+        msgEl.innerHTML = '<span style="color: #ef4444;">Mã ưu đãi không hợp lệ!</span>';
+      }
+    });
+
     // Logic xử lý khi bấm nút "Thanh toán QR"
     document.getElementById('btn-show-qr').addEventListener('click', async function() {
       const btn = this;
-      btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin 1s linear infinite;"></span> Đang kết nối PayOS...';
+      btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin 1s linear infinite;"></span> Đang xử lý...';
       btn.disabled = true;
       btn.style.opacity = '0.7';
 
       const orderId = window.pdfPayload.MA_SO_HO_SO; // VD: NCN-1234
-      const amount = 568000;
+      const amount = finalAmount;
       // Chỉ lấy phần số của orderId làm orderCode cho PayOS (PayOS yêu cầu orderCode là số nguyên dương <= 9007199254740991)
       const orderCodeNum = parseInt(orderId.replace(/[^0-9]/g, '')) || Math.floor(Math.random() * 1000000);
 
+      // --- TRƯỜNG HỢP MIỄN PHÍ 100% ---
+      if (amount === 0) {
+        try {
+          btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin 1s linear infinite;"></span> Đang xuất PDF miễn phí...';
+          const pdfRes = await fetch('https://ncn-academy-web.vercel.app/api/generate-pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(window.pdfPayload)
+          });
+          if (!pdfRes.ok) throw new Error("Lỗi xuất PDF");
+          const pdfData = await pdfRes.json();
+          
+          btn.style.display = 'none';
+          const qrArea = document.getElementById('qr-payment-area');
+          qrArea.style.display = 'block';
+          qrArea.innerHTML = `
+            <div style="color: #10b981; font-size: 20px; font-weight: bold; margin-bottom: 15px;">🎉 Mở Khóa Thành Công (Miễn phí)!</div>
+            <p style="color: #334155; margin-bottom: 15px;">Báo cáo PDF đã được tạo và gửi vào email của bạn.</p>
+            <a href="${pdfData.downloadUrl}" target="_blank" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">TẢI FILE PDF VỀ MÁY NGAY</a>
+          `;
+        } catch(err) {
+          console.error(err);
+          btn.innerHTML = 'Có lỗi xảy ra. Thử lại sau.';
+          btn.disabled = false;
+        }
+        return; // Dừng luồng tại đây, không gọi PayOS
+      }
+
+      // --- TRƯỜNG HỢP CẦN THANH TOÁN ---
       try {
         // 1. Tạo đơn hàng PENDING trên Firestore
         await db.collection('orders').doc(orderCodeNum.toString()).set({
@@ -2142,7 +2199,7 @@ async function generateReportUI() {
 
         qrArea.innerHTML = `
           <h4 style="color: #0f172a; margin-bottom: 10px;">Quét mã QR dưới đây để thanh toán</h4>
-          <p style="color: #10b981; font-size: 18px; font-weight: bold; margin-bottom: 10px;">Giá ưu đãi: 568.000 VNĐ</p>
+          <p style="color: #10b981; font-size: 18px; font-weight: bold; margin-bottom: 10px;">Giá thanh toán: ${amount.toLocaleString('vi-VN')} VNĐ</p>
           <p style="color: #ef4444; font-weight: bold; margin-bottom: 15px;">Nội dung chuyển khoản: <span style="color:#2563eb">${data.data.description}</span></p>
           
           <img src="${qrImgUrl}" alt="QR Code PayOS" style="max-width: 250px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
