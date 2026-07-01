@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NghechonNguoi — Định Vị Sự Nghiệp. Làm Chủ Tương Lai.</title>
+  <meta name="description" content="Hệ thống phân tích nghề nghiệp hàng đầu Việt Nam. Khám phá con người thật — định vị tương lai với khoa học.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ── RESET & BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: #111; color: #fff; overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; }
+
+    /* ── VARIABLES ── */
+    :root {
+      --orange: #f97316;
+      --orange-dark: #ea580c;
+      --orange-light: #fb923c;
+      --black: #111111;
+      --black-2: #1a1a1a;
+      --black-3: #222222;
+      --gray: #888888;
+      --gray-light: #cccccc;
+      --white: #ffffff;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(17,17,17,0.95); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(249,115,22,0.15);
+      padding: 0 60px; height: 70px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: all .3s;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo-icon { width: 36px; height: 36px; background: var(--orange); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .nav-logo-text { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
+    .nav-logo-text span { color: var(--orange); }
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+    .nav-links a { font-size: 13px; font-weight: 600; color: var(--gray-light); letter-spacing: .5px; text-transform: uppercase; transition: color .2s; }
+    .nav-links a:hover { color: var(--orange); }
+    .nav-cta {
+      background: var(--orange); color: #fff !important; padding: 10px 22px;
+      border-radius: 4px; font-weight: 700 !important; font-size: 13px !important;
+      transition: all .2s !important; display: flex; align-items: center; gap: 6px;
+    }
+    .nav-cta:hover { background: var(--orange-dark) !important; transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; position: relative; overflow: hidden;
+      display: flex; align-items: center;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0a00 50%, #111 100%);
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><rect width="60" height="60" fill="none"/><line x1="0" y1="60" x2="60" y2="0" stroke="rgba(249,115,22,0.04)" stroke-width="1"/></svg>');
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 70% 50%, rgba(249,115,22,0.12) 0%, transparent 60%);
+    }
+    .hero-content { position: relative; z-index: 1; padding: 120px 60px 80px; max-width: 1400px; margin: 0 auto; width: 100%; }
+    .hero-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--orange);
+      text-transform: uppercase; margin-bottom: 24px;
+    }
+    .hero-label::before { content: ''; width: 30px; height: 2px; background: var(--orange); }
+    h1.hero-title {
+      font-size: clamp(52px, 7vw, 96px); font-weight: 900; line-height: 1;
+      letter-spacing: -2px; margin-bottom: 24px; max-width: 750px;
+    }
+    h1.hero-title .orange { color: var(--orange); display: block; }
+    .hero-subtitle {
+      font-size: 17px; color: var(--gray-light); line-height: 1.7; max-width: 520px;
+      margin-bottom: 44px;
+    }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 70px; }
+    .btn-primary {
+      background: var(--orange); color: #fff; padding: 16px 32px; border-radius: 4px;
+      font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px;
+      transition: all .25s; border: 2px solid var(--orange);
+    }
+    .btn-primary:hover { background: var(--orange-dark); border-color: var(--orange-dark); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(249,115,22,0.35); }
+    .btn-secondary {
+      background: transparent; color: #fff; padding: 16px 32px; border-radius: 4px;
+      font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px;
+      transition: all .25s; border: 2px solid rgba(255,255,255,0.3);
+    }
+    .btn-secondary:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
+    .hero-stats { display: flex; gap: 50px; flex-wrap: wrap; }
+    .hero-stat-num { font-size: 36px; font-weight: 900; color: var(--orange); line-height: 1; }
+    .hero-stat-label { font-size: 12px; color: var(--gray); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── SECTION COMMONS ── */
+    section { padding: 100px 60px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .section-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 3px; color: var(--orange);
+      text-transform: uppercase; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::before { content: ''; width: 24px; height: 2px; background: var(--orange); }
+    h2.section-title { font-size: clamp(32px, 4vw, 52px); font-weight: 900; line-height: 1.1; letter-spacing: -1px; margin-bottom: 20px; }
+    h2.section-title .orange { color: var(--orange); }
+    p.section-desc { font-size: 16px; color: var(--gray); line-height: 1.7; max-width: 520px; }
+
+    /* ── SERVICES ── */
+    .services { background: var(--black-2); }
+    .services-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 60px; flex-wrap: wrap; gap: 24px; }
+    .services-top .right { display: flex; align-items: center; gap: 10px; color: var(--orange); font-weight: 700; font-size: 14px; }
+    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.08); }
+    .service-item {
+      background: var(--black-2); padding: 36px 32px; transition: all .3s; cursor: default;
+      position: relative; overflow: hidden;
+    }
+    .service-item::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--orange); transform: scaleX(0); transition: transform .3s; }
+    .service-item:hover { background: var(--black-3); }
+    .service-item:hover::after { transform: scaleX(1); }
+    .service-icon { font-size: 32px; margin-bottom: 20px; display: block; }
+    .service-name { font-size: 15px; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; }
+    .service-desc { font-size: 13px; color: var(--gray); line-height: 1.6; }
+
+    /* ── STATS BANNER ── */
+    .stats-banner {
+      background: var(--orange); padding: 60px;
+    }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+    .stat-item { padding: 20px 40px; border-right: 1px solid rgba(0,0,0,0.15); text-align: center; }
+    .stat-item:last-child { border-right: none; }
+    .stat-item .num { font-size: 48px; font-weight: 900; color: #fff; line-height: 1; letter-spacing: -2px; }
+    .stat-item .label { font-size: 12px; font-weight: 700; color: rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px; }
+
+    /* ── PRODUCTS ── */
+    .products { background: var(--black); }
+    .products-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 56px; flex-wrap: wrap; gap: 24px; }
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: rgba(255,255,255,0.06); }
+    .product-card {
+      background: var(--black); padding: 40px 32px;
+      transition: all .3s; position: relative; overflow: hidden;
+      border-bottom: 3px solid transparent;
+    }
+    .product-card.featured { border-bottom-color: var(--orange); }
+    .product-card:hover { background: #1a1a1a; }
+    .product-tag {
+      display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; padding: 4px 10px; border-radius: 2px; margin-bottom: 20px;
+    }
+    .product-tag.live { background: rgba(249,115,22,0.15); color: var(--orange); border: 1px solid rgba(249,115,22,0.4); }
+    .product-tag.soon { background: rgba(255,255,255,0.08); color: var(--gray); border: 1px solid rgba(255,255,255,0.15); }
+    .product-num { font-size: 60px; font-weight: 900; color: rgba(255,255,255,0.04); line-height: 1; margin-bottom: -10px; }
+    .product-name { font-size: 18px; font-weight: 800; margin-bottom: 14px; line-height: 1.3; }
+    .product-desc { font-size: 13.5px; color: var(--gray); line-height: 1.7; margin-bottom: 24px; }
+    .product-features { list-style: none; margin-bottom: 28px; }
+    .product-features li { font-size: 12.5px; color: #aaa; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 8px; }
+    .product-features li::before { content: '→'; color: var(--orange); font-weight: 700; font-size: 11px; }
+    .btn-card-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--orange); color: #fff; padding: 12px 24px; border-radius: 3px; font-weight: 700; font-size: 13px; transition: all .25s; }
+    .btn-card-primary:hover { background: var(--orange-dark); }
+    .btn-card-disabled { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); color: var(--gray); padding: 12px 24px; border-radius: 3px; font-weight: 700; font-size: 13px; cursor: not-allowed; border: 1px solid rgba(255,255,255,0.1); }
+
+    /* ── PROCESS ── */
+    .process { background: var(--black-2); }
+    .process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; background: rgba(255,255,255,0.06); margin-top: 60px; }
+    .process-item { background: var(--black-2); padding: 40px 28px; position: relative; }
+    .process-step { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: var(--orange); text-transform: uppercase; margin-bottom: 16px; }
+    .process-icon { font-size: 28px; margin-bottom: 16px; display: block; }
+    .process-title { font-size: 16px; font-weight: 800; margin-bottom: 10px; }
+    .process-desc { font-size: 13px; color: var(--gray); line-height: 1.6; }
+    .process-arrow { position: absolute; right: -12px; top: 50%; transform: translateY(-50%); color: var(--orange); font-size: 20px; z-index: 1; }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials { background: var(--black); }
+    .testimonials-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 56px; flex-wrap: wrap; gap: 24px; }
+    .testimonials-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: rgba(255,255,255,0.06); }
+    .testimonial-card { background: var(--black); padding: 40px 36px; }
+    .testimonial-quote { font-size: 48px; color: var(--orange); line-height: 1; margin-bottom: 16px; font-family: Georgia, serif; }
+    .testimonial-text { font-size: 15px; color: var(--gray-light); line-height: 1.75; margin-bottom: 28px; font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: 14px; }
+    .testimonial-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; flex-shrink: 0; }
+    .testimonial-name { font-size: 14px; font-weight: 700; }
+    .testimonial-role { font-size: 12px; color: var(--gray); margin-top: 2px; }
+
+    /* ── CTA SECTION ── */
+    .cta-section {
+      background: var(--black-2); padding: 100px 60px;
+    }
+    .cta-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1200px; margin: 0 auto; }
+    .cta-title { font-size: clamp(36px, 4vw, 56px); font-weight: 900; line-height: 1.05; letter-spacing: -1.5px; }
+    .cta-title .orange { color: var(--orange); }
+    .cta-subtitle { font-size: 16px; color: var(--gray); margin-top: 16px; line-height: 1.6; }
+    .cta-form { display: flex; flex-direction: column; gap: 12px; }
+    .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .cta-form input, .cta-form textarea {
+      background: var(--black-3); border: 1px solid rgba(255,255,255,0.1); color: #fff;
+      padding: 14px 18px; border-radius: 4px; font-size: 14px; font-family: inherit;
+      transition: border-color .2s; outline: none;
+    }
+    .cta-form input:focus, .cta-form textarea:focus { border-color: var(--orange); }
+    .cta-form input::placeholder, .cta-form textarea::placeholder { color: var(--gray); }
+    .cta-form textarea { min-height: 100px; resize: vertical; }
+    .btn-submit {
+      background: var(--orange); color: #fff; padding: 16px 32px; border: none;
+      border-radius: 4px; font-weight: 700; font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .25s; font-family: inherit;
+    }
+    .btn-submit:hover { background: var(--orange-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(249,115,22,0.35); }
+
+    /* ── FOOTER ── */
+    .footer { background: #0a0a0a; padding: 70px 60px 30px; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 60px; margin-bottom: 60px; }
+    .footer-brand p { font-size: 13.5px; color: var(--gray); line-height: 1.7; margin-top: 16px; max-width: 280px; }
+    .footer-col h4 { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); margin-bottom: 20px; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul li a { font-size: 13.5px; color: var(--gray); transition: color .2s; }
+    .footer-col ul li a:hover { color: var(--orange); }
+    .footer-col .contact-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+    .footer-col .contact-icon { color: var(--orange); font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+    .footer-col .contact-text { font-size: 13.5px; color: var(--gray); line-height: 1.5; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.07); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .footer-bottom p { font-size: 12.5px; color: var(--gray); }
+    .footer-bottom-links { display: flex; gap: 24px; }
+    .footer-bottom-links a { font-size: 12.5px; color: var(--gray); transition: color .2s; }
+    .footer-bottom-links a:hover { color: var(--orange); }
+
+    /* ── ANIMATIONS ── */
+    .fade-up { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px; cursor: pointer;
+      padding: 4px; background: none; border: none;
+    }
+    .hamburger span {
+      width: 22px; height: 2px; background: #fff; border-radius: 2px;
+      transition: all .3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── MOBILE DRAWER ── */
+    .mobile-menu {
+      display: none; position: fixed; top: 70px; left: 0; right: 0;
+      background: rgba(17,17,17,0.98); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(249,115,22,0.2);
+      flex-direction: column; padding: 20px 24px 28px;
+      gap: 4px; z-index: 999;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-size: 15px; font-weight: 600; color: var(--gray-light);
+      padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+      text-transform: uppercase; letter-spacing: .5px;
+      transition: color .2s;
+    }
+    .mobile-menu a:hover { color: var(--orange); }
+    .mobile-menu .nav-cta {
+      margin-top: 10px; justify-content: center;
+      border-radius: 4px;
+    }
+
+    /* ── FORM TOAST ── */
+    .toast {
+      position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+      background: var(--orange); color: #fff;
+      padding: 14px 22px; border-radius: 6px;
+      font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; gap: 10px;
+      transform: translateY(80px); opacity: 0;
+      transition: all .35s cubic-bezier(.34,1.56,.64,1);
+      pointer-events: none;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .navbar { padding: 0 24px; }
+      section { padding: 70px 24px; }
+      .hero-content { padding: 100px 24px 60px; }
+      h1.hero-title { font-size: 48px; }
+      .services-grid, .products-grid, .process-grid, .testimonials-grid { grid-template-columns: 1fr; }
+      .stats-banner { padding: 40px 24px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .stat-item { padding: 16px 10px; }
+      .cta-inner { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .cta-row { grid-template-columns: 1fr; }
+      .process-item { overflow: visible; }
+      .process-arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <div class="nav-logo">
+      <div class="nav-logo-icon">🧭</div>
+      <div class="nav-logo-text">Nghe<span>Chọn</span>Người</div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#services">Dịch vụ</a></li>
+      <li><a href="#products">Sản phẩm</a></li>
+      <li><a href="#process">Quy trình</a></li>
+      <li><a href="#contact">Liên hệ</a></li>
+      <li><a href="khao-sat/" class="nav-cta">Bắt đầu ngay →</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ── MOBILE MENU ── -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#services">Dịch vụ</a>
+    <a href="#products">Sản phẩm</a>
+    <a href="#process">Quy trình</a>
+    <a href="#contact">Liên hệ</a>
+    <a href="khao-sat/" class="nav-cta">Bắt đầu ngay →</a>
+  </div>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-label">Định vị nghề nghiệp · Khoa học · Chính xác</div>
+      <h1 class="hero-title">
+        KHÁM PHÁ CON NGƯỜI THẬT.
+        <span class="orange">LÀM CHỦ TƯƠNG LAI.</span>
+      </h1>
+      <p class="hero-subtitle">
+        NghechonNguoi cung cấp hệ thống phân tích nghề nghiệp đa biến hàng đầu Việt Nam — kết hợp Holland RIASEC, MBTI và Ikigai để định vị chính xác con đường sự nghiệp phù hợp nhất với bạn.
+      </p>
+      <div class="hero-actions">
+        <a href="khao-sat/" class="btn-primary">🎯 Làm bài khảo sát miễn phí →</a>
+        <a href="#products" class="btn-secondary">Xem sản phẩm ↓</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num">5.000+</div>
+          <div class="hero-stat-label">Học viên</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">98%</div>
+          <div class="hero-stat-label">Hài lòng</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">100+</div>
+          <div class="hero-stat-label">Nghề phân tích</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">4</div>
+          <div class="hero-stat-label">Bộ công cụ tâm lý</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SERVICES ── -->
+  <section class="services" id="services">
+    <div class="container">
+      <div class="services-top">
+        <div>
+          <div class="section-label">Chúng tôi cung cấp</div>
+          <h2 class="section-title">DỊCH VỤ<br>CỦA CHÚNG TÔI</h2>
+        </div>
+        <div>
+          <p class="section-desc">Từ phân tích cá nhân đến chiến lược sự nghiệp dài hạn, chúng tôi cung cấp đầy đủ công cụ để bạn định hướng tương lai.</p>
+          <div class="right" style="margin-top:16px"><a href="#products" style="color:var(--orange);font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px">Xem tất cả dịch vụ →</a></div>
+        </div>
+      </div>
+      <div class="services-grid fade-up">
+        <div class="service-item">
+          <span class="service-icon">🧭</span>
+          <div class="service-name">Định Vị Nghề Nghiệp</div>
+          <div class="service-desc">Phân tích RIASEC Holland chuyên sâu, xác định nhóm nghề nghiệp phù hợp nhất với cấu trúc năng lực hành vi.</div>
+        </div>
+        <div class="service-item">
+          <span class="service-icon">🧠</span>
+          <div class="service-name">Phân Tích Tính Cách</div>
+          <div class="service-desc">Kết hợp MBTI và Nhân số học Ikigai, giải mã phong cách tư duy và phương thức vận hành độc đáo của cá nhân.</div>
+        </div>
+        <div class="service-item">
+          <span class="service-icon">📊</span>
+          <div class="service-name">Báo Cáo Khoa Học</div>
+          <div class="service-desc">Báo cáo PDF Premium 15 trang cá nhân hóa 100% — lộ trình thăng tiến, ma trận thu nhập và kế hoạch 4 năm.</div>
+        </div>
+        <div class="service-item">
+          <span class="service-icon">🚀</span>
+          <div class="service-name">Lộ Trình Thăng Tiến</div>
+          <div class="service-desc">Sơ đồ lộ trình từ Junior đến C-Suite cho từng nghề nghiệp kèm dữ liệu thu nhập thực tế từ thị trường Việt Nam.</div>
+        </div>
+        <div class="service-item">
+          <span class="service-icon">🏆</span>
+          <div class="service-name">Xây Dựng Thương Hiệu</div>
+          <div class="service-desc">Chiến lược personal branding trên LinkedIn, định vị chuyên gia dựa trên giá trị khoa học đo lường được.</div>
+        </div>
+        <div class="service-item">
+          <span class="service-icon">🎓</span>
+          <div class="service-name">Tư Vấn Chọn Ngành</div>
+          <div class="service-desc">Gợi ý khối thi, trường và ngành học phù hợp dựa trên kết quả phân tích đa biến kết hợp xu hướng tuyển dụng.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STATS BANNER ── -->
+  <div class="stats-banner">
+    <div class="container">
+      <div class="stats-grid fade-up">
+        <div class="stat-item">
+          <div class="num">5.000+</div>
+          <div class="label">Học viên đã làm bài</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">4</div>
+          <div class="label">Bộ công cụ tâm lý học</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">100+</div>
+          <div class="label">Nhóm nghề phân tích</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">100%</div>
+          <div class="label">Cá nhân hóa kết quả</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PRODUCTS ── -->
+  <section class="products" id="products">
+    <div class="container">
+      <div class="products-top">
+        <div>
+          <div class="section-label">Sản phẩm số</div>
+          <h2 class="section-title">SẢN PHẨM<br><span class="orange">CỦA CHÚNG TÔI</span></h2>
+        </div>
+        <p class="section-desc">Mỗi sản phẩm giải quyết một thách thức cụ thể trên hành trình phát triển bản thân và sự nghiệp.</p>
+      </div>
+      <div class="products-grid fade-up">
+        <div class="product-card featured">
+          <span class="product-tag live">✅ Đang hoạt động</span>
+          <div class="product-num">01</div>
+          <div class="product-name">Định Vị Nghề Nghiệp Ikigai</div>
+          <div class="product-desc">Hệ thống phân tích đa chiều kết hợp Nhân số học, RIASEC Holland, MBTI và Ikigai — gợi ý TOP 5 nghề nghiệp phù hợp nhất với con người thật của bạn.</div>
+          <ul class="product-features">
+            <li>Phân tích 60+ câu hỏi chuyên sâu</li>
+            <li>Kết hợp 4 bộ công cụ tâm lý học</li>
+            <li>Gợi ý tổ hợp môn xét tuyển ĐH</li>
+            <li>Báo cáo cá nhân hóa chi tiết</li>
+          </ul>
+          <a href="khao-sat/" class="btn-card-primary">Làm bài khảo sát miễn phí →</a>
+        </div>
+        <div class="product-card">
+          <span class="product-tag soon">🔜 Sắp ra mắt</span>
+          <div class="product-num">02</div>
+          <div class="product-name">Test Năng Lực Tư Duy</div>
+          <div class="product-desc">Đánh giá chỉ số IQ, EQ, tư duy phản biện và khả năng giải quyết vấn đề — bức tranh toàn diện về trí tuệ của bạn.</div>
+          <ul class="product-features">
+            <li>Bài test IQ chuẩn quốc tế</li>
+            <li>Đánh giá chỉ số EQ</li>
+            <li>Phân tích điểm mạnh tư duy</li>
+            <li>Lộ trình cải thiện cá nhân</li>
+          </ul>
+          <div class="btn-card-disabled">Thông báo khi ra mắt</div>
+        </div>
+        <div class="product-card">
+          <span class="product-tag soon">🔜 Sắp ra mắt</span>
+          <div class="product-num">03</div>
+          <div class="product-name">Lộ Trình Học Tập Cá Nhân</div>
+          <div class="product-desc">Dựa trên điểm mạnh và nghề nghiệp mục tiêu, hệ thống tạo ra lộ trình học tập tối ưu từng bước, từng giai đoạn, đo lường được.</div>
+          <ul class="product-features">
+            <li>Lộ trình 3–5 năm chi tiết</li>
+            <li>Gợi ý khóa học và tài liệu</li>
+            <li>Theo dõi tiến độ realtime</li>
+            <li>Mentor matching</li>
+          </ul>
+          <div class="btn-card-disabled">Thông báo khi ra mắt</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROCESS ── -->
+  <section class="process" id="process">
+    <div class="container">
+      <div class="section-label">Quy trình</div>
+      <h2 class="section-title">4 BƯỚC ĐẾN <span class="orange">KẾT QUẢ</span></h2>
+      <div class="process-grid fade-up">
+        <div class="process-item">
+          <div class="process-step">Bước 01</div>
+          <span class="process-icon">📝</span>
+          <div class="process-title">Điền Thông Tin Cá Nhân</div>
+          <div class="process-desc">Cung cấp thông tin cơ bản: tên, ngày sinh, email và định hướng ban đầu của bạn.</div>
+          <div class="process-arrow">›</div>
+        </div>
+        <div class="process-item">
+          <div class="process-step">Bước 02</div>
+          <span class="process-icon">🎯</span>
+          <div class="process-title">Làm Bài Khảo Sát</div>
+          <div class="process-desc">Hoàn thành 60+ câu hỏi được thiết kế bởi chuyên gia nhân sự và tâm lý học nghề nghiệp.</div>
+          <div class="process-arrow">›</div>
+        </div>
+        <div class="process-item">
+          <div class="process-step">Bước 03</div>
+          <span class="process-icon">⚙️</span>
+          <div class="process-title">Thuật Toán Phân Tích</div>
+          <div class="process-desc">Hệ thống đối chiếu dữ liệu đa biến: Holland × MBTI × Nhân số học × Xu hướng thị trường.</div>
+          <div class="process-arrow">›</div>
+        </div>
+        <div class="process-item">
+          <div class="process-step">Bước 04</div>
+          <span class="process-icon">📊</span>
+          <div class="process-title">Nhận Báo Cáo Cá Nhân</div>
+          <div class="process-desc">Nhận kết quả chi tiết với TOP 5 nghề nghiệp phù hợp và lộ trình hành động cụ thể.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TESTIMONIALS ── -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="testimonials-header">
+        <div>
+          <div class="section-label">Phản hồi học viên</div>
+          <h2 class="section-title">ĐƯỢC TIN TƯỞNG BỞI<br><span class="orange">HỌC VIÊN CỦA CHÚNG TÔI</span></h2>
+        </div>
+      </div>
+      <div class="testimonials-grid fade-up">
+        <div class="testimonial-card">
+          <div class="testimonial-quote">"</div>
+          <div class="testimonial-text">Kết quả phân tích chính xác đến mức tôi không thể ngờ. Bài khảo sát đã chỉ ra đúng điểm mạnh tôi chưa nhận ra — tư duy hệ thống và khả năng phân tích dữ liệu. Hiện tôi đang học ngành Data Science và thấy rất đúng hướng.</div>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">M</div>
+            <div>
+              <div class="testimonial-name">Minh Khoa</div>
+              <div class="testimonial-role">Sinh viên năm 1, ĐH Bách Khoa TP.HCM</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-quote">"</div>
+          <div class="testimonial-text">Trước khi làm bài test, tôi còn chưa biết mình hợp với gì. Sau khi nhận báo cáo, lộ trình nghề nghiệp hiện ra rõ ràng đến từng bước. Tôi quyết định chọn ngành Marketing và rất hài lòng với quyết định đó.</div>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">T</div>
+            <div>
+              <div class="testimonial-name">Thanh Thảo</div>
+              <div class="testimonial-role">Học sinh lớp 12, Trường THPT Nguyễn Du</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="cta-section" id="contact">
+    <div class="cta-inner">
+      <div>
+        <div class="section-label">Bắt đầu ngay hôm nay</div>
+        <h2 class="cta-title">SẴN SÀNG ĐỊNH VỊ<br><span class="orange">TƯƠNG LAI CỦA BẠN?</span></h2>
+        <p class="cta-subtitle">Hãy để lại thông tin — đội ngũ chuyên gia sẽ liên hệ trong vòng 24 giờ để tư vấn và hỗ trợ bạn chọn đúng hướng đi.</p>
+        <div style="margin-top:32px; display:flex; gap:16px; flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--gray)"><span style="color:var(--orange)">📍</span> Việt Nam — Hoạt động toàn quốc</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--gray)"><span style="color:var(--orange)">📧</span> info@nghechonnguoi.com</div>
+        </div>
+      </div>
+      <div>
+        <form class="cta-form fade-up" id="contactForm" novalidate>
+          <div class="cta-row">
+            <input type="text" id="fullName" name="fullName" placeholder="Họ và tên *" required autocomplete="name">
+            <input type="text" id="school" name="school" placeholder="Trường / Đơn vị" autocomplete="organization">
+          </div>
+          <div class="cta-row">
+            <input type="email" id="email" name="email" placeholder="Email *" required autocomplete="email">
+            <input type="tel" id="phone" name="phone" placeholder="Số điện thoại" autocomplete="tel">
+          </div>
+          <textarea id="message" name="message" placeholder="Bạn muốn hỏi về điều gì?"></textarea>
+          <button type="submit" class="btn-submit" id="btnSubmit">Gửi thông tin →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <div class="nav-logo-icon">🧭</div>
+            <div class="nav-logo-text">Nghe<span>Chọn</span>Người</div>
+          </div>
+          <p>Hệ thống định vị sự nghiệp hàng đầu Việt Nam. Kết hợp khoa học tâm lý hiện đại với dữ liệu thị trường lao động để giúp người trẻ tìm đúng con đường.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Liên kết nhanh</h4>
+          <ul>
+            <li><a href="#services">Dịch vụ</a></li>
+            <li><a href="#products">Sản phẩm</a></li>
+            <li><a href="#process">Quy trình</a></li>
+            <li><a href="#testimonials">Phản hồi</a></li>
+            <li><a href="#contact">Liên hệ</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Sản phẩm</h4>
+          <ul>
+            <li><a href="khao-sat/">Khảo sát Nghề nghiệp</a></li>
+            <li><a href="#">Test Năng lực Tư duy</a></li>
+            <li><a href="#">Lộ trình Học tập</a></li>
+            <li><a href="#">Báo cáo PDF Premium</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Liên hệ</h4>
+          <div class="contact-item">
+            <span class="contact-icon">📧</span>
+            <span class="contact-text">info@nghechonnguoi.com</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">🌐</span>
+            <span class="contact-text">nghechonnguoi.com</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">🕐</span>
+            <span class="contact-text">Thứ 2 – Thứ 7<br>8:00 – 18:00</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 NghechonNguoi.com — Tất cả quyền được bảo lưu</p>
+        <div class="footer-bottom-links">
+          <a href="#">Chính sách bảo mật</a>
+          <a href="#">Điều khoản sử dụng</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ── TOAST ── -->
+  <div class="toast" id="toast">✅ Gửi thành công! Chúng tôi sẽ liên hệ trong 24h.</div>
+
+  <script>
+    // Scroll animations
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // Smooth scroll (exclude mobile menu links handled separately)
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const id = a.getAttribute('href');
+        const t = document.querySelector(id);
+        if (t) t.scrollIntoView({ behavior: 'smooth' });
+        // Close mobile menu on nav click
+        mobileMenu.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // Hamburger toggle
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
+      hamburger.classList.toggle('open', isOpen);
+      hamburger.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    // Close mobile menu on resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900) {
+        mobileMenu.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Form submission with validation & toast
+    const contactForm = document.getElementById('contactForm');
+    const toast = document.getElementById('toast');
+    const btnSubmit = document.getElementById('btnSubmit');
+    let toastTimer;
+
+    contactForm.addEventListener('submit', e => {
+      e.preventDefault();
+
+      // Basic client-side validation
+      const name = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      if (!name || !email) {
+        // Shake button to indicate error
+        btnSubmit.style.animation = 'none';
+        void btnSubmit.offsetWidth;
+        btnSubmit.style.transition = 'transform .1s';
+        [0, -6, 6, -6, 6, 0].forEach((x, i) => {
+          setTimeout(() => btnSubmit.style.transform = `translateX(${x}px)`, i * 60);
+        });
+        setTimeout(() => btnSubmit.style.transform = '', 400);
+        return;
+      }
+
+      // Disable button while "sending"
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Đang gửi...';
+
+      // Simulate sending (replace with real fetch/API call)
+      setTimeout(() => {
+        contactForm.reset();
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Gửi thông tin →';
+
+        // Show toast
+        clearTimeout(toastTimer);
+        toast.classList.add('show');
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
+      }, 900);
+    });
+  </script>
+</body>
+</html>
