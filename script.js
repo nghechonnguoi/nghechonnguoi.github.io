@@ -2141,15 +2141,16 @@ async function generateReportUI() {
             body: JSON.stringify(window.pdfPayload)
           });
           if (!pdfRes.ok) throw new Error("Lỗi xuất PDF");
-          const pdfData = await pdfRes.json();
+          const blob = await pdfRes.blob();
+          const url = window.URL.createObjectURL(blob);
           
           btn.style.display = 'none';
           const qrArea = document.getElementById('qr-payment-area');
           qrArea.style.display = 'block';
           qrArea.innerHTML = `
             <div style="color: #10b981; font-size: 20px; font-weight: bold; margin-bottom: 15px;">🎉 Mở Khóa Thành Công (Miễn phí)!</div>
-            <p style="color: #334155; margin-bottom: 15px;">Báo cáo PDF đã được tạo và gửi vào email của bạn.</p>
-            <a href="${pdfData.downloadUrl}" target="_blank" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">TẢI FILE PDF VỀ MÁY NGAY</a>
+            <p style="color: #334155; margin-bottom: 15px;">Báo cáo PDF đã được tạo thành công.</p>
+            <a href="${url}" target="_blank" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">TẢI FILE PDF VỀ MÁY NGAY</a>
           `;
         } catch(err) {
           console.error(err);
@@ -2236,17 +2237,12 @@ async function generateReportUI() {
                 const blob = await pdfRes.blob();
                 
                 const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
                 
                 qrArea.innerHTML = `
                   <div style="padding: 20px 0;">
                     <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tải Báo cáo thành công!</h3>
-                    <p style="color: #475569; font-weight: 500;">File PDF đã được lưu vào máy của bạn. Chúc bạn có một hành trình định vị bản thân tuyệt vời!</p>
+                    <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo đã sẵn sàng. Vui lòng bấm nút dưới đây để tải về:</p>
+                    <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
                   </div>
                 `;
               } catch (pdfErr) {
