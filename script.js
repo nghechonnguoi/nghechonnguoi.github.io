@@ -2048,7 +2048,7 @@ async function generateReportUI() {
     space.innerHTML = `
       <div style="background: #1e293b; border: 2px solid #334155; border-radius: 12px; padding: 25px; margin-top: 10px;">
         <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
-          Mở khóa <strong>BÁO CÁO PDF ĐỘC QUYỀN (12 TRANG)</strong> phân tích riêng cho bạn để xem chi tiết:
+          Mở khóa <strong>BÁO CÁO PDF ĐỘC QUYỀN (SIÊU CHI TIẾT)</strong> phân tích riêng cho bạn để xem chi tiết:
         </p>
         
         <div style="background: #0f172a; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
@@ -2077,7 +2077,7 @@ async function generateReportUI() {
           </button>
           
           <p style="color: #64748b; font-size: 12px; margin-top: 15px; font-style: italic;">
-            (Hệ thống sẽ tự động tạo và gửi Báo cáo PDF 12 trang siêu chi tiết vào email của bạn ngay lập tức)
+            (Hệ thống sẽ tự động tạo và gửi Báo cáo PDF siêu chi tiết vào email của bạn ngay lập tức)
           </p>
         </div>
         
@@ -2260,6 +2260,48 @@ async function generateReportUI() {
         btn.style.opacity = '1';
       }
     });
+
+
+    // === NEW PREVIEW FETCH LOGIC ===
+    const previewContainer = document.getElementById('free-preview-container');
+    if (previewContainer) {
+      previewContainer.classList.remove('hidden');
+      document.getElementById('preview-loading').style.display = 'block';
+      document.getElementById('preview-content').classList.add('hidden');
+      
+      fetch('https://ncn-academy-web.vercel.app/api/generate-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(window.pdfPayload)
+      })
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('preview-p1').innerText = data.AI_PAGE3_P1 || '';
+        document.getElementById('preview-p2').innerText = data.AI_PAGE3_P2 || '';
+        
+        const colors = { R: '#8b5cf6', I: '#3b82f6', A: '#ec4899', S: '#10b981', E: '#f59e0b', C: '#64748b' };
+        const labels = { R: 'Thực tế (Realistic)', I: 'Nghiên cứu (Investigative)', A: 'Nghệ thuật (Artistic)', S: 'Xã hội (Social)', E: 'Quản lý (Enterprising)', C: 'Tổ chức (Conventional)' };
+        let barsHtml = '';
+        const pct = window.pdfPayload;
+        const scores = [
+          { k: 'R', v: pct.R_PCT }, { k: 'I', v: pct.I_PCT }, { k: 'A', v: pct.A_PCT },
+          { k: 'S', v: pct.S_PCT }, { k: 'E', v: pct.E_PCT }, { k: 'C', v: pct.C_PCT }
+        ];
+        
+        scores.forEach(s => {
+          barsHtml += "<div style='margin-bottom: 12px'><div style='font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 6px;'>" + s.k + " — " + labels[s.k] + "</div><div style='width: 100%; background: #f1f5f9; border-radius: 6px; height: 12px; overflow: hidden;'><div style='height: 100%; background: " + colors[s.k] + "; width: " + s.v + "%; border-radius: 6px;'></div></div></div>";
+        });
+        
+        document.getElementById('preview-holland-bars').innerHTML = barsHtml + "<p style='margin-top: 20px; font-size: 15px; line-height: 1.6; color: #475569;'>Bạn sẽ tỏa sáng nhất trong môi trường năng động, đề cao giá trị con người, nơi bạn được tự do sáng tạo, giao tiếp cởi mở và trực tiếp chứng kiến sự trưởng thành của những người mình đồng hành hỗ trợ.</p>";
+        
+        document.getElementById('preview-loading').style.display = 'none';
+        document.getElementById('preview-content').classList.remove('hidden');
+      })
+      .catch(e => {
+         console.error('Preview error', e);
+         previewContainer.style.display = 'none';
+      });
+    }
 
   } catch (err) {
     console.error('Lỗi thực thi Universal Layered Algorithm v5.0:', err);
