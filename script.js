@@ -2082,7 +2082,7 @@ async function generateReportUI() {
           </button>
           
           <p style="color: #64748b; font-size: 12px; margin-top: 15px; font-style: italic;">
-            (Hệ thống sẽ tự động tạo và tải Báo cáo PDF siêu chi tiết về thiết bị của bạn ngay lập tức)
+            (Hệ thống sẽ tự động tải file về máy và đồng thời gửi bản sao lưu Báo cáo PDF vào email của bạn)
           </p>
         </div>
         
@@ -2225,7 +2225,7 @@ async function generateReportUI() {
               
               qrArea.innerHTML = `
                 <div style="padding: 20px 0;">
-                  <h3 style="color: #10b981; margin-bottom: 15px;">🎉 Đã nhận thanh toán! Đang tạo Báo cáo...</h3>
+                  <h3 style="color: #10b981; margin-bottom: 15px;">🎉 Đã nhận thanh toán! Đang tạo Báo cáo & Gửi Email...</h3>
                   <div class="spinner" style="margin: 0 auto; width:30px;height:30px;border:3px solid #10b981;border-top-color:transparent;border-radius:50%;display:block;animation:spin 1s linear infinite;"></div>
                 </div>
               `;
