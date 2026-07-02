@@ -2111,13 +2111,13 @@ async function generateReportUI() {
       
       if (code === 'GIADINH') {
         finalAmount = 568000 - 500000;
-        msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Đã giảm 500.000đ</span>';
+        msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Đã giảm 500.000đ. Giá mới: 68.000đ</span>';
       } else if (code === 'GIAM50') {
         finalAmount = 568000 - 50000;
-        msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Đã giảm 50.000đ</span>';
+        msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Đã giảm 50.000đ. Giá mới: 518.000đ</span>';
       } else if (code === 'MIENPHI1') {
         finalAmount = 0;
-        msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Miễn phí 100%</span>';
+        msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Miễn phí 100%. Giá mới: 0đ</span>';
       } else {
         finalAmount = 568000;
         msgEl.innerHTML = '<span style="color: #ef4444;">Mã ưu đãi không hợp lệ!</span>';
