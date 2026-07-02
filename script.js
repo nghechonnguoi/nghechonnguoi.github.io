@@ -2082,7 +2082,7 @@ async function generateReportUI() {
           </button>
           
           <p style="color: #64748b; font-size: 12px; margin-top: 15px; font-style: italic;">
-            (Hệ thống sẽ tự động tạo và gửi Báo cáo PDF siêu chi tiết vào email của bạn ngay lập tức)
+            (Hệ thống sẽ tự động tạo và tải Báo cáo PDF siêu chi tiết về thiết bị của bạn ngay lập tức)
           </p>
         </div>
         
@@ -2210,7 +2210,7 @@ async function generateReportUI() {
           
           <img src="${qrImgUrl}" alt="QR Code PayOS" style="max-width: 250px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
           
-          <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Hệ thống đang tự động lắng nghe giao dịch. Vui lòng không đóng trang này.</p>
+          <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Hệ thống đang tự động lắng nghe giao dịch. Vui lòng không đóng trang này.<br><br>💡 <b>Lưu ý dành cho điện thoại:</b> Bạn có thể chụp ảnh màn hình mã QR này, sau đó mở ứng dụng Ngân hàng và chọn tính năng "Quét mã từ thư viện ảnh".</p>
           
           <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #f59e0b; font-weight: bold; font-size: 14px;">
             <span class="spinner" style="width:16px;height:16px;border:2px solid #f59e0b;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin 1s linear infinite;"></span> Đang chờ thanh toán...
