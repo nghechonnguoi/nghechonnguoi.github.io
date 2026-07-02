@@ -1976,6 +1976,11 @@ async function generateReportUI() {
       NGAY_XUAT_BAN: new Date().toLocaleDateString('vi-VN'),
       R_PCT: hPct.R, I_PCT: hPct.I, A_PCT: hPct.A, S_PCT: hPct.S, E_PCT: hPct.E, C_PCT: hPct.C,
       MBTI: mbtiCode,
+      LIFEPATH: lifepathNum,
+      SOUL: soulNum,
+      MISSION: missionNum,
+      TALENT: talentNum,
+      PASSION: passionNums.join(' & '),
       HOLLAND: sortedHolland.slice(0, 3).map(x => x[0]).join(''),
     };
     
