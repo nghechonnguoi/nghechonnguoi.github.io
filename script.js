@@ -2005,7 +2005,7 @@ async function generateReportUI() {
     ].filter(Boolean).join('  ·  ');
 
     document.getElementById('report-student-name').innerHTML =
-      `Báo cáo Định vị Ikigai Chiến lược cho: <strong>${profile.fullName}</strong>`
+      `BÁO CÁO ĐỊNH VỊ NGHỀ NGHIỆP CHO: <strong>${profile.fullName}</strong>`
       + (contactInfo ? `<br><span style="font-size:13px;color:#718096;font-weight:400;">${contactInfo}</span>` : '');
 
 
