@@ -2283,6 +2283,7 @@ async function generateReportUI() {
       .then(data => {
         document.getElementById('preview-p1').innerText = data.AI_PAGE3_P1 || '';
         document.getElementById('preview-p2').innerText = data.AI_PAGE3_P2 || '';
+        document.getElementById('preview-p3').innerText = data.AI_PAGE3_P3 || '';
         
         const colors = { R: '#8b5cf6', I: '#3b82f6', A: '#ec4899', S: '#10b981', E: '#f59e0b', C: '#64748b' };
         const labels = { R: 'Thực tế (Realistic)', I: 'Nghiên cứu (Investigative)', A: 'Nghệ thuật (Artistic)', S: 'Xã hội (Social)', E: 'Quản lý (Enterprising)', C: 'Tổ chức (Conventional)' };
