@@ -2202,12 +2202,12 @@ async function generateReportUI() {
         qrArea.style.display = 'block';
         
         // Tạo URL QR VietQR chuẩn từ thông tin PayOS trả về
-        const qrImgUrl = `https://img.vietqr.io/image/${data.data.bin}-${data.data.accountNumber}-compact2.png?amount=${data.data.amount}&addInfo=${encodeURIComponent(data.data.description)}&accountName=${encodeURIComponent(data.data.accountName)}`;
+        const qrImgUrl = `https://img.vietqr.io/image/${data.bin}-${data.accountNumber}-compact2.png?amount=${data.amount}&addInfo=${encodeURIComponent(data.description)}&accountName=${encodeURIComponent(data.accountName)}`;
 
         qrArea.innerHTML = `
           <h4 style="color: #0f172a; margin-bottom: 10px;">Quét mã QR dưới đây để thanh toán</h4>
           <p style="color: #10b981; font-size: 18px; font-weight: bold; margin-bottom: 10px;">Giá thanh toán: ${amount.toLocaleString('vi-VN')} VNĐ</p>
-          <p style="color: #ef4444; font-weight: bold; margin-bottom: 15px;">Nội dung chuyển khoản: <span style="color:#2563eb">${data.data.description}</span></p>
+          <p style="color: #ef4444; font-weight: bold; margin-bottom: 15px;">Nội dung chuyển khoản: <span style="color:#2563eb">${data.description}</span></p>
           
           <img src="${qrImgUrl}" alt="QR Code PayOS" style="max-width: 250px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
           
@@ -2223,7 +2223,7 @@ async function generateReportUI() {
           .onSnapshot(async (doc) => {
             if (doc.exists) {
               const data = doc.data();
-              if (data.status === 'PAID' && !data.pdfBase64) {
+              if (data.status === 'PAID' && !data.pdfBase64 && !data.pdfUrl) {
                 qrArea.innerHTML = `
                   <div style="padding: 20px 0;">
                     <h3 style="color: #10b981; margin-bottom: 15px;">🎉 Đã nhận thanh toán! Đang tạo Báo cáo & Gửi Email...</h3>
@@ -2232,26 +2232,30 @@ async function generateReportUI() {
                 `;
               }
               
-              if (data.status === 'PAID' && data.pdfBase64) {
+              if (data.status === 'PAID' && (data.pdfBase64 || data.pdfUrl)) {
                 unsubscribe(); // Dừng lắng nghe
                 
                 try {
-                  // Chuyển Base64 thành Blob
-                  const byteCharacters = atob(data.pdfBase64);
-                  const byteNumbers = new Array(byteCharacters.length);
-                  for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                  }
-                  const byteArray = new Uint8Array(byteNumbers);
-                  const blob = new Blob([byteArray], { type: 'application/pdf' });
+                  let url = data.pdfUrl;
                   
-                  const url = window.URL.createObjectURL(blob);
+                  if (!url && data.pdfBase64) {
+                    // Chuyển Base64 thành Blob
+                    const byteCharacters = atob(data.pdfBase64);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                      byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], { type: 'application/pdf' });
+                    
+                    url = window.URL.createObjectURL(blob);
+                  }
                   
                   qrArea.innerHTML = `
                     <div style="padding: 20px 0;">
                       <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tải Báo cáo thành công!</h3>
                       <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo đã sẵn sàng và <b>cũng đã được gửi vào Email</b> của bạn. Vui lòng bấm nút dưới đây để tải về:</p>
-                      <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
+                      <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" target="_blank" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
                     </div>
                   `;
                 } catch (pdfErr) {
