@@ -2179,35 +2179,25 @@ async function generateReportUI() {
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // 2. Gọi API PayOS để lấy thông tin thanh toán
-        const res = await fetch('https://ncn-academy-web.vercel.app/api/payos/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderCode: orderCodeNum,
-            amount: amount,
-            description: `NCN ${orderCodeNum}`,
-            buyerName: profile.fullName,
-            buyerPhone: profile.phone
-          })
-        });
-        
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || "Không thể tạo link thanh toán");
-
+        // 2. Không cần gọi API, sinh mã QR tĩnh (VietQR) cho SePay
         btn.style.display = 'none';
         
-        // 3. Hiển thị QR Code từ PayOS
+        // 3. Hiển thị QR Code
         const qrArea = document.getElementById('qr-payment-area');
         qrArea.style.display = 'block';
         
-        // Tạo URL QR VietQR chuẩn từ thông tin PayOS trả về
-        const qrImgUrl = `https://img.vietqr.io/image/${data.bin}-${data.accountNumber}-compact2.png?amount=${data.amount}&addInfo=${encodeURIComponent(data.description)}&accountName=${encodeURIComponent(data.accountName)}`;
+        const bankBin = '970448'; // OCB
+        const accountNumber = 'CAS61666666';
+        const accountName = 'PHAM THI NGAN';
+        const description = `NCN ${orderCodeNum}`;
+
+        // Tạo URL QR VietQR chuẩn
+        const qrImgUrl = `https://img.vietqr.io/image/${bankBin}-${accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountName)}`;
 
         qrArea.innerHTML = `
           <h4 style="color: #0f172a; margin-bottom: 10px;">Quét mã QR dưới đây để thanh toán</h4>
           <p style="color: #10b981; font-size: 18px; font-weight: bold; margin-bottom: 10px;">Giá thanh toán: ${amount.toLocaleString('vi-VN')} VNĐ</p>
-          <p style="color: #ef4444; font-weight: bold; margin-bottom: 15px;">Nội dung chuyển khoản: <span style="color:#2563eb">${data.description}</span></p>
+          <p style="color: #ef4444; font-weight: bold; margin-bottom: 15px;">Nội dung chuyển khoản: <span style="color:#2563eb">${description}</span></p>
           
           <img src="${qrImgUrl}" alt="QR Code PayOS" style="max-width: 250px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
           
