@@ -31,8 +31,7 @@ const injectCode = `
           barsHtml += "<div style='margin-bottom: 12px'><div style='font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 6px;'>" + s.k + " — " + labels[s.k] + "</div><div style='width: 100%; background: #f1f5f9; border-radius: 6px; height: 12px; overflow: hidden;'><div style='height: 100%; background: " + colors[s.k] + "; width: " + s.v + "%; border-radius: 6px;'></div></div></div>";
         });
         
-        let aiText = data.AI_PAGE3_P3 || "Bạn sẽ tỏa sáng nhất trong môi trường năng động, đề cao giá trị con người, nơi bạn được tự do sáng tạo, giao tiếp cởi mở và trực tiếp chứng kiến sự trưởng thành của những người mình đồng hành hỗ trợ.";
-        document.getElementById('preview-holland-bars').innerHTML = barsHtml + "<p style='margin-top: 20px; font-size: 15px; line-height: 1.6; color: #475569;'>" + aiText + "</p>";
+        document.getElementById('preview-holland-bars').innerHTML = barsHtml;
         
         document.getElementById('preview-loading').style.display = 'none';
         document.getElementById('preview-content').classList.remove('hidden');
