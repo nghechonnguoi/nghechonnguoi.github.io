@@ -2175,6 +2175,7 @@ async function generateReportUI() {
           status: 'PENDING',
           customerName: profile.fullName,
           customerPhone: profile.phone,
+          payload: window.pdfPayload,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
@@ -2217,42 +2218,46 @@ async function generateReportUI() {
           </div>
         `;
 
-        // 4. Lắng nghe Realtime Firestore để tự động tải PDF khi trạng thái chuyển sang PAID
+        // 4. Lắng nghe Realtime Firestore để tự động tải PDF khi Backend đã tạo xong
         const unsubscribe = db.collection('orders').doc(orderCodeNum.toString())
           .onSnapshot(async (doc) => {
-            if (doc.exists && doc.data().status === 'PAID') {
-              unsubscribe(); // Dừng lắng nghe
-              
-              qrArea.innerHTML = `
-                <div style="padding: 20px 0;">
-                  <h3 style="color: #10b981; margin-bottom: 15px;">🎉 Đã nhận thanh toán! Đang tạo Báo cáo & Gửi Email...</h3>
-                  <div class="spinner" style="margin: 0 auto; width:30px;height:30px;border:3px solid #10b981;border-top-color:transparent;border-radius:50%;display:block;animation:spin 1s linear infinite;"></div>
-                </div>
-              `;
-
-              // Gọi API tạo PDF
-              try {
-                const pdfRes = await fetch('https://ncn-academy-web.vercel.app/api/generate-pdf', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(window.pdfPayload)
-                });
-                
-                if (!pdfRes.ok) throw new Error("Lỗi tải PDF");
-                const blob = await pdfRes.blob();
-                
-                const url = window.URL.createObjectURL(blob);
-                
+            if (doc.exists) {
+              const data = doc.data();
+              if (data.status === 'PAID' && !data.pdfBase64) {
                 qrArea.innerHTML = `
                   <div style="padding: 20px 0;">
-                    <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tải Báo cáo thành công!</h3>
-                    <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo đã sẵn sàng. Vui lòng bấm nút dưới đây để tải về:</p>
-                    <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
+                    <h3 style="color: #10b981; margin-bottom: 15px;">🎉 Đã nhận thanh toán! Đang tạo Báo cáo & Gửi Email...</h3>
+                    <div class="spinner" style="margin: 0 auto; width:30px;height:30px;border:3px solid #10b981;border-top-color:transparent;border-radius:50%;display:block;animation:spin 1s linear infinite;"></div>
                   </div>
                 `;
-              } catch (pdfErr) {
-                console.error(pdfErr);
-                qrArea.innerHTML = `<div style="color: red; padding: 20px 0;">Thanh toán thành công nhưng có lỗi khi xuất PDF. Vui lòng liên hệ Admin đọc mã ${orderCodeNum} để nhận file thủ công.</div>`;
+              }
+              
+              if (data.status === 'PAID' && data.pdfBase64) {
+                unsubscribe(); // Dừng lắng nghe
+                
+                try {
+                  // Chuyển Base64 thành Blob
+                  const byteCharacters = atob(data.pdfBase64);
+                  const byteNumbers = new Array(byteCharacters.length);
+                  for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                  }
+                  const byteArray = new Uint8Array(byteNumbers);
+                  const blob = new Blob([byteArray], { type: 'application/pdf' });
+                  
+                  const url = window.URL.createObjectURL(blob);
+                  
+                  qrArea.innerHTML = `
+                    <div style="padding: 20px 0;">
+                      <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tải Báo cáo thành công!</h3>
+                      <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo đã sẵn sàng và <b>cũng đã được gửi vào Email</b> của bạn. Vui lòng bấm nút dưới đây để tải về:</p>
+                      <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
+                    </div>
+                  `;
+                } catch (pdfErr) {
+                  console.error(pdfErr);
+                  qrArea.innerHTML = `<div style="color: red; padding: 20px 0;">Đã tạo PDF nhưng có lỗi khi hiển thị. Vui lòng kiểm tra Email hoặc liên hệ Admin.</div>`;
+                }
               }
             }
           });
