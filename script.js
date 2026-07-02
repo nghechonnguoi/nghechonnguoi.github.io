@@ -354,7 +354,7 @@ function finishQuiz() {
 
   document.getElementById("options-space").innerHTML = `
     <p style="text-align:center;color:#4a5568;margin-bottom:15px;">
-      Hệ thống đang chuẩn bị phân tích tố chất bẩm sinh theo Nhân số học…
+      Hệ thống đang chuẩn bị phân tích...
     </p>
     <button class="btn-primary" onclick="generateReportUI()">
       Xem Kết Quả Định Vị Ikigai &amp; Nguyện Vọng Ngay ➔
