@@ -2251,20 +2251,20 @@ async function generateReportUI() {
                   .then(async res => {
                     if (!res.ok) {
                       const text = await res.text();
-                      throw new Error(`Server returned \${res.status}: \${text}`);
+                      throw new Error(`Server returned ${res.status}: ${text}`);
                     }
                     return res.json();
                   })
                   .then(resData => {
                     if (resData && resData.success === false) {
                       window.isGeneratingPDF = false;
-                      qrArea.innerHTML = \`<div style="color: red; padding: 20px 0;"><b>Lỗi tạo PDF:</b> \${resData.error || 'Lỗi không xác định'}. Vui lòng liên hệ Admin.</div>\`;
+                      qrArea.innerHTML = `<div style="color: red; padding: 20px 0;"><b>Lỗi tạo PDF:</b> ${resData.error || 'Lỗi không xác định'}. Vui lòng liên hệ Admin.</div>`;
                     }
                   })
                   .catch(err => {
                     console.error("Lỗi tạo PDF từ frontend:", err);
                     window.isGeneratingPDF = false;
-                    qrArea.innerHTML = \`<div style="color: red; padding: 20px 0;"><b>Lỗi hệ thống:</b> Không thể tạo PDF (\${err.message}). Vui lòng F5 thử lại hoặc liên hệ Admin.</div>\`;
+                    qrArea.innerHTML = `<div style="color: red; padding: 20px 0;"><b>Lỗi hệ thống:</b> Không thể tạo PDF (${err.message}). Vui lòng F5 thử lại hoặc liên hệ Admin.</div>`;
                   });
                 }
               }
