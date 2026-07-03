@@ -58,12 +58,13 @@ async function handleGoogleLogin() {
     await auth.signInWithPopup(provider);
     // Đăng nhập thành công — onAuthStateChanged tự xử lý UI
   } catch (error) {
-    // Người dùng tự đóng popup → bỏ qua, không hiện thông báo lỗi
-    if (error.code === 'auth/popup-closed-by-user' ||
-        error.code === 'auth/cancelled-popup-request') {
+    if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
       return;
     }
-    // Trình duyệt chặn popup → tự động chuyển sang redirect
+    if (error.code === 'auth/unauthorized-domain') {
+      alert("LỖI TÊN MIỀN: Tên miền 'quiz.nghechonnguoi.com' chưa được thêm vào Authorized Domains trong Firebase Console. Vui lòng vào Firebase -> Authentication -> Settings -> Authorized Domains để thêm tên miền này.");
+      return;
+    }
     if (error.code === 'auth/popup-blocked') {
       try {
         await auth.signInWithRedirect(provider);
@@ -72,8 +73,7 @@ async function handleGoogleLogin() {
       }
       return;
     }
-    // Các lỗi khác → hiện thông báo rõ ràng
-    alert('Lỗi đăng nhập Google: ' + error.message);
+    alert('Lỗi đăng nhập Google: ' + error.message + " (" + error.code + ")");
   }
 }
 
@@ -87,7 +87,13 @@ async function handleEmailRegister() {
     await auth.createUserWithEmailAndPassword(email, password);
     alert("Tạo tài khoản thành công! Bạn có thể làm bài test ngay bây giờ.");
   } catch (error) {
-    alert("Lỗi đăng ký: " + error.message);
+    if (error.code === 'auth/email-already-in-use') {
+      alert("Email này đã được đăng ký. Vui lòng bấm ĐĂNG NHẬP thay vì Đăng ký.");
+    } else if (error.code === 'auth/weak-password') {
+      alert("Mật khẩu quá ngắn, vui lòng nhập ít nhất 6 ký tự.");
+    } else {
+      alert("Lỗi đăng ký: " + error.message + " (" + error.code + ")");
+    }
   }
 }
 
@@ -99,9 +105,14 @@ async function handleEmailLogin() {
 
   try {
     await auth.signInWithEmailAndPassword(email, password);
-    alert("Đăng nhập thành công!");
   } catch (error) {
-    alert("Sai mật khẩu hoặc tài khoản chưa đăng ký: " + error.message);
+    if (error.code === 'auth/user-not-found') {
+      alert("Tài khoản chưa tồn tại! Bạn hãy bấm nút ĐĂNG KÝ để tạo tài khoản trước nhé.");
+    } else if (error.code === 'auth/wrong-password') {
+      alert("Bạn đã nhập sai mật khẩu. Vui lòng thử lại.");
+    } else {
+      alert("Lỗi đăng nhập: " + error.message + " (" + error.code + ")");
+    }
   }
 }
 
