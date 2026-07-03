@@ -2236,8 +2236,22 @@ async function generateReportUI() {
                   <div style="padding: 20px 0;">
                     <h3 style="color: #10b981; margin-bottom: 15px;">🎉 Đã nhận thanh toán! Đang tạo Báo cáo & Gửi Email...</h3>
                     <div class="spinner" style="margin: 0 auto; width:30px;height:30px;border:3px solid #10b981;border-top-color:transparent;border-radius:50%;display:block;animation:spin 1s linear infinite;"></div>
+                    <p style="color: #ef4444; margin-top: 15px; font-weight: bold;">Vui lòng KHÔNG đóng trang này trong khi tạo báo cáo (khoảng 30 giây)!</p>
                   </div>
                 `;
+                
+                // Frontend triggers PDF generation to avoid Vercel webhook timeout limits
+                if (!window.isGeneratingPDF) {
+                  window.isGeneratingPDF = true;
+                  fetch('https://ncn-academy-web.vercel.app/api/generate-pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...window.pdfPayload, orderCode: orderCodeNum.toString() })
+                  }).catch(err => {
+                    console.error("Lỗi tạo PDF từ frontend:", err);
+                    window.isGeneratingPDF = false;
+                  });
+                }
               }
               
               if (data.status === 'PAID' && (data.pdfBase64 || data.pdfUrl)) {
