@@ -2189,9 +2189,6 @@ async function generateReportUI() {
       } else if (code === 'GIAM50') {
         finalAmount = 568000 - 50000;
         msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Đã giảm 50.000đ. Giá mới: 518.000đ</span>';
-      } else if (code === 'MIENPHI1') {
-        finalAmount = 0;
-        msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Miễn phí 100%. Giá mới: 0đ</span>';
       } else {
         // Kiểm tra mã 1 lần qua API
         try {
