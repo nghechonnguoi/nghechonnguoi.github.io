@@ -2084,7 +2084,7 @@ async function generateReportUI() {
       }
     }
 
-    const space = document.getElementById('career-section-content');
+    const space = document.getElementById('career-recommendations-space');
     if (alreadyPaidData) {
       let dlUrl = alreadyPaidData.pdfUrl;
       if (!dlUrl && alreadyPaidData.pdfBase64) {
