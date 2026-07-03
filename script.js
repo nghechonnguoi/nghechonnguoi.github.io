@@ -2128,9 +2128,18 @@ async function generateReportUI() {
     let finalAmount = 568000;
     let qrUnsubscribe = null;
 
-    document.getElementById('btn-apply-promo').addEventListener('click', function () {
+    document.getElementById('btn-apply-promo').addEventListener('click', async function () {
+      const btnApply = this;
       const code = document.getElementById('promo-code-input').value.trim().toUpperCase();
       const msgEl = document.getElementById('promo-message');
+
+      if (!code) {
+         msgEl.innerHTML = '<span style="color: #ef4444;">Vui lòng nhập mã ưu đãi!</span>';
+         return;
+      }
+
+      btnApply.disabled = true;
+      btnApply.innerText = 'Đang kiểm tra...';
 
       if (code === 'GIADINH') {
         finalAmount = 568000 - 500000;
@@ -2142,9 +2151,30 @@ async function generateReportUI() {
         finalAmount = 0;
         msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Miễn phí 100%. Giá mới: 0đ</span>';
       } else {
-        finalAmount = 568000;
-        msgEl.innerHTML = '<span style="color: #ef4444;">Mã ưu đãi không hợp lệ!</span>';
+        // Kiểm tra mã 1 lần qua API
+        try {
+          const orderCodeNum = window.pdfPayload?.MA_SO_HO_SO || Date.now().toString();
+          const res = await fetch('https://ncn-academy-web.vercel.app/api/apply-coupon', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ coupon: code, orderCode: orderCodeNum })
+          });
+          const data = await res.json();
+          if (data.success) {
+            finalAmount = 0;
+            msgEl.innerHTML = `<span style="color: #10b981;">${data.message || 'Áp dụng thành công! Miễn phí 100%'}</span>`;
+          } else {
+            finalAmount = 568000;
+            msgEl.innerHTML = `<span style="color: #ef4444;">${data.message || 'Mã ưu đãi không hợp lệ hoặc đã dùng!'}</span>`;
+          }
+        } catch (e) {
+          finalAmount = 568000;
+          msgEl.innerHTML = '<span style="color: #ef4444;">Lỗi kết nối máy chủ, vui lòng thử lại sau.</span>';
+        }
       }
+
+      btnApply.disabled = false;
+      btnApply.innerText = 'Áp dụng';
 
       const qrArea = document.getElementById('qr-payment-area');
       if (qrArea && qrArea.style.display === 'block') {
