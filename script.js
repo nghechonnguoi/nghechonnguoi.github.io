@@ -1994,7 +1994,14 @@ async function generateReportUI() {
       EMAIL: profile.email || "Không cung cấp",
       DIEN_THOAI: profile.phone || "Không cung cấp",
       NGAY_SINH: profile.birthDate || "Không cung cấp",
-      MA_SO_HO_SO: `NCN-${Math.floor(Math.random() * 10000)}`,
+      MA_SO_HO_SO: (() => {
+        let saved = localStorage.getItem('active_order_code');
+        if (!saved) {
+          saved = `NCN-${Math.floor(Math.random() * 10000)}`;
+          localStorage.setItem('active_order_code', saved);
+        }
+        return saved;
+      })(),
       NGAY_XUAT_BAN: new Date().toLocaleDateString('vi-VN'),
       R_PCT: hPct.R, I_PCT: hPct.I, A_PCT: hPct.A, S_PCT: hPct.S, E_PCT: hPct.E, C_PCT: hPct.C,
       MBTI: mbtiCode,
@@ -2062,8 +2069,42 @@ async function generateReportUI() {
       bannerEl.innerHTML = '';
     }
 
-    // ── Render Khóa Paywall ──────────────────────────────────────────────────
-    const space = document.getElementById('career-recommendations-space');
+    // ── KIỂM TRA ĐÃ THANH TOÁN CHƯA (chống bắt trả tiền lại khi F5) ──────────
+    const savedOrderCode = (window.pdfPayload.MA_SO_HO_SO.match(/\d+/) || [])[0];
+    let alreadyPaidData = null;
+    if (savedOrderCode) {
+      try {
+        const orderDoc = await db.collection('orders').doc(savedOrderCode).get();
+        if (orderDoc.exists) {
+          const od = orderDoc.data();
+          if (od.status === 'PAID') alreadyPaidData = od;
+        }
+      } catch (e) {
+        console.warn('Không kiểm tra được trạng thái đơn hàng cũ:', e);
+      }
+    }
+
+    if (alreadyPaidData) {
+      let dlUrl = alreadyPaidData.pdfUrl;
+      if (!dlUrl && alreadyPaidData.pdfBase64) {
+        const byteCharacters = atob(alreadyPaidData.pdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i);
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        dlUrl = window.URL.createObjectURL(blob);
+      }
+      titleEl.innerHTML = '✅ BÁO CÁO CỦA BẠN ĐÃ SẴN SÀNG';
+      titleEl.style.color = '#10b981';
+      space.innerHTML = `
+        <div style="background:#1e293b;border:2px solid #10b981;border-radius:12px;padding:25px;text-align:center;">
+          <p style="color:#cbd5e1;font-size:15px;margin-bottom:20px;">Bạn đã thanh toán thành công cho báo cáo này rồi — không cần trả tiền thêm.</p>
+          ${dlUrl
+          ? `<a href="${dlUrl}" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" target="_blank" style="background:#10b981;color:white;text-decoration:none;padding:12px 25px;border-radius:6px;font-weight:bold;display:inline-block;">TẢI BÁO CÁO PDF VỀ MÁY</a>`
+          : `<p style="color:#f59e0b;">Báo cáo đã được gửi vào email của bạn. Vui lòng kiểm tra hộp thư (kể cả mục Spam).</p>`}
+        </div>`;
+      return; // Dừng tại đây — không hiện lại paywall QR
+    }
 
     // Đổi tiêu đề banner
     titleEl.innerHTML = '🔒 ĐỂ BIẾT CHÍNH XÁC NGHỀ NÀO DÀNH CHO BẠN?';
@@ -2134,8 +2175,8 @@ async function generateReportUI() {
       const msgEl = document.getElementById('promo-message');
 
       if (!code) {
-         msgEl.innerHTML = '<span style="color: #ef4444;">Vui lòng nhập mã ưu đãi!</span>';
-         return;
+        msgEl.innerHTML = '<span style="color: #ef4444;">Vui lòng nhập mã ưu đãi!</span>';
+        return;
       }
 
       btnApply.disabled = true;
@@ -2392,50 +2433,50 @@ async function generateReportUI() {
     });
 
 
-// === NEW PREVIEW FETCH LOGIC ===
-const previewContainer = document.getElementById('free-preview-container');
-if (previewContainer) {
-  previewContainer.classList.remove('hidden');
-  document.getElementById('preview-loading').style.display = 'block';
-  document.getElementById('preview-content').classList.add('hidden');
+    // === NEW PREVIEW FETCH LOGIC ===
+    const previewContainer = document.getElementById('free-preview-container');
+    if (previewContainer) {
+      previewContainer.classList.remove('hidden');
+      document.getElementById('preview-loading').style.display = 'block';
+      document.getElementById('preview-content').classList.add('hidden');
 
-  fetch('https://ncn-academy-web.vercel.app/api/generate-preview', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(window.pdfPayload)
-  })
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById('preview-p1').innerText = data.AI_PAGE3_P1 || '';
-      document.getElementById('preview-p2').innerText = data.AI_PAGE3_P2 || '';
-      document.getElementById('preview-p3').innerText = data.AI_PAGE3_P3 || '';
+      fetch('https://ncn-academy-web.vercel.app/api/generate-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(window.pdfPayload)
+      })
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById('preview-p1').innerText = data.AI_PAGE3_P1 || '';
+          document.getElementById('preview-p2').innerText = data.AI_PAGE3_P2 || '';
+          document.getElementById('preview-p3').innerText = data.AI_PAGE3_P3 || '';
 
-      const colors = { R: '#8b5cf6', I: '#3b82f6', A: '#ec4899', S: '#10b981', E: '#f59e0b', C: '#64748b' };
-      const labels = { R: 'Thực tế (Realistic)', I: 'Nghiên cứu (Investigative)', A: 'Nghệ thuật (Artistic)', S: 'Xã hội (Social)', E: 'Quản lý (Enterprising)', C: 'Tổ chức (Conventional)' };
-      let barsHtml = '';
-      const pct = window.pdfPayload;
-      const scores = [
-        { k: 'R', v: pct.R_PCT }, { k: 'I', v: pct.I_PCT }, { k: 'A', v: pct.A_PCT },
-        { k: 'S', v: pct.S_PCT }, { k: 'E', v: pct.E_PCT }, { k: 'C', v: pct.C_PCT }
-      ];
+          const colors = { R: '#8b5cf6', I: '#3b82f6', A: '#ec4899', S: '#10b981', E: '#f59e0b', C: '#64748b' };
+          const labels = { R: 'Thực tế (Realistic)', I: 'Nghiên cứu (Investigative)', A: 'Nghệ thuật (Artistic)', S: 'Xã hội (Social)', E: 'Quản lý (Enterprising)', C: 'Tổ chức (Conventional)' };
+          let barsHtml = '';
+          const pct = window.pdfPayload;
+          const scores = [
+            { k: 'R', v: pct.R_PCT }, { k: 'I', v: pct.I_PCT }, { k: 'A', v: pct.A_PCT },
+            { k: 'S', v: pct.S_PCT }, { k: 'E', v: pct.E_PCT }, { k: 'C', v: pct.C_PCT }
+          ];
 
-      scores.forEach(s => {
-        barsHtml += "<div style='margin-bottom: 12px'><div style='font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 6px;'>" + s.k + " — " + labels[s.k] + "</div><div style='width: 100%; background: #f1f5f9; border-radius: 6px; height: 12px; overflow: hidden;'><div style='height: 100%; background: " + colors[s.k] + "; width: " + s.v + "%; border-radius: 6px;'></div></div></div>";
-      });
+          scores.forEach(s => {
+            barsHtml += "<div style='margin-bottom: 12px'><div style='font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 6px;'>" + s.k + " — " + labels[s.k] + "</div><div style='width: 100%; background: #f1f5f9; border-radius: 6px; height: 12px; overflow: hidden;'><div style='height: 100%; background: " + colors[s.k] + "; width: " + s.v + "%; border-radius: 6px;'></div></div></div>";
+          });
 
-      document.getElementById('preview-holland-bars').innerHTML = barsHtml;
+          document.getElementById('preview-holland-bars').innerHTML = barsHtml;
 
-      document.getElementById('preview-loading').style.display = 'none';
-      document.getElementById('preview-content').classList.remove('hidden');
-    })
-    .catch(e => {
-      console.error('Preview error', e);
-      previewContainer.style.display = 'none';
-    });
-}
+          document.getElementById('preview-loading').style.display = 'none';
+          document.getElementById('preview-content').classList.remove('hidden');
+        })
+        .catch(e => {
+          console.error('Preview error', e);
+          previewContainer.style.display = 'none';
+        });
+    }
 
   } catch (err) {
-  console.error('Lỗi thực thi Universal Layered Algorithm v5.0:', err);
-  alert('Đã xảy ra sự cố trong quá trình phân tích ma trận. Vui lòng thử lại!');
-}
+    console.error('Lỗi thực thi Universal Layered Algorithm v5.0:', err);
+    alert('Đã xảy ra sự cố trong quá trình phân tích ma trận. Vui lòng thử lại!');
+  }
 }
