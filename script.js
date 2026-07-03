@@ -2282,7 +2282,6 @@ async function generateReportUI() {
                         window.isGeneratingPDF = false;
                         qrArea.innerHTML = `<div style="color: red; padding: 20px 0;"><b>Lỗi tạo PDF:</b> ${resData.error || 'Lỗi không xác định'}. Vui lòng liên hệ Admin.</div>`;
                       } else if (resData && resData.pdfBase64) {
-                        // PDF trả về trực tiếp từ API — hiển thị nút tải
                         if (qrUnsubscribe) qrUnsubscribe();
                         const byteCharacters = atob(resData.pdfBase64);
                         const byteNumbers = new Array(byteCharacters.length);
@@ -2293,12 +2292,12 @@ async function generateReportUI() {
                         const blob = new Blob([byteArray], { type: 'application/pdf' });
                         const url = window.URL.createObjectURL(blob);
                         qrArea.innerHTML = `
-                        <div style="padding: 20px 0;">
-                          <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tạo Báo cáo thành công!</h3>
-                          <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo PDF đã sẵn sàng. Vui lòng bấm nút dưới đây để tải về:</p>
-                          <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai.pdf" target="_blank" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
-                        </div>
-                      `;
+                          <div style="padding: 20px 0;">
+                            <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tạo Báo cáo thành công!</h3>
+                            <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo PDF đã sẵn sàng. Vui lòng bấm nút dưới đây để tải về:</p>
+                            <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai.pdf" target="_blank" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
+                          </div>
+                        `;
                       }
                     })
                     .catch(err => {
@@ -2363,50 +2362,50 @@ async function generateReportUI() {
     });
 
 
-    // === NEW PREVIEW FETCH LOGIC ===
-    const previewContainer = document.getElementById('free-preview-container');
-    if (previewContainer) {
-      previewContainer.classList.remove('hidden');
-      document.getElementById('preview-loading').style.display = 'block';
-      document.getElementById('preview-content').classList.add('hidden');
+// === NEW PREVIEW FETCH LOGIC ===
+const previewContainer = document.getElementById('free-preview-container');
+if (previewContainer) {
+  previewContainer.classList.remove('hidden');
+  document.getElementById('preview-loading').style.display = 'block';
+  document.getElementById('preview-content').classList.add('hidden');
 
-      fetch('https://ncn-academy-web.vercel.app/api/generate-preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(window.pdfPayload)
-      })
-        .then(r => r.json())
-        .then(data => {
-          document.getElementById('preview-p1').innerText = data.AI_PAGE3_P1 || '';
-          document.getElementById('preview-p2').innerText = data.AI_PAGE3_P2 || '';
-          document.getElementById('preview-p3').innerText = data.AI_PAGE3_P3 || '';
+  fetch('https://ncn-academy-web.vercel.app/api/generate-preview', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(window.pdfPayload)
+  })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('preview-p1').innerText = data.AI_PAGE3_P1 || '';
+      document.getElementById('preview-p2').innerText = data.AI_PAGE3_P2 || '';
+      document.getElementById('preview-p3').innerText = data.AI_PAGE3_P3 || '';
 
-          const colors = { R: '#8b5cf6', I: '#3b82f6', A: '#ec4899', S: '#10b981', E: '#f59e0b', C: '#64748b' };
-          const labels = { R: 'Thực tế (Realistic)', I: 'Nghiên cứu (Investigative)', A: 'Nghệ thuật (Artistic)', S: 'Xã hội (Social)', E: 'Quản lý (Enterprising)', C: 'Tổ chức (Conventional)' };
-          let barsHtml = '';
-          const pct = window.pdfPayload;
-          const scores = [
-            { k: 'R', v: pct.R_PCT }, { k: 'I', v: pct.I_PCT }, { k: 'A', v: pct.A_PCT },
-            { k: 'S', v: pct.S_PCT }, { k: 'E', v: pct.E_PCT }, { k: 'C', v: pct.C_PCT }
-          ];
+      const colors = { R: '#8b5cf6', I: '#3b82f6', A: '#ec4899', S: '#10b981', E: '#f59e0b', C: '#64748b' };
+      const labels = { R: 'Thực tế (Realistic)', I: 'Nghiên cứu (Investigative)', A: 'Nghệ thuật (Artistic)', S: 'Xã hội (Social)', E: 'Quản lý (Enterprising)', C: 'Tổ chức (Conventional)' };
+      let barsHtml = '';
+      const pct = window.pdfPayload;
+      const scores = [
+        { k: 'R', v: pct.R_PCT }, { k: 'I', v: pct.I_PCT }, { k: 'A', v: pct.A_PCT },
+        { k: 'S', v: pct.S_PCT }, { k: 'E', v: pct.E_PCT }, { k: 'C', v: pct.C_PCT }
+      ];
 
-          scores.forEach(s => {
-            barsHtml += "<div style='margin-bottom: 12px'><div style='font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 6px;'>" + s.k + " — " + labels[s.k] + "</div><div style='width: 100%; background: #f1f5f9; border-radius: 6px; height: 12px; overflow: hidden;'><div style='height: 100%; background: " + colors[s.k] + "; width: " + s.v + "%; border-radius: 6px;'></div></div></div>";
-          });
+      scores.forEach(s => {
+        barsHtml += "<div style='margin-bottom: 12px'><div style='font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 6px;'>" + s.k + " — " + labels[s.k] + "</div><div style='width: 100%; background: #f1f5f9; border-radius: 6px; height: 12px; overflow: hidden;'><div style='height: 100%; background: " + colors[s.k] + "; width: " + s.v + "%; border-radius: 6px;'></div></div></div>";
+      });
 
-          document.getElementById('preview-holland-bars').innerHTML = barsHtml;
+      document.getElementById('preview-holland-bars').innerHTML = barsHtml;
 
-          document.getElementById('preview-loading').style.display = 'none';
-          document.getElementById('preview-content').classList.remove('hidden');
-        })
-        .catch(e => {
-          console.error('Preview error', e);
-          previewContainer.style.display = 'none';
-        });
-    }
+      document.getElementById('preview-loading').style.display = 'none';
+      document.getElementById('preview-content').classList.remove('hidden');
+    })
+    .catch(e => {
+      console.error('Preview error', e);
+      previewContainer.style.display = 'none';
+    });
+}
 
   } catch (err) {
-    console.error('Lỗi thực thi Universal Layered Algorithm v5.0:', err);
-    alert('Đã xảy ra sự cố trong quá trình phân tích ma trận. Vui lòng thử lại!');
-  }
+  console.error('Lỗi thực thi Universal Layered Algorithm v5.0:', err);
+  alert('Đã xảy ra sự cố trong quá trình phân tích ma trận. Vui lòng thử lại!');
+}
 }
