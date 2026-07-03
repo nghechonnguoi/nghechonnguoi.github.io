@@ -2271,30 +2271,23 @@ async function generateReportUI() {
                       window.isGeneratingPDF = false;
                       qrArea.innerHTML = `<div style="color: red; padding: 20px 0;"><b>Lỗi tạo PDF:</b> ${resData.error || 'Lỗi không xác định'}. Vui lòng liên hệ Admin.</div>`;
                     } else if (resData && resData.pdfBase64) {
-                      if (qrUnsubscribe) qrUnsubscribe(); // Dừng lắng nghe
-                      
-                      try {
-                        const byteCharacters = atob(resData.pdfBase64);
-                        const byteNumbers = new Array(byteCharacters.length);
-                        for (let i = 0; i < byteCharacters.length; i++) {
-                          byteNumbers[i] = byteCharacters.charCodeAt(i);
-                        }
-                        const byteArray = new Uint8Array(byteNumbers);
-                        const blob = new Blob([byteArray], { type: 'application/pdf' });
-                        
-                        const url = window.URL.createObjectURL(blob);
-                        
-                        qrArea.innerHTML = `
-                          <div style="padding: 20px 0;">
-                            <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tạo Báo cáo thành công!</h3>
-                            <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo độc quyền đã sẵn sàng. Vui lòng bấm nút dưới đây để tải về:</p>
-                            <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" target="_blank" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
-                          </div>
-                        `;
-                      } catch (pdfErr) {
-                        console.error(pdfErr);
-                        qrArea.innerHTML = `<div style="color: red; padding: 20px 0;">Đã tạo PDF nhưng có lỗi khi hiển thị. Vui lòng kiểm tra Email hoặc liên hệ Admin.</div>`;
+                      // PDF trả về trực tiếp từ API — hiển thị nút tải
+                      if (qrUnsubscribe) qrUnsubscribe();
+                      const byteCharacters = atob(resData.pdfBase64);
+                      const byteNumbers = new Array(byteCharacters.length);
+                      for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
                       }
+                      const byteArray = new Uint8Array(byteNumbers);
+                      const blob = new Blob([byteArray], { type: 'application/pdf' });
+                      const url = window.URL.createObjectURL(blob);
+                      qrArea.innerHTML = `
+                        <div style="padding: 20px 0;">
+                          <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tạo Báo cáo thành công!</h3>
+                          <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo PDF đã sẵn sàng. Vui lòng bấm nút dưới đây để tải về:</p>
+                          <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai.pdf" target="_blank" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
+                        </div>
+                      `;
                     }
                   })
                   .catch(err => {
