@@ -2305,35 +2305,45 @@ async function generateReportUI() {
                 }
               }
               
-              if (data.status === 'PAID' && (data.pdfBase64 || data.pdfUrl)) {
+              if (data.status === 'PAID' && data.pdfDone) {
                 if (qrUnsubscribe) qrUnsubscribe(); // Dừng lắng nghe
                 
-                try {
-                  let url = data.pdfUrl;
-                  
-                  if (!url && data.pdfBase64) {
-                    // Chuyển Base64 thành Blob
-                    const byteCharacters = atob(data.pdfBase64);
-                    const byteNumbers = new Array(byteCharacters.length);
-                    for (let i = 0; i < byteCharacters.length; i++) {
-                      byteNumbers[i] = byteCharacters.charCodeAt(i);
-                    }
-                    const byteArray = new Uint8Array(byteNumbers);
-                    const blob = new Blob([byteArray], { type: 'application/pdf' });
+                if (data.pdfBase64 || data.pdfUrl) {
+                  try {
+                    let url = data.pdfUrl;
                     
-                    url = window.URL.createObjectURL(blob);
+                    if (!url && data.pdfBase64) {
+                      // Chuyển Base64 thành Blob
+                      const byteCharacters = atob(data.pdfBase64);
+                      const byteNumbers = new Array(byteCharacters.length);
+                      for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                      }
+                      const byteArray = new Uint8Array(byteNumbers);
+                      const blob = new Blob([byteArray], { type: 'application/pdf' });
+                      
+                      url = window.URL.createObjectURL(blob);
+                    }
+                    
+                    qrArea.innerHTML = `
+                      <div style="padding: 20px 0;">
+                        <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tải Báo cáo thành công!</h3>
+                        <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo đã sẵn sàng và <b>cũng đã được gửi vào Email</b> của bạn. Vui lòng bấm nút dưới đây để tải về:</p>
+                        <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" target="_blank" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
+                      </div>
+                    `;
+                  } catch (pdfErr) {
+                    console.error(pdfErr);
+                    qrArea.innerHTML = `<div style="color: red; padding: 20px 0;">Đã tạo PDF nhưng có lỗi khi hiển thị. Vui lòng kiểm tra Email hoặc liên hệ Admin.</div>`;
                   }
-                  
+                } else if (data.pdfNote) {
                   qrArea.innerHTML = `
                     <div style="padding: 20px 0;">
-                      <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tải Báo cáo thành công!</h3>
-                      <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo đã sẵn sàng và <b>cũng đã được gửi vào Email</b> của bạn. Vui lòng bấm nút dưới đây để tải về:</p>
-                      <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" target="_blank" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
+                      <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Tạo Báo cáo thành công!</h3>
+                      <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Do dung lượng báo cáo siêu chi tiết quá lớn, hệ thống đã <b>gửi bản gốc PDF vào Email</b> của bạn thay vì tải trực tiếp trên web.</p>
+                      <p style="color: #f59e0b; font-weight: bold; margin-bottom: 15px;">Vui lòng kiểm tra Hộp thư đến (hoặc thư mục Spam/Thư rác) của email để nhận báo cáo.</p>
                     </div>
                   `;
-                } catch (pdfErr) {
-                  console.error(pdfErr);
-                  qrArea.innerHTML = `<div style="color: red; padding: 20px 0;">Đã tạo PDF nhưng có lỗi khi hiển thị. Vui lòng kiểm tra Email hoặc liên hệ Admin.</div>`;
                 }
               }
             }
