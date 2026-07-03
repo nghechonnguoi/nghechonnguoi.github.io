@@ -2104,6 +2104,7 @@ async function generateReportUI() {
     `;
 
     let finalAmount = 568000;
+    let qrUnsubscribe = null;
     
     document.getElementById('btn-apply-promo').addEventListener('click', function() {
       const code = document.getElementById('promo-code-input').value.trim().toUpperCase();
@@ -2122,10 +2123,27 @@ async function generateReportUI() {
         finalAmount = 568000;
         msgEl.innerHTML = '<span style="color: #ef4444;">Mã ưu đãi không hợp lệ!</span>';
       }
+      
+      const qrArea = document.getElementById('qr-payment-area');
+      if (qrArea && qrArea.style.display === 'block') {
+        qrArea.style.display = 'none';
+        const btnQr = document.getElementById('btn-show-qr');
+        if (btnQr) {
+          btnQr.style.display = 'block';
+          btnQr.disabled = false;
+          btnQr.innerHTML = '💳 THANH TOÁN QUA MÃ QR';
+          btnQr.style.opacity = '1';
+        }
+      }
     });
 
     // Logic xử lý khi bấm nút "Thanh toán QR"
     document.getElementById('btn-show-qr').addEventListener('click', async function() {
+      if (qrUnsubscribe) {
+        qrUnsubscribe();
+        qrUnsubscribe = null;
+      }
+
       const btn = this;
       btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin 1s linear infinite;"></span> Đang xử lý...';
       btn.disabled = true;
@@ -2209,7 +2227,7 @@ async function generateReportUI() {
         `;
 
         // 4. Lắng nghe Realtime Firestore để tự động tải PDF khi Backend đã tạo xong
-        const unsubscribe = db.collection('orders').doc(orderCodeNum.toString())
+        qrUnsubscribe = db.collection('orders').doc(orderCodeNum.toString())
           .onSnapshot(async (doc) => {
             if (doc.exists) {
               const data = doc.data();
@@ -2223,7 +2241,7 @@ async function generateReportUI() {
               }
               
               if (data.status === 'PAID' && (data.pdfBase64 || data.pdfUrl)) {
-                unsubscribe(); // Dừng lắng nghe
+                if (qrUnsubscribe) qrUnsubscribe(); // Dừng lắng nghe
                 
                 try {
                   let url = data.pdfUrl;
