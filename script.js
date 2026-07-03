@@ -2205,7 +2205,7 @@ async function generateReportUI() {
         qrArea.style.display = 'block';
         
         const bankBin = '970448'; // OCB
-        const accountNumber = 'CAS61666666';
+        const accountNumber = 'SEPNGHECHONNGUOI';
         const accountName = 'PHAM THI NGAN';
         const description = `NCN ${orderCodeNum}`;
 
