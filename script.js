@@ -32,7 +32,7 @@ const firebaseConfig = {
 // Khởi tạo các phân hệ đám mây (Giữ nguyên phần code khởi tạo phía dưới)
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db   = firebase.firestore();  // 🗄️ Khởi tạo Firestore để lưu dữ liệu khách hàng
+const db = firebase.firestore();  // 🗄️ Khởi tạo Firestore để lưu dữ liệu khách hàng
 // LẮNG NGHE TRẠNG THÁI TÀI KHOẢN (TỰ ĐỘNG ĐÓNG/MỞ KHÓA WEBAPP)
 auth.onAuthStateChanged((user) => {
   const authView = document.getElementById("auth-container");
@@ -44,6 +44,17 @@ auth.onAuthStateChanged((user) => {
     // Tự động điền email của người dùng vào form nếu hòm thư đang trống
     if (document.getElementById("customerEmail")) {
       document.getElementById("customerEmail").value = user.email;
+    }
+    // ✅ Tự động khôi phục kết quả nếu đã làm bài test trước đó (F5 không mất dữ liệu)
+    const savedAnswers = localStorage.getItem("user_quiz_answers");
+    const savedProfile = localStorage.getItem("active_student_profile");
+    if (savedAnswers && savedProfile) {
+      const profileContainer = document.getElementById("profile-container");
+      const quizContainer = document.getElementById("quiz-container");
+      if (profileContainer) profileContainer.classList.add("hidden");
+      if (quizContainer) quizContainer.classList.add("hidden");
+      generateReportUI();
+      return; // Không cần chạy tiếp
     }
   } else {
     // Nếu chưa đăng nhập hoặc đã bấm đăng xuất -> Hiện lại màn hình khóa
@@ -136,10 +147,10 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const studentProfile = {
-      fullName:  document.getElementById("fullName").value.trim(),
+      fullName: document.getElementById("fullName").value.trim(),
       birthDate: document.getElementById("birthDate").value.trim(),
-      email:     document.getElementById("customerEmail").value.trim(),
-      phone:     document.getElementById("customerPhone").value.trim(),
+      email: document.getElementById("customerEmail").value.trim(),
+      phone: document.getElementById("customerPhone").value.trim(),
       // Điểm số không thu thập nữa — để mặc định 0 cho thuật toán
       thptScores: { toan: 0, van: 0, anh: 0, ly: 0, hoa: 0, sinh: 0, su: 0, dia: 0, gdcd: 0 },
       gpa: 0,
@@ -152,11 +163,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 🗄️ Lưu thông tin khách hàng lên Firestore (không block luồng quiz)
     db.collection("customers").add({
-      fullName:  studentProfile.fullName,
+      fullName: studentProfile.fullName,
       birthDate: studentProfile.birthDate,
-      email:     studentProfile.email,
-      phone:     studentProfile.phone,
-      uid:       firebase.auth().currentUser?.uid || null,
+      email: studentProfile.email,
+      phone: studentProfile.phone,
+      uid: firebase.auth().currentUser?.uid || null,
       submittedAt: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(err => console.warn("Firestore save warning:", err));
 
@@ -185,7 +196,7 @@ function subscribeToMailchimp(email, fullName) {
     + '&c=_mcjsCallback';
 
   // Callback nhận kết quả từ Mailchimp
-  window._mcjsCallback = function(data) {
+  window._mcjsCallback = function (data) {
     if (data.result === 'success') {
       console.log('✅ Mailchimp: Đã thêm subscriber thành công');
     } else {
@@ -975,9 +986,9 @@ function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength, mbtiCo
 
   // 1. Xác định Holland top1 và top2 của user
   const sortedH = Object.entries(hPct || {}).sort((a, b) => b[1] - a[1]);
-  const userTopH  = sortedH[0]?.[0] || 'S';
+  const userTopH = sortedH[0]?.[0] || 'S';
   const userTop2H = sortedH[1]?.[0] || 'S';
-  let comboKey  = userTopH + userTop2H;
+  let comboKey = userTopH + userTop2H;
 
   // 1b. MBTI Override — Extraverted (E) users prefer Trainer over Teacher,
   //     Executive Coach over Counselor trong cùng Holland combo
@@ -985,16 +996,16 @@ function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength, mbtiCo
   //          nhưng ENFP/ENFJ cần "Nhà đào tạo / Trainer" (E-dominant careers)
   if (mbtiCode && mbtiCode.includes('E') && profMap.combos) {
     // Các combo Teacher/Counselor/Giảng viên thuần — cần override nếu user là E
-    const INTROVERTED_COMBOS = new Set(['SS','SA','SR','SC','RS','CS','IS','SI','IC','IA']);
+    const INTROVERTED_COMBOS = new Set(['SS', 'SA', 'SR', 'SC', 'RS', 'CS', 'IS', 'SI', 'IC', 'IA']);
     if (INTROVERTED_COMBOS.has(comboKey)) {
       // Thử E + top2Holland (EA, ES, EC...) → nếu có trong combos thì dùng
       const tryCombo1 = 'E' + userTop2H; // e.g. EA, ES, EC
       const tryCombo2 = userTop2H + 'E'; // e.g. AE, SE
       const tryCombo3 = 'E' + userTopH;  // e.g. ES, EI
-      if (profMap.combos[tryCombo1])      comboKey = tryCombo1;
+      if (profMap.combos[tryCombo1]) comboKey = tryCombo1;
       else if (profMap.combos[tryCombo2]) comboKey = tryCombo2;
       else if (profMap.combos[tryCombo3]) comboKey = tryCombo3;
-      else if (profMap.combos['ES'])      comboKey = 'ES'; // safe fallback → Nhà đào tạo
+      else if (profMap.combos['ES']) comboKey = 'ES'; // safe fallback → Nhà đào tạo
     }
   }
 
@@ -1249,42 +1260,42 @@ async function generateReportUI() {
     const hasTech = TECH_KEYWORDS.some(k => dreamText.includes(k));
 
     // ── Đọc 4 câu Ikigai mở rộng ─────────────────────────────────────────────
-    const ikigaiValue    = answers["Q_IKIGAI_VALUE"]    || null; // MONEY/IMPACT/FREEDOM/MASTERY/RECOGNITION
-    const ikigaiEnv      = answers["Q_IKIGAI_ENV"]      || null; // TEAM/SOLO/FIELD/REMOTE/MIXED
+    const ikigaiValue = answers["Q_IKIGAI_VALUE"] || null; // MONEY/IMPACT/FREEDOM/MASTERY/RECOGNITION
+    const ikigaiEnv = answers["Q_IKIGAI_ENV"] || null; // TEAM/SOLO/FIELD/REMOTE/MIXED
     const ikigaiStrength = answers["Q_IKIGAI_STRENGTH"] || null; // COMMUNICATE/ANALYZE/CREATE/ORGANIZE/EMPATHIZE
-    const ikigaiAvoid    = answers["Q_IKIGAI_AVOID"]    || null; // AVOID_ROUTINE/AVOID_PEOPLE/AVOID_PRESSURE/AVOID_ABSTRACT/AVOID_RULES
+    const ikigaiAvoid = answers["Q_IKIGAI_AVOID"] || null; // AVOID_ROUTINE/AVOID_PEOPLE/AVOID_PRESSURE/AVOID_ABSTRACT/AVOID_RULES
 
     // ── Ánh xạ VALUE → Holland bonus: MONEY→E, IMPACT→S, FREEDOM→A/I, MASTERY→I/C, RECOGNITION→E
     const VALUE_HOLLAND_BOOST = {
-      MONEY:       { E: 8 },
-      IMPACT:      { S: 8 },
-      FREEDOM:     { A: 6, I: 4 },
-      MASTERY:     { I: 6, C: 4 },
+      MONEY: { E: 8 },
+      IMPACT: { S: 8 },
+      FREEDOM: { A: 6, I: 4 },
+      MASTERY: { I: 6, C: 4 },
       RECOGNITION: { E: 6, S: 4 }
     };
     // ── Ánh xạ ENV → Holland bonus: TEAM→S/E, SOLO→I/C, FIELD→R/E, REMOTE→I/A, MIXED→không thay đổi
     const ENV_HOLLAND_BOOST = {
-      TEAM:   { S: 6, E: 4 },
-      SOLO:   { I: 6, C: 4 },
-      FIELD:  { R: 6, E: 4 },
+      TEAM: { S: 6, E: 4 },
+      SOLO: { I: 6, C: 4 },
+      FIELD: { R: 6, E: 4 },
       REMOTE: { I: 4, A: 4 },
-      MIXED:  {}
+      MIXED: {}
     };
     // ── Ánh xạ STRENGTH → Holland bonus
     const STRENGTH_HOLLAND_BOOST = {
       COMMUNICATE: { E: 8, S: 4 },
-      ANALYZE:     { I: 8, C: 4 },
-      CREATE:      { A: 8, I: 4 },
-      ORGANIZE:    { C: 8, R: 2 },
-      EMPATHIZE:   { S: 8, A: 4 }
+      ANALYZE: { I: 8, C: 4 },
+      CREATE: { A: 8, I: 4 },
+      ORGANIZE: { C: 8, R: 2 },
+      EMPATHIZE: { S: 8, A: 4 }
     };
     // ── Ánh xạ AVOID → Holland penalty: trừ điểm các ngành lệch với giá trị né tránh
     const AVOID_PENALTY_MAP = {
-      AVOID_ROUTINE:   { C: -10, R: -6 },   // Ghét lặp lại → phạt ngành C (kế toán, hành chính), R
-      AVOID_PEOPLE:    { S: -10, E: -6 },   // Ghét tiếp xúc nhiều → phạt ngành S, E
-      AVOID_PRESSURE:  { E: -8 },            // Ghét áp lực → phạt ngành kinh doanh E
-      AVOID_ABSTRACT:  { I: -8, A: -4 },    // Ghét lý thuyết → phạt I (nghiên cứu), A (nghệ thuật trừu tượng)
-      AVOID_RULES:     { C: -10 }            // Ghét quy trình → phạt ngành C (kế toán, hành chính)
+      AVOID_ROUTINE: { C: -10, R: -6 },   // Ghét lặp lại → phạt ngành C (kế toán, hành chính), R
+      AVOID_PEOPLE: { S: -10, E: -6 },   // Ghét tiếp xúc nhiều → phạt ngành S, E
+      AVOID_PRESSURE: { E: -8 },            // Ghét áp lực → phạt ngành kinh doanh E
+      AVOID_ABSTRACT: { I: -8, A: -4 },    // Ghét lý thuyết → phạt I (nghiên cứu), A (nghệ thuật trừu tượng)
+      AVOID_RULES: { C: -10 }            // Ghét quy trình → phạt ngành C (kế toán, hành chính)
     };
 
     // Dominant talent dùng cho fallback
@@ -1599,19 +1610,19 @@ async function generateReportUI() {
     // ── CLINICAL CONSTRAINT FLAGS (từ câu Q_CONSTRAINT_CLINICAL) ─────────────
     const clinicalAnswer = answers["Q_CONSTRAINT_CLINICAL"] || "CLINICAL_NA";
     const avoidsClinical = clinicalAnswer === "CLINICAL_AVOID";
-    const mildClinical   = clinicalAnswer === "CLINICAL_MILD";
+    const mildClinical = clinicalAnswer === "CLINICAL_MILD";
 
     // ── CONSTRAINT FLAGS — 4 ngành đặc thù mới ────────────────────────────────
-    const artsAnswer     = answers["Q_CONSTRAINT_ARTS"]     || "ARTS_NA";
-    const eduAnswer      = answers["Q_CONSTRAINT_EDU"]      || "EDU_NA";
-    const bizAnswer      = answers["Q_CONSTRAINT_BIZ"]      || null;
-    const lawAnswer      = answers["Q_CONSTRAINT_LAW"]      || "LAW_NA";
+    const artsAnswer = answers["Q_CONSTRAINT_ARTS"] || "ARTS_NA";
+    const eduAnswer = answers["Q_CONSTRAINT_EDU"] || "EDU_NA";
+    const bizAnswer = answers["Q_CONSTRAINT_BIZ"] || null;
+    const lawAnswer = answers["Q_CONSTRAINT_LAW"] || "LAW_NA";
 
     // Regex nhận diện các ngành đặc thù — dùng trong Vòng 3 penalty/boost
-    const RE_ARTS_PERF    = /diễn viên|ca sĩ|vũ công|nhạc sĩ|biên đạo|biểu diễn nghệ thuật|sân khấu|khởi cười|vũ đoàn|thanh nhạc/i;
-    const RE_EDU_DOMAIN   = /giáo viên|giảng viên|nhà đào tạo|huấn luyện viên|sư phạm|đào tạo viên|life coach|khai vấn|hướng nghiệp|trainer|facilitator|đứng lớp|truyền đạt kiến thức/i;
-    const RE_BIZ_STARTUP  = /khởi nghiệp|doanh nhân|startup|founder|giám đốc điều hành|ceo|tự kinh doanh|chủ doanh nghiệp/i;
-    const RE_LAW          = /luật sư|pháp chế|công tố viên|thẩm phán|kiểm sát viên|trọng tài|luật gia|pháp luật|luật công ty/i;
+    const RE_ARTS_PERF = /diễn viên|ca sĩ|vũ công|nhạc sĩ|biên đạo|biểu diễn nghệ thuật|sân khấu|khởi cười|vũ đoàn|thanh nhạc/i;
+    const RE_EDU_DOMAIN = /giáo viên|giảng viên|nhà đào tạo|huấn luyện viên|sư phạm|đào tạo viên|life coach|khai vấn|hướng nghiệp|trainer|facilitator|đứng lớp|truyền đạt kiến thức/i;
+    const RE_BIZ_STARTUP = /khởi nghiệp|doanh nhân|startup|founder|giám đốc điều hành|ceo|tự kinh doanh|chủ doanh nghiệp/i;
+    const RE_LAW = /luật sư|pháp chế|công tố viên|thẩm phán|kiểm sát viên|trọng tài|luật gia|pháp luật|luật công ty/i;
 
 
     //  VÒNG 3 — TỐI ƯU XU HƯỚNG & GIÁ TRỊ DÒNG TIỀN (10 → TOP 5)
@@ -1631,15 +1642,15 @@ async function generateReportUI() {
         // ── CLINICAL CONSTRAINT PENALTY (sợ máu / tránh lâm sàng) ───────────
         const nameLC2 = (c.name + ' ' + (c.niche || '')).toLowerCase();
         const isClinicalDirect = RE_CLINICAL_DIRECT.test(nameLC2);
-        const isClinicalSafe   = RE_CLINICAL_SAFE.test(nameLC2);
+        const isClinicalSafe = RE_CLINICAL_SAFE.test(nameLC2);
         let clinicalMultiplier = 1.0;
         let clinicalBoost = 0;
         if (avoidsClinical) {
           if (isClinicalDirect) clinicalMultiplier = 0.50;  // phạt nặng: Bác sĩ, Điều dưỡng cạnh giường
-          if (isClinicalSafe)   clinicalBoost = +10;         // boost: Tâm lý, Y tế Công cộng, Nghiên cứu Dược
+          if (isClinicalSafe) clinicalBoost = +10;         // boost: Tâm lý, Y tế Công cộng, Nghiên cứu Dược
         } else if (mildClinical) {
           if (isClinicalDirect) clinicalMultiplier = 0.85;  // phạt nhẹ
-          if (isClinicalSafe)   clinicalBoost = +4;
+          if (isClinicalSafe) clinicalBoost = +4;
         }
 
         // ── ARTS CONSTRAINT PENALTY ───────────────────────────────────────────
@@ -1648,7 +1659,7 @@ async function generateReportUI() {
         if (RE_ARTS_PERF.test(nameLC2)) {
           if (artsAnswer === 'ARTS_AVOID') artsMultiplier = 0.50; // Không muốn biểu diễn → phạt nặng
           else if (artsAnswer === 'ARTS_MILD') artsMultiplier = 0.80; // Do dự → phạt nhẹ
-          else if (artsAnswer === 'ARTS_OK')   artsBoost = +10;        // Sẵn sàng → boost
+          else if (artsAnswer === 'ARTS_OK') artsBoost = +10;        // Sẵn sàng → boost
         }
 
         // ── EDU CONSTRAINT PENALTY ─────────────────────────────────────────
@@ -1657,32 +1668,32 @@ async function generateReportUI() {
         if (RE_EDU_DOMAIN.test(nameLC2)) {
           if (eduAnswer === 'EDU_AVOID') eduMultiplier = 0.55;   // Không muốn dạy học → phạt nặng
           else if (eduAnswer === 'EDU_MILD') eduMultiplier = 0.82; // Do dự → phạt nhẹ
-          else if (eduAnswer === 'EDU_OK')   eduBoost = +12;       // Yêu thích dạy học → boost mạnh
+          else if (eduAnswer === 'EDU_OK') eduBoost = +12;       // Yêu thích dạy học → boost mạnh
         }
 
         // ── BIZ CONSTRAINT PENALTY ──────────────────────────────────────────────
         let bizMultiplier = 1.0;
         let bizBoost = 0;
         if (RE_BIZ_STARTUP.test(nameLC2)) {
-          if (bizAnswer === 'BIZ_AVOID')  bizMultiplier = 0.65; // Muốn việc ổn định → phạt startup
+          if (bizAnswer === 'BIZ_AVOID') bizMultiplier = 0.65; // Muốn việc ổn định → phạt startup
           else if (bizAnswer === 'BIZ_MILD') bizBoost = +4;     // Muốn thử → boost nhẹ
-          else if (bizAnswer === 'BIZ_OK')   bizBoost = +12;    // Sẵn sàng rủi ro → boost mạnh
+          else if (bizAnswer === 'BIZ_OK') bizBoost = +12;    // Sẵn sàng rủi ro → boost mạnh
         }
 
         // ── LAW CONSTRAINT PENALTY ───────────────────────────────────────────────
         let lawMultiplier = 1.0;
         let lawBoost = 0;
         if (RE_LAW.test(nameLC2)) {
-          if (lawAnswer === 'LAW_AVOID')  lawMultiplier = 0.55; // Không muốn ngành luật
+          if (lawAnswer === 'LAW_AVOID') lawMultiplier = 0.55; // Không muốn ngành luật
           else if (lawAnswer === 'LAW_MILD') lawBoost = +4;
-          else if (lawAnswer === 'LAW_OK')   lawBoost = +8;
+          else if (lawAnswer === 'LAW_OK') lawBoost = +8;
         }
 
         // Công thức ICI 3 lớp cốt lõi
         const ICI = Math.min(100,
           ((S_identity * 0.60) +
-          (S_niche * 0.25) +
-          (S_market * 0.15))
+            (S_niche * 0.25) +
+            (S_market * 0.15))
           * clinicalMultiplier * artsMultiplier * eduMultiplier * bizMultiplier * lawMultiplier
           + clinicalBoost + artsBoost + eduBoost + bizBoost + lawBoost
         );
@@ -1704,7 +1715,7 @@ async function generateReportUI() {
         let displayCombo = c.suggested_combinations || '';
         let displaySubjects = c.core_knowledge || '';
         if (!displayCombo) {
-          const nm  = (c.name || '').toLowerCase();
+          const nm = (c.name || '').toLowerCase();
           const ind = (c.industry || '').toLowerCase();
 
           // ── NGHỆ THUẬT / BIỂU DIỄN ────────────────────────────────────────
@@ -1716,118 +1727,118 @@ async function generateReportUI() {
             displayCombo = 'N00 / N01 (Năng khiếu Âm nhạc / Sân khấu / Múa)';
             displaySubjects = 'Kỹ thuật thanh nhạc, Biểu diễn sân khấu, Ngôn ngữ cơ thể, Cảm thụ nghệ thuật.';
 
-          // ── Y DƯỢC & SỨC KHỎE (B00/B08 ưu tiên, A00 bổ sung) ─────────────
+            // ── Y DƯỢC & SỨC KHỎE (B00/B08 ưu tiên, A00 bổ sung) ─────────────
           } else if (ind.includes('y dược') || ind.includes('sức khỏe')
-              || /bác sĩ|điều dưỡng|dược sĩ|y tá|hộ sinh|y học|y tế|chăm sóc sức khỏe|sinh lý|dịch tễ|dinh dưỡng|phục hồi chức năng|vật lý trị liệu/i.test(nm)) {
+            || /bác sĩ|điều dưỡng|dược sĩ|y tá|hộ sinh|y học|y tế|chăm sóc sức khỏe|sinh lý|dịch tễ|dinh dưỡng|phục hồi chức năng|vật lý trị liệu/i.test(nm)) {
             displayCombo = 'B00 / B08 / A00 (Toán - Hóa - Sinh / Toán - Sinh - Anh / Toán - Lý - Hóa)';
             displaySubjects = 'Sinh học tế bào & phân tử, Hóa sinh hữu cơ, Giải phẫu học nền tảng, Toán thống kê y tế.';
 
-          // ── TÂM LÝ HỌC / SỨC KHỎE TÂM THẦN (Khoa học Xã hội) ──────────────
+            // ── TÂM LÝ HỌC / SỨC KHỎE TÂM THẦN (Khoa học Xã hội) ──────────────
           } else if (/tâm lý học|tham vấn tâm lý|trị liệu tâm lý|sức khỏe tâm thần|y tế công cộng|sức khỏe cộng đồng/i.test(nm)) {
             displayCombo = 'C00 / D01 (Văn - Sử - Địa / Toán - Văn - Anh)';
             displaySubjects = 'Tâm lý học đại cương, Xã hội học, Kỹ năng lắng nghe & tham vấn, Thống kê ứng dụng.';
 
-          // ── CÔNG NGHỆ THÔNG TIN / LẬP TRÌNH / AI ─────────────────────────
+            // ── CÔNG NGHỆ THÔNG TIN / LẬP TRÌNH / AI ─────────────────────────
           } else if (ind.includes('công nghệ thông tin') || ind.includes('phần mềm')
-              || /lập trình|phần mềm|công nghệ thông tin|kỹ sư phần mềm|data|ai|machine learning|trí tuệ nhân tạo|an ninh mạng|blockchain|devops|cloud/i.test(nm)) {
+            || /lập trình|phần mềm|công nghệ thông tin|kỹ sư phần mềm|data|ai|machine learning|trí tuệ nhân tạo|an ninh mạng|blockchain|devops|cloud/i.test(nm)) {
             displayCombo = 'A00 / A01 (Toán - Lý - Hóa / Toán - Lý - Anh)';
             displaySubjects = 'Toán rời rạc & giải tích, Vật lý điện tử, Lập trình nền tảng, Tiếng Anh kỹ thuật.';
 
-          // ── KỸ THUẬT & CÔNG NGHỆ (Cơ, Điện, Tự động hóa) ────────────────
+            // ── KỸ THUẬT & CÔNG NGHỆ (Cơ, Điện, Tự động hóa) ────────────────
           } else if (ind.includes('kỹ thuật') || /kỹ sư cơ khí|kỹ sư điện|tự động hóa|robot|cơ điện tử|chế tạo máy|điện lạnh|điện tử|kỹ thuật hóa học/i.test(nm)) {
             displayCombo = 'A00 / A01 (Toán - Lý - Hóa / Toán - Lý - Anh)';
             displaySubjects = 'Vật lý điện từ & cơ học, Toán giải tích, Hóa kỹ thuật, Kỹ năng đo lường & thực hành.';
 
-          // ── KHOA HỌC TỰ NHIÊN / NGHIÊN CỨU ──────────────────────────────
+            // ── KHOA HỌC TỰ NHIÊN / NGHIÊN CỨU ──────────────────────────────
           } else if (ind.includes('khoa học tự nhiên') || /nhà nghiên cứu|khoa học gia|vật lý|hóa học|sinh học phân tử|hóa sinh|vi sinh|công nghệ sinh học/i.test(nm)) {
             displayCombo = 'A00 / B00 (Toán - Lý - Hóa / Toán - Hóa - Sinh)';
             displaySubjects = 'Tư duy logic khoa học, Hóa hữu cơ & vô cơ, Sinh học phân tử, Thống kê nghiên cứu.';
 
-          // ── NÔNG LÂM NGƯ NGHIỆP ───────────────────────────────────────────
+            // ── NÔNG LÂM NGƯ NGHIỆP ───────────────────────────────────────────
           } else if (ind.includes('nông') || /nông nghiệp|lâm nghiệp|thủy sản|thú y|trồng trọt|chăn nuôi|giống cây|giống vật/i.test(nm)) {
             displayCombo = 'B00 / A00 (Toán - Hóa - Sinh / Toán - Lý - Hóa)';
             displaySubjects = 'Sinh học thực vật & động vật, Hóa học nông nghiệp, Khoa học đất & môi trường.';
 
-          // ── MÔI TRƯỜNG & NĂNG LƯỢNG XANH ─────────────────────────────────
+            // ── MÔI TRƯỜNG & NĂNG LƯỢNG XANH ─────────────────────────────────
           } else if (ind.includes('môi trường') || /năng lượng tái tạo|điện mặt trời|điện gió|xử lý nước thải|ô nhiễm|carbon|esg|môi trường/i.test(nm)) {
             displayCombo = 'A00 / B00 (Toán - Lý - Hóa / Toán - Hóa - Sinh)';
             displaySubjects = 'Hóa học môi trường, Vật lý năng lượng, Sinh thái học, Toán mô hình hóa.';
 
-          // ── XÂY DỰNG & KIẾN TRÚC ──────────────────────────────────────────
+            // ── XÂY DỰNG & KIẾN TRÚC ──────────────────────────────────────────
           } else if (ind.includes('xây dựng') || /kiến trúc sư|kỹ sư xây dựng|kết cấu|cầu đường|nội thất không gian|quy hoạch|đô thị/i.test(nm)) {
             displayCombo = 'A00 / H01 (Toán - Lý - Hóa / Toán - Văn - Vẽ Mỹ thuật)';
             displaySubjects = 'Toán kỹ thuật, Vật lý kết cấu, Mỹ học kiến trúc, Hình họa & Bản vẽ kỹ thuật.';
 
-          // ── KINH TẾ & TÀI CHÍNH ───────────────────────────────────────────
+            // ── KINH TẾ & TÀI CHÍNH ───────────────────────────────────────────
           } else if (ind.includes('kinh tế') || ind.includes('tài chính')
-              || /kế toán|kiểm toán|tài chính|ngân hàng|đầu tư|chứng khoán|bảo hiểm|fintech|wealth|cfo/i.test(nm)) {
+            || /kế toán|kiểm toán|tài chính|ngân hàng|đầu tư|chứng khoán|bảo hiểm|fintech|wealth|cfo/i.test(nm)) {
             displayCombo = 'A01 / D01 (Toán - Lý - Anh / Toán - Văn - Anh)';
             displaySubjects = 'Toán tài chính, Kinh tế vi mô & vĩ mô, Tiếng Anh thương mại, Thống kê ứng dụng.';
 
-          // ── QUẢN TRỊ & MARKETING ──────────────────────────────────────────
+            // ── QUẢN TRỊ & MARKETING ──────────────────────────────────────────
           } else if (ind.includes('quản trị') || /marketing|kinh doanh|bán hàng|thương mại|quản lý doanh nghiệp|brand|pr/i.test(nm)) {
             displayCombo = 'D01 / A01 (Toán - Văn - Anh / Toán - Lý - Anh)';
             displaySubjects = 'Kinh tế học nền tảng, Kỹ năng viết thuyết phục, Tiếng Anh thương mại, Tư duy phân tích thị trường.';
 
-          // ── TRUYỀN THÔNG & BÁO CHÍ ────────────────────────────────────────
+            // ── TRUYỀN THÔNG & BÁO CHÍ ────────────────────────────────────────
           } else if (ind.includes('truyền thông') || /truyền thông|báo chí|phóng viên|biên tập|content|podcast|social media/i.test(nm)) {
             displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
             displaySubjects = 'Kỹ năng viết lách sáng tạo, Tư duy truyền thông số, Ngôn ngữ học, Quan hệ công chúng.';
 
-          // ── PHÁP LUẬT & TƯ PHÁP ───────────────────────────────────────────
+            // ── PHÁP LUẬT & TƯ PHÁP ───────────────────────────────────────────
           } else if (ind.includes('pháp luật') || /luật sư|pháp lý|tư pháp|công chứng|hòa giải|tranh tụng/i.test(nm)) {
             displayCombo = 'C00 / D01 (Văn - Sử - Địa / Toán - Văn - Anh)';
             displaySubjects = 'Ngữ văn lập luận, Lịch sử pháp luật, Địa chính trị, Tiếng Anh pháp lý.';
 
-          // ── GIÁO DỤC & ĐÀO TẠO ───────────────────────────────────────────
+            // ── GIÁO DỤC & ĐÀO TẠO ───────────────────────────────────────────
           } else if (ind.includes('giáo dục') || /giáo viên|giảng viên|nhà đào tạo|huấn luyện viên|sư phạm|hướng nghiệp|life coach|khai vấn/i.test(nm)) {
             displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
             displaySubjects = 'Ngôn ngữ & giao tiếp, Tâm lý giáo dục, Phương pháp giảng dạy, Kiến thức chuyên ngành sâu.';
 
-          // ── NGÔN NGỮ & VĂN HÓA / NGOẠI GIAO ─────────────────────────────
+            // ── NGÔN NGỮ & VĂN HÓA / NGOẠI GIAO ─────────────────────────────
           } else if (ind.includes('ngôn ngữ') || /phiên dịch|biên dịch|ngoại giao|ngôn ngữ học|văn hóa nước ngoài/i.test(nm)) {
             displayCombo = 'D01 / D14 (Toán - Văn - Anh / Văn - Sử - Anh)';
             displaySubjects = 'Tiếng Anh nâng cao, Ngữ văn, Lịch sử & văn hóa thế giới, Ngôn ngữ học đại cương.';
 
-          // ── QUẢN TRỊ NHÂN SỰ ──────────────────────────────────────────────
+            // ── QUẢN TRỊ NHÂN SỰ ──────────────────────────────────────────────
           } else if (ind.includes('nhân sự') || /nhân sự|hr |tuyển dụng|đào tạo nhân viên/i.test(nm)) {
             displayCombo = 'D01 / A01 (Toán - Văn - Anh / Toán - Lý - Anh)';
             displaySubjects = 'Tâm lý học tổ chức, Kinh tế lao động, Tiếng Anh thương mại, Kỹ năng giao tiếp.';
 
-          // ── DU LỊCH & KHÁCH SẠN ───────────────────────────────────────────
+            // ── DU LỊCH & KHÁCH SẠN ───────────────────────────────────────────
           } else if (ind.includes('du lịch') || /hướng dẫn du lịch|khách sạn|lễ tân|nhà hàng|quản lý resort/i.test(nm)) {
             displayCombo = 'D01 / D14 (Toán - Văn - Anh / Văn - Sử - Anh)';
             displaySubjects = 'Tiếng Anh giao tiếp du lịch, Địa lý du lịch, Văn hóa & lịch sử Việt Nam, Nghiệp vụ lễ tân.';
 
-          // ── DỊCH VỤ CÁ NHÂN & LIFESTYLE ──────────────────────────────────
+            // ── DỊCH VỤ CÁ NHÂN & LIFESTYLE ──────────────────────────────────
           } else if (ind.includes('dịch vụ') || /làm đẹp|tóc|nail|spa|massage|bếp|ẩm thực|barista|cà phê chuyên nghiệp/i.test(nm)) {
             displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa) hoặc học nghề';
             displaySubjects = 'Kỹ thuật thực hành nghề, Hóa mỹ phẩm cơ bản, Dinh dưỡng ẩm thực, Kỹ năng chăm sóc khách hàng.';
 
-          // ── HÀNH CHÍNH & DỊCH VỤ CÔNG ────────────────────────────────────
+            // ── HÀNH CHÍNH & DỊCH VỤ CÔNG ────────────────────────────────────
           } else if (ind.includes('hành chính') || /công chức|hành chính nhà nước|dịch vụ công|cán bộ|quản lý nhà nước/i.test(nm)) {
             displayCombo = 'C00 / D01 (Văn - Sử - Địa / Toán - Văn - Anh)';
             displaySubjects = 'Luật hành chính, Kinh tế chính trị, Ngữ văn lập luận, Lịch sử & địa lý quốc gia.';
 
-          // ── THỂ THAO & PHÁT TRIỂN THỂ LỰC ───────────────────────────────
+            // ── THỂ THAO & PHÁT TRIỂN THỂ LỰC ───────────────────────────────
           } else if (ind.includes('thể thao') || /vận động viên|huấn luyện viên thể thao|thể dục|yoga|personal trainer/i.test(nm)) {
             displayCombo = 'T00 / D01 (Toán - Văn - Năng khiếu TDTT / Toán - Văn - Anh)';
             displaySubjects = 'Sinh lý học vận động, Giải phẫu học thể thao, Dinh dưỡng thể thao, Kỹ thuật môn thể thao chuyên sâu.';
 
-          // ── KHOA HỌC THẦN KINH / BIOTECH / KHÔNG GIAN / LƯỢNG TỬ ─────────
+            // ── KHOA HỌC THẦN KINH / BIOTECH / KHÔNG GIAN / LƯỢNG TỬ ─────────
           } else if (/thần kinh|neuroscience|bci|não bộ|lượng tử|quantum|không gian|vũ trụ|nanotechnology|vật liệu tiên tiến|genomic|bioinformatics/i.test(nm)) {
             displayCombo = 'A00 / B00 (Toán - Lý - Hóa / Toán - Hóa - Sinh)';
             displaySubjects = 'Toán cao cấp & vật lý lý thuyết, Hóa sinh phân tử, Lập trình khoa học, Tiếng Anh học thuật chuyên sâu.';
 
-          // ── CÔNG AN & AN NINH QUỐC GIA ─────────────────────────────────────
+            // ── CÔNG AN & AN NINH QUỐC GIA ─────────────────────────────────────
           } else if (ind.includes('công an') || ind.includes('an ninh quốc gia')
-              || /sĩ quan cảnh sát|điều tra viên hình sự|cảnh sát nhân dân|an ninh nhân dân|tội phạm mạng.*công an|pháp y hình sự/i.test(nm)) {
+            || /sĩ quan cảnh sát|điều tra viên hình sự|cảnh sát nhân dân|an ninh nhân dân|tội phạm mạng.*công an|pháp y hình sự/i.test(nm)) {
             displayCombo = 'A00 / C00 / D01 (Toán - Lý - Hóa / Văn - Sử - Địa / Toán - Văn - Anh)';
             displaySubjects = 'Toán học logic, Ngữ văn pháp luật, Lịch sử & địa lý quốc phòng, Thể lực chiến đấu.';
 
-          // ── QUÂN SỰ & QUỐC PHÒNG ────────────────────────────────────────────
+            // ── QUÂN SỰ & QUỐC PHÒNG ────────────────────────────────────────────
           } else if (ind.includes('quân sự') || ind.includes('quốc phòng')
-              || /sĩ quan quân đội|kỹ sư kỹ thuật quân sự|tình báo điện tử|an ninh mạng quân|sĩ quan chỉ huy|vũ khí trang bị|hậu cần quân/i.test(nm)) {
+            || /sĩ quan quân đội|kỹ sư kỹ thuật quân sự|tình báo điện tử|an ninh mạng quân|sĩ quan chỉ huy|vũ khí trang bị|hậu cần quân/i.test(nm)) {
             if (/kỹ sư|kỹ thuật quân sự|vũ khí|an ninh mạng quân|cyber warfare/i.test(nm)) {
               displayCombo = 'A00 / A01 (Toán - Lý - Hóa / Toán - Lý - Anh)';
             } else {
@@ -1835,12 +1846,12 @@ async function generateReportUI() {
             }
             displaySubjects = 'Toán kỹ thuật, Vật lý ứng dụng, Lịch sử & địa lý quốc phòng, Thể lực chiến đấu, Tiếng Anh quân sự.';
 
-          // ── TÂM LÝ HỌC ỨNG DỤNG (không phải y tế lâm sàng) ──────────────
+            // ── TÂM LÝ HỌC ỨNG DỤNG (không phải y tế lâm sàng) ──────────────
           } else if (ind.includes('tâm lý') || /executive coach|life coach|tư vấn tâm lý|khai vấn|art therapist/i.test(nm)) {
             displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
             displaySubjects = 'Tâm lý học đại cương, Khoa học hành vi, Ngôn ngữ & giao tiếp, Xã hội học.';
 
-          // ── FALLBACK DỰA VÀO HOLLAND TOP ──────────────────────────────────
+            // ── FALLBACK DỰA VÀO HOLLAND TOP ──────────────────────────────────
           } else if (careerTopH === 'R' || careerTopH === 'I') {
             displayCombo = 'A00 / B00 (Toán - Lý - Hóa / Toán - Hóa - Sinh)';
             displaySubjects = 'Tư duy logic toán, Khoa học tự nhiên, Kỹ thuật ứng dụng, Lập trình nền tảng.';
@@ -1885,16 +1896,16 @@ async function generateReportUI() {
     const getCoreJobName = (name) => {
       const raw = name || '';
       const atParen = raw.indexOf('(');
-      const atDash  = raw.indexOf(' - Ngành');
+      const atDash = raw.indexOf(' - Ngành');
       let cutAt = raw.length;
       if (atParen > 0) cutAt = Math.min(cutAt, atParen);
-      if (atDash  > 0) cutAt = Math.min(cutAt, atDash);
+      if (atDash > 0) cutAt = Math.min(cutAt, atDash);
       return raw.substring(0, cutAt).trim().toLowerCase();
     };
 
     // Helper: tokenize để so sánh similarity (loại bỏ stop words)
-    const STOP = new Set(['và','&','hoặc','của','cho','trong','với','về','theo','là',
-                          'kỹ','sư','chuyên','gia','nhà','viên','người','quản','lý']);
+    const STOP = new Set(['và', '&', 'hoặc', 'của', 'cho', 'trong', 'với', 'về', 'theo', 'là',
+      'kỹ', 'sư', 'chuyên', 'gia', 'nhà', 'viên', 'người', 'quản', 'lý']);
     const tokenize = (s) => s.toLowerCase()
       .replace(/[^a-záàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđ\s]/g, '')
       .split(/\s+/)
@@ -1983,7 +1994,7 @@ async function generateReportUI() {
       EMAIL: profile.email || "Không cung cấp",
       DIEN_THOAI: profile.phone || "Không cung cấp",
       NGAY_SINH: profile.birthDate || "Không cung cấp",
-      MA_SO_HO_SO: `NCN-${Math.floor(Math.random()*10000)}`,
+      MA_SO_HO_SO: `NCN-${Math.floor(Math.random() * 10000)}`,
       NGAY_XUAT_BAN: new Date().toLocaleDateString('vi-VN'),
       R_PCT: hPct.R, I_PCT: hPct.I, A_PCT: hPct.A, S_PCT: hPct.S, E_PCT: hPct.E, C_PCT: hPct.C,
       MBTI: mbtiCode,
@@ -1994,7 +2005,7 @@ async function generateReportUI() {
       PASSION: passionNums.join(' & '),
       HOLLAND: sortedHolland.slice(0, 3).map(x => x[0]).join(''),
     };
-    
+
     top5.forEach((entry, idx) => {
       const i = idx + 1;
       const profInfo = getProfessionDisplay(entry.industry, hPct, profile.thptScores, ikigaiStrength, mbtiCode);
@@ -2053,11 +2064,11 @@ async function generateReportUI() {
 
     // ── Render Khóa Paywall ──────────────────────────────────────────────────
     const space = document.getElementById('career-recommendations-space');
-    
+
     // Đổi tiêu đề banner
     titleEl.innerHTML = '🔒 ĐỂ BIẾT CHÍNH XÁC NGHỀ NÀO DÀNH CHO BẠN?';
     titleEl.style.color = '#f59e0b'; // Màu cam/vàng cảnh báo
-    
+
     // Xóa banner cũ (nếu có)
     if (bannerEl) bannerEl.innerHTML = '';
 
@@ -2116,11 +2127,11 @@ async function generateReportUI() {
 
     let finalAmount = 568000;
     let qrUnsubscribe = null;
-    
-    document.getElementById('btn-apply-promo').addEventListener('click', function() {
+
+    document.getElementById('btn-apply-promo').addEventListener('click', function () {
       const code = document.getElementById('promo-code-input').value.trim().toUpperCase();
       const msgEl = document.getElementById('promo-message');
-      
+
       if (code === 'GIADINH') {
         finalAmount = 568000 - 500000;
         msgEl.innerHTML = '<span style="color: #10b981;">Áp dụng thành công! Đã giảm 500.000đ. Giá mới: 68.000đ</span>';
@@ -2134,7 +2145,7 @@ async function generateReportUI() {
         finalAmount = 568000;
         msgEl.innerHTML = '<span style="color: #ef4444;">Mã ưu đãi không hợp lệ!</span>';
       }
-      
+
       const qrArea = document.getElementById('qr-payment-area');
       if (qrArea && qrArea.style.display === 'block') {
         qrArea.style.display = 'none';
@@ -2149,7 +2160,7 @@ async function generateReportUI() {
     });
 
     // Logic xử lý khi bấm nút "Thanh toán QR"
-    document.getElementById('btn-show-qr').addEventListener('click', async function() {
+    document.getElementById('btn-show-qr').addEventListener('click', async function () {
       if (qrUnsubscribe) {
         qrUnsubscribe();
         qrUnsubscribe = null;
@@ -2177,7 +2188,7 @@ async function generateReportUI() {
           if (!pdfRes.ok) throw new Error("Lỗi xuất PDF");
           const blob = await pdfRes.blob();
           const url = window.URL.createObjectURL(blob);
-          
+
           btn.style.display = 'none';
           const qrArea = document.getElementById('qr-payment-area');
           qrArea.style.display = 'block';
@@ -2186,7 +2197,7 @@ async function generateReportUI() {
             <p style="color: #334155; margin-bottom: 15px;">Báo cáo PDF đã được tạo thành công.</p>
             <a href="${url}" target="_blank" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">TẢI FILE PDF VỀ MÁY NGAY</a>
           `;
-        } catch(err) {
+        } catch (err) {
           console.error(err);
           btn.innerHTML = 'Có lỗi xảy ra. Thử lại sau.';
           btn.disabled = false;
@@ -2210,11 +2221,11 @@ async function generateReportUI() {
 
         // 2. Không cần gọi API, sinh mã QR tĩnh (VietQR) cho SePay
         btn.style.display = 'none';
-        
+
         // 3. Hiển thị QR Code
         const qrArea = document.getElementById('qr-payment-area');
         qrArea.style.display = 'block';
-        
+
         const bankBin = '970448'; // OCB
         const accountNumber = 'SEPNGHECHONNGUOI';
         const accountName = 'PHAM THI NGAN';
@@ -2250,7 +2261,7 @@ async function generateReportUI() {
                     <p style="color: #ef4444; margin-top: 15px; font-weight: bold;">Vui lòng KHÔNG đóng trang này trong khi tạo báo cáo (khoảng 30 giây)!</p>
                   </div>
                 `;
-                
+
                 // Frontend triggers PDF generation to avoid Vercel webhook timeout limits
                 if (!window.isGeneratingPDF) {
                   window.isGeneratingPDF = true;
@@ -2259,52 +2270,52 @@ async function generateReportUI() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ...window.pdfPayload, orderCode: orderCodeNum.toString() })
                   })
-                  .then(async res => {
-                    if (!res.ok) {
-                      const text = await res.text();
-                      throw new Error(`Server returned ${res.status}: ${text}`);
-                    }
-                    return res.json();
-                  })
-                  .then(resData => {
-                    if (resData && resData.success === false) {
-                      window.isGeneratingPDF = false;
-                      qrArea.innerHTML = `<div style="color: red; padding: 20px 0;"><b>Lỗi tạo PDF:</b> ${resData.error || 'Lỗi không xác định'}. Vui lòng liên hệ Admin.</div>`;
-                    } else if (resData && resData.pdfBase64) {
-                      // PDF trả về trực tiếp từ API — hiển thị nút tải
-                      if (qrUnsubscribe) qrUnsubscribe();
-                      const byteCharacters = atob(resData.pdfBase64);
-                      const byteNumbers = new Array(byteCharacters.length);
-                      for (let i = 0; i < byteCharacters.length; i++) {
-                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    .then(async res => {
+                      if (!res.ok) {
+                        const text = await res.text();
+                        throw new Error(`Server returned ${res.status}: ${text}`);
                       }
-                      const byteArray = new Uint8Array(byteNumbers);
-                      const blob = new Blob([byteArray], { type: 'application/pdf' });
-                      const url = window.URL.createObjectURL(blob);
-                      qrArea.innerHTML = `
+                      return res.json();
+                    })
+                    .then(resData => {
+                      if (resData && resData.success === false) {
+                        window.isGeneratingPDF = false;
+                        qrArea.innerHTML = `<div style="color: red; padding: 20px 0;"><b>Lỗi tạo PDF:</b> ${resData.error || 'Lỗi không xác định'}. Vui lòng liên hệ Admin.</div>`;
+                      } else if (resData && resData.pdfBase64) {
+                        // PDF trả về trực tiếp từ API — hiển thị nút tải
+                        if (qrUnsubscribe) qrUnsubscribe();
+                        const byteCharacters = atob(resData.pdfBase64);
+                        const byteNumbers = new Array(byteCharacters.length);
+                        for (let i = 0; i < byteCharacters.length; i++) {
+                          byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        const byteArray = new Uint8Array(byteNumbers);
+                        const blob = new Blob([byteArray], { type: 'application/pdf' });
+                        const url = window.URL.createObjectURL(blob);
+                        qrArea.innerHTML = `
                         <div style="padding: 20px 0;">
                           <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tạo Báo cáo thành công!</h3>
                           <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo PDF đã sẵn sàng. Vui lòng bấm nút dưới đây để tải về:</p>
                           <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai.pdf" target="_blank" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
                         </div>
                       `;
-                    }
-                  })
-                  .catch(err => {
-                    console.error("Lỗi tạo PDF từ frontend:", err);
-                    window.isGeneratingPDF = false;
-                    qrArea.innerHTML = `<div style="color: red; padding: 20px 0;"><b>Lỗi hệ thống:</b> Không thể tạo PDF (${err.message}). Vui lòng F5 thử lại hoặc liên hệ Admin.</div>`;
-                  });
+                      }
+                    })
+                    .catch(err => {
+                      console.error("Lỗi tạo PDF từ frontend:", err);
+                      window.isGeneratingPDF = false;
+                      qrArea.innerHTML = `<div style="color: red; padding: 20px 0;"><b>Lỗi hệ thống:</b> Không thể tạo PDF (${err.message}). Vui lòng F5 thử lại hoặc liên hệ Admin.</div>`;
+                    });
                 }
               }
-              
+
               if (data.status === 'PAID' && data.pdfDone) {
                 if (qrUnsubscribe) qrUnsubscribe(); // Dừng lắng nghe
-                
+
                 if (data.pdfBase64 || data.pdfUrl) {
                   try {
                     let url = data.pdfUrl;
-                    
+
                     if (!url && data.pdfBase64) {
                       // Chuyển Base64 thành Blob
                       const byteCharacters = atob(data.pdfBase64);
@@ -2314,10 +2325,10 @@ async function generateReportUI() {
                       }
                       const byteArray = new Uint8Array(byteNumbers);
                       const blob = new Blob([byteArray], { type: 'application/pdf' });
-                      
+
                       url = window.URL.createObjectURL(blob);
                     }
-                    
+
                     qrArea.innerHTML = `
                       <div style="padding: 20px 0;">
                         <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tải Báo cáo thành công!</h3>
@@ -2358,40 +2369,40 @@ async function generateReportUI() {
       previewContainer.classList.remove('hidden');
       document.getElementById('preview-loading').style.display = 'block';
       document.getElementById('preview-content').classList.add('hidden');
-      
+
       fetch('https://ncn-academy-web.vercel.app/api/generate-preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(window.pdfPayload)
       })
-      .then(r => r.json())
-      .then(data => {
-        document.getElementById('preview-p1').innerText = data.AI_PAGE3_P1 || '';
-        document.getElementById('preview-p2').innerText = data.AI_PAGE3_P2 || '';
-        document.getElementById('preview-p3').innerText = data.AI_PAGE3_P3 || '';
-        
-        const colors = { R: '#8b5cf6', I: '#3b82f6', A: '#ec4899', S: '#10b981', E: '#f59e0b', C: '#64748b' };
-        const labels = { R: 'Thực tế (Realistic)', I: 'Nghiên cứu (Investigative)', A: 'Nghệ thuật (Artistic)', S: 'Xã hội (Social)', E: 'Quản lý (Enterprising)', C: 'Tổ chức (Conventional)' };
-        let barsHtml = '';
-        const pct = window.pdfPayload;
-        const scores = [
-          { k: 'R', v: pct.R_PCT }, { k: 'I', v: pct.I_PCT }, { k: 'A', v: pct.A_PCT },
-          { k: 'S', v: pct.S_PCT }, { k: 'E', v: pct.E_PCT }, { k: 'C', v: pct.C_PCT }
-        ];
-        
-        scores.forEach(s => {
-          barsHtml += "<div style='margin-bottom: 12px'><div style='font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 6px;'>" + s.k + " — " + labels[s.k] + "</div><div style='width: 100%; background: #f1f5f9; border-radius: 6px; height: 12px; overflow: hidden;'><div style='height: 100%; background: " + colors[s.k] + "; width: " + s.v + "%; border-radius: 6px;'></div></div></div>";
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById('preview-p1').innerText = data.AI_PAGE3_P1 || '';
+          document.getElementById('preview-p2').innerText = data.AI_PAGE3_P2 || '';
+          document.getElementById('preview-p3').innerText = data.AI_PAGE3_P3 || '';
+
+          const colors = { R: '#8b5cf6', I: '#3b82f6', A: '#ec4899', S: '#10b981', E: '#f59e0b', C: '#64748b' };
+          const labels = { R: 'Thực tế (Realistic)', I: 'Nghiên cứu (Investigative)', A: 'Nghệ thuật (Artistic)', S: 'Xã hội (Social)', E: 'Quản lý (Enterprising)', C: 'Tổ chức (Conventional)' };
+          let barsHtml = '';
+          const pct = window.pdfPayload;
+          const scores = [
+            { k: 'R', v: pct.R_PCT }, { k: 'I', v: pct.I_PCT }, { k: 'A', v: pct.A_PCT },
+            { k: 'S', v: pct.S_PCT }, { k: 'E', v: pct.E_PCT }, { k: 'C', v: pct.C_PCT }
+          ];
+
+          scores.forEach(s => {
+            barsHtml += "<div style='margin-bottom: 12px'><div style='font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 6px;'>" + s.k + " — " + labels[s.k] + "</div><div style='width: 100%; background: #f1f5f9; border-radius: 6px; height: 12px; overflow: hidden;'><div style='height: 100%; background: " + colors[s.k] + "; width: " + s.v + "%; border-radius: 6px;'></div></div></div>";
+          });
+
+          document.getElementById('preview-holland-bars').innerHTML = barsHtml;
+
+          document.getElementById('preview-loading').style.display = 'none';
+          document.getElementById('preview-content').classList.remove('hidden');
+        })
+        .catch(e => {
+          console.error('Preview error', e);
+          previewContainer.style.display = 'none';
         });
-        
-        document.getElementById('preview-holland-bars').innerHTML = barsHtml;
-        
-        document.getElementById('preview-loading').style.display = 'none';
-        document.getElementById('preview-content').classList.remove('hidden');
-      })
-      .catch(e => {
-         console.error('Preview error', e);
-         previewContainer.style.display = 'none';
-      });
     }
 
   } catch (err) {
