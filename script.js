@@ -166,6 +166,11 @@ document.addEventListener("DOMContentLoaded", () => {
       birthDate: document.getElementById("birthDate").value.trim(),
       email: document.getElementById("customerEmail").value.trim(),
       phone: document.getElementById("customerPhone").value.trim(),
+      eduPath: document.querySelector('input[name="eduPath"]:checked') ? document.querySelector('input[name="eduPath"]:checked').value : 'UNI',
+      favoriteSubjects: document.getElementById("favoriteSubjects") ? document.getElementById("favoriteSubjects").value.trim() : '',
+      pastActivities: document.getElementById("pastActivities") ? document.getElementById("pastActivities").value.trim() : '',
+      familyOrientation: document.getElementById("familyOrientation") ? document.getElementById("familyOrientation").value.trim() : '',
+      specialTalents: document.getElementById("specialTalents") ? document.getElementById("specialTalents").value.trim() : '',
       // Điểm số không thu thập nữa — để mặc định 0 cho thuật toán
       thptScores: { toan: 0, van: 0, anh: 0, ly: 0, hoa: 0, sinh: 0, su: 0, dia: 0, gdcd: 0 },
       gpa: 0,
@@ -1704,13 +1709,24 @@ async function generateReportUI() {
           else if (lawAnswer === 'LAW_OK') lawBoost = +8;
         }
 
+        // ── TALENT BONUS PENALTY ───────────────────────────────────────────────
+        let talentBonus = 0;
+        const userTalents = (profile.specialTalents || '').toLowerCase();
+        if (userTalents) {
+          const industryStr = (c.industry || '').toLowerCase();
+          if (/(hát|múa|nhảy|vẽ|đàn|nhạc|nghệ thuật|diễn|sáng tạo|thẩm mỹ)/.test(userTalents) && /(nghệ thuật|sáng tạo|truyền thông|giải trí|thiết kế)/.test(industryStr)) talentBonus += 5;
+          if (/(nói|thuyết trình|mc|giao tiếp|tranh biện|lãnh đạo|viết)/.test(userTalents) && /(giáo dục|kinh doanh|marketing|báo chí|nhân sự)/.test(industryStr)) talentBonus += 5;
+          if (/(máy tính|code|toán|logic|lập trình|công nghệ|số)/.test(userTalents) && /(công nghệ|kỹ thuật|tài chính|dữ liệu)/.test(industryStr)) talentBonus += 5;
+          if (/(nấu ăn|thủ công|sửa chữa|thể thao|võ|cơ khí)/.test(userTalents) && /(dịch vụ|sản xuất|y tế|kỹ thuật cơ bản|chăm sóc)/.test(industryStr)) talentBonus += 5;
+        }
+
         // Công thức ICI 3 lớp cốt lõi
         const ICI = Math.min(100,
           ((S_identity * 0.60) +
             (S_niche * 0.25) +
             (S_market * 0.15))
           * clinicalMultiplier * artsMultiplier * eduMultiplier * bizMultiplier * lawMultiplier
-          + clinicalBoost + artsBoost + eduBoost + bizBoost + lawBoost
+          + clinicalBoost + artsBoost + eduBoost + bizBoost + lawBoost + talentBonus
         );
 
         // Điểm chuẩn tham chiếu mô phỏng
@@ -1878,6 +1894,16 @@ async function generateReportUI() {
             displaySubjects = 'Khoa học xã hội, Ngôn ngữ, Kỹ năng giao tiếp thuyết phục, Quản trị nền tảng.';
           }
         }
+        
+        if (profile.eduPath === 'COLLEGE') {
+            displaySubjects = "Học chương trình thực hành 2-3 năm về " + (c.study_major || c.industry || "chuyên ngành này") + " tại trường CĐ. Ra trường đảm nhận các vị trí thực thi, kỹ thuật viên hoặc nhân viên chuyên môn tại doanh nghiệp.";
+            advice = "Tập trung phát triển kỹ năng nghề thực tế và rút ngắn thời gian đào tạo.";
+            displayCombo = "Tuyển sinh Cao đẳng / Trung cấp (Xét học bạ)";
+        } else if (profile.eduPath === 'VOCATIONAL') {
+            displaySubjects = "Tham gia các khóa đào tạo ngắn hạn (3-6 tháng) về kỹ năng cốt lõi của " + (c.industry || "lĩnh vực này") + ". Bắt đầu làm việc ngay để tích lũy kinh nghiệm thực tế, có thể tự do hoặc kinh doanh nhỏ.";
+            advice = "Chú trọng cọ xát thực tiễn, bắt đầu từ vị trí nhỏ để học hỏi.";
+            displayCombo = "Học nghề tự do (Không yêu cầu thi THPT)";
+        }
 
         return {
           name: c.name,
@@ -2027,6 +2053,45 @@ async function generateReportUI() {
       PASSION: passionNums.join(' & '),
       HOLLAND: sortedHolland.slice(0, 3).map(x => x[0]).join(''),
     };
+
+    // ── HÀM TẠO NỘI DUNG QUẢN TRỊ RỦI RO ──
+    function generateRiskContent(mbti) {
+      // Logic cơ bản: phân loại theo 4 nhóm khí chất MBTI
+      if (mbti.includes('N') && mbti.includes('P')) {
+        // Nhóm Khám phá / Sáng tạo (NP)
+        return {
+          now: "Ngay trong học kỳ này: Nguy cơ 'cả thèm chóng chán', bắt đầu nhiều việc nhưng bỏ dở giữa chừng. Cần tập trung hoàn thành dứt điểm 1-2 mục tiêu quan trọng nhất trước khi bắt đầu cái mới.",
+          short: "Trong 6 tháng tới: Thực hành nguyên tắc 'Hoàn thành hơn Hoàn hảo' bằng cách đặt ra deadline nghiêm ngặt. Tập phản hồi với những lời phê bình bằng câu hỏi: 'Điều này giúp tôi làm tốt hơn ở điểm nào?'.",
+          long: "Trong 2 năm: Thiết lập hệ thống quản lý thời gian cá nhân. Học cách duy trì động lực ngay cả khi công việc lặp đi lặp lại và trở nên nhàm chán."
+        };
+      } else if (mbti.includes('N') && mbti.includes('J')) {
+        // Nhóm Tầm nhìn / Lãnh đạo (NJ)
+        return {
+          now: "Ngay trong học kỳ này: Dễ rơi vào trạng thái cầu toàn thái quá dẫn đến kiệt sức. Cần chấp nhận điểm 8/10 thay vì ép bản thân và người khác phải đạt 10/10 trong các dự án nhóm.",
+          short: "Trong 6 tháng tới: Cởi mở hơn với những phương pháp mới, thay vì khăng khăng làm theo kế hoạch duy nhất của mình. Tập lắng nghe góp ý từ những góc nhìn thực tế.",
+          long: "Trong 2 năm: Thiết lập hệ thống ủy quyền (Delegation System) và học cách buông bỏ kiểm soát vi mô. Xây dựng cho bản thân một quy trình 'Detox Cảm Xúc'."
+        };
+      } else if (mbti.includes('S') && mbti.includes('P')) {
+        // Nhóm Thực tế / Linh hoạt (SP)
+        return {
+          now: "Ngay trong học kỳ này: Có xu hướng 'nước đến chân mới nhảy', ưu tiên vui chơi trước. Cần chia nhỏ bài tập/dự án và làm từng phần nhỏ mỗi ngày để tránh rủi ro phút chót.",
+          short: "Trong 6 tháng tới: Rèn luyện khả năng nhìn xa hơn những nhu cầu tức thời. Xây dựng thói quen tiết kiệm và lập kế hoạch tài chính cơ bản.",
+          long: "Trong 2 năm: Tìm kiếm sự ổn định trong một số khía cạnh cuộc sống để làm nền tảng cho sự tự do. Tránh nhảy việc/đổi ngành quá nhanh chỉ vì cảm xúc nhất thời."
+        };
+      } else {
+        // Nhóm Nguyên tắc / Kỷ luật (SJ)
+        return {
+          now: "Ngay trong học kỳ này: Rất chăm chỉ nhưng rập khuôn, rủi ro hoảng loạn khi kế hoạch bị thay đổi đột ngột. Cần tập phản ứng linh hoạt với các tình huống ngoài dự kiến.",
+          short: "Trong 6 tháng tới: Bước ra khỏi vùng an toàn, thử sức với 1 kỹ năng hoặc hoạt động hoàn toàn mới lạ mà bạn chưa từng làm.",
+          long: "Trong 2 năm: Tránh bám chấp vào những quy trình đã lỗi thời. Nâng cao khả năng thích nghi với sự thay đổi của công nghệ và xu hướng mới."
+        };
+      }
+    }
+
+    const riskContent = generateRiskContent(mbtiCode);
+    window.pdfPayload.RISK_NOW = riskContent.now;
+    window.pdfPayload.RISK_SHORT_TERM = riskContent.short;
+    window.pdfPayload.RISK_LONG_TERM = riskContent.long;
 
     top5.forEach((entry, idx) => {
       const i = idx + 1;
