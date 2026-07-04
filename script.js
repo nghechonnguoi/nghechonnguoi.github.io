@@ -19,6 +19,21 @@
 // =========================================================================
 // 🔥 CẤU HÌNH HẠ TẦNG ĐÁM MÂY FIREBASE THỰC TẾ CỦA BẠN
 // =========================================================================
+// ============================================================================
+// 🔗 AFFILIATE TRACKING — Bắt mã giới thiệu từ URL (?ref=MACODE)
+// ============================================================================
+(function captureReferralCode() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const refFromUrl = urlParams.get('ref');
+  if (refFromUrl) {
+    localStorage.setItem('ncn_referral_code', refFromUrl.trim().toUpperCase());
+    console.log(`🔗 Đã ghi nhận mã giới thiệu: ${refFromUrl.trim().toUpperCase()}`);
+  }
+})();
+
+function getReferralCode() {
+  return localStorage.getItem('ncn_referral_code') || null;
+}
 const firebaseConfig = {
   apiKey: "AIzaSyDXYwk4_lfXDGp3L8wcUt9NEdduNsGl_t4",
   authDomain: "nghechonnguoi-f9eec.firebaseapp.com",
@@ -2252,7 +2267,7 @@ async function generateReportUI() {
           const pdfRes = await fetch('https://ncn-academy-web.vercel.app/api/generate-pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(window.pdfPayload)
+            body: JSON.stringify({ ...window.pdfPayload, referralCode: getReferralCode() })
           });
           if (!pdfRes.ok) throw new Error("Lỗi xuất PDF");
           const blob = await pdfRes.blob();
@@ -2285,6 +2300,7 @@ async function generateReportUI() {
           customerName: profile.fullName,
           customerPhone: profile.phone,
           payload: window.pdfPayload,
+          referralCode: getReferralCode(),
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
