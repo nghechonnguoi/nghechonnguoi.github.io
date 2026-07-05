@@ -1004,6 +1004,722 @@ const PROFESSION_MAP = {
 
 
 
+// ============================================================================
+// VOCATIONAL NICHES — Hệ thống 3 vòng giống UNI
+// Mỗi ngách: {
+//   name, jobs[], why,
+//   holland_req: {R,I,A,S,E,C} (0-10, cùng thang với UNI),
+//   mbti_req: {E/I/S/N/T/F/J/P} (điểm 1-3, cùng thang với UNI),
+//   num_mapping: {"1":1-10, "2":..., ..., "9":...} (Nhân số → độ phù hợp),
+//   market_demand: 0-100, market_salary: 0-100
+// }
+// ============================================================================
+const VOCATIONAL_NICHES = {
+  "Công nghệ Thông tin": [
+    {
+      name: "Lập trình viên / Web Developer tự học (bootcamp)",
+      jobs: ["Junior Web Developer Freelance", "Frontend Developer (React/Vue)", "Backend Developer (Python/Node.js)", "Mobile App Developer entry (Flutter/React Native)", "WordPress Developer Freelance", "Shopify Developer / E-commerce Dev", "Game Developer Indie entry"],
+      why: "tư duy logic chặt chẽ và khả năng tự học để xây dựng sản phẩm kỹ thuật số",
+      holland_req: { I: 8, R: 6, C: 4 },
+      mbti_req: { I: 2, T: 3, J: 2, N: 1 },
+      num_mapping: { "1":5, "2":4, "3":5, "4":9, "5":6, "6":4, "7":10, "8":7, "9":5 },
+      market_demand: 92, market_salary: 82
+    },
+    {
+      name: "Data Analyst / Phân tích dữ liệu",
+      jobs: ["Data Analyst entry (Excel/SQL/Python)", "Business Intelligence Analyst", "Marketing Data Analyst", "Reporting Analyst / Dashboard Builder", "E-commerce Data Analyst", "CRM Data Analyst", "Google Analytics Specialist"],
+      why: "thiên hướng phân tích và tìm ra ý nghĩa ẩn sau những con số",
+      holland_req: { I: 9, C: 6, E: 3 },
+      mbti_req: { I: 2, T: 3, N: 2 },
+      num_mapping: { "1":5, "2":4, "3":4, "4":9, "5":5, "6":4, "7":10, "8":7, "9":4 },
+      market_demand: 88, market_salary: 78
+    },
+    {
+      name: "UI/UX Designer / Web Designer sáng tạo",
+      jobs: ["UI/UX Designer Freelance (Figma/Adobe XD)", "Web Designer", "Product Designer entry", "App Interface Designer", "Landing Page Designer", "Graphic UI Designer cho ứng dụng", "Motion UI Designer entry"],
+      why: "kết hợp thẩm mỹ sáng tạo và tư duy trải nghiệm người dùng",
+      holland_req: { A: 8, I: 6, C: 4 },
+      mbti_req: { N: 2, F: 2, P: 1, I: 1 },
+      num_mapping: { "1":5, "2":5, "3":9, "4":6, "5":8, "6":5, "7":7, "8":5, "9":6 },
+      market_demand: 82, market_salary: 72
+    },
+    {
+      name: "IT Support & Kỹ thuật viên hệ thống",
+      jobs: ["IT Support / Helpdesk Level 1-2", "System Administrator entry", "Network Technician", "PC Technician & Repair", "CCTV & Security System Technician", "Cloud Support Technician (AWS/GCP entry)", "Kỹ thuật viên mạng LAN/WAN"],
+      why: "khả năng vận hành, bảo trì hệ thống ổn định và hỗ trợ kỹ thuật tận tâm",
+      holland_req: { R: 8, C: 7, I: 4 },
+      mbti_req: { S: 2, T: 3, J: 2 },
+      num_mapping: { "1":5, "2":5, "3":4, "4":9, "5":5, "6":6, "7":7, "8":7, "9":4 },
+      market_demand: 80, market_salary: 65
+    },
+    {
+      name: "IT Sales & Business Analyst",
+      jobs: ["IT Sales Consultant", "Technical Account Manager", "Pre-sales Engineer entry", "Business Analyst hỗ trợ dự án", "SaaS Sales Representative", "ERP Implementation Support", "CRM Administrator / Specialist"],
+      why: "kết nối giữa hiểu biết công nghệ và kỹ năng thuyết phục khách hàng B2B",
+      holland_req: { E: 8, I: 6, C: 4 },
+      mbti_req: { E: 2, T: 2, J: 2 },
+      num_mapping: { "1":9, "2":5, "3":6, "4":6, "5":6, "6":5, "7":5, "8":8, "9":5 },
+      market_demand: 82, market_salary: 80
+    }
+  ],
+
+  "Quản trị & Marketing": [
+    {
+      name: "Bán hàng B2B & Phát triển kinh doanh",
+      jobs: ["Nhân viên Kinh doanh B2B", "Account Executive", "Business Development Representative (BDR)", "Sales Manager entry", "Key Account Manager entry", "Territory Sales Representative", "Nhân viên kinh doanh bất động sản B2B"],
+      why: "bản năng đàm phán mạnh mẽ và khả năng xây dựng quan hệ đối tác dài hạn",
+      holland_req: { E: 10, S: 5, C: 3 },
+      mbti_req: { E: 3, T: 2, J: 2 },
+      num_mapping: { "1":10, "2":5, "3":6, "4":5, "5":6, "6":4, "7":4, "8":9, "9":5 },
+      market_demand: 85, market_salary: 82
+    },
+    {
+      name: "Tư vấn bán hàng trải nghiệm (mỹ phẩm, thời trang, làm đẹp)",
+      jobs: ["Beauty Advisor / Tư vấn mỹ phẩm", "Nhân viên tư vấn thời trang", "Brand Ambassador làm đẹp", "Stylist Freelance", "Nhân viên tư vấn chăm sóc da tại spa", "Personal Shopper / Image Consultant entry", "Nhân viên tư vấn đồng hồ & phụ kiện cao cấp"],
+      why: "khả năng kết nối cảm xúc và thẩm mỹ trong trải nghiệm mua hàng của khách",
+      holland_req: { S: 8, A: 6, E: 5 },
+      mbti_req: { E: 2, F: 3, S: 2 },
+      num_mapping: { "1":5, "2":6, "3":9, "4":5, "5":7, "6":8, "7":4, "8":6, "9":7 },
+      market_demand: 75, market_salary: 58
+    },
+    {
+      name: "Content Creator & Social Media Manager",
+      jobs: ["Content Creator / Copywriter", "Social Media Manager", "Short-form Video Creator (TikTok/Reels)", "KOL / Influencer", "Podcast Producer & Host", "Newsletter Writer Freelance", "Brand Storyteller / Content Strategist entry"],
+      why: "thiên hướng biểu đạt sáng tạo và nhạy bén kết nối với cộng đồng qua nội dung",
+      holland_req: { A: 8, S: 6, E: 5 },
+      mbti_req: { N: 2, P: 2, E: 2 },
+      num_mapping: { "1":6, "2":6, "3":10, "4":5, "5":8, "6":6, "7":6, "8":5, "9":7 },
+      market_demand: 85, market_salary: 68
+    },
+    {
+      name: "Bán hàng online & Performance Marketing",
+      jobs: ["Nhân viên vận hành TMĐT (Shopee/TikTok Shop)", "Performance Marketing Specialist (Facebook/Google Ads)", "SEO Content Specialist", "Email Marketing Executive", "Amazon/Lazada Seller Account Manager", "Affiliate Marketing Manager", "Nhân viên quản lý kho & đơn hàng online"],
+      why: "tư duy hệ thống và phân tích số liệu để tối ưu doanh số kinh doanh online",
+      holland_req: { E: 7, C: 7, I: 5 },
+      mbti_req: { T: 3, J: 2, I: 1 },
+      num_mapping: { "1":7, "2":5, "3":5, "4":9, "5":6, "6":5, "7":7, "8":9, "9":5 },
+      market_demand: 90, market_salary: 72
+    },
+    {
+      name: "Chăm sóc khách hàng & Community Manager",
+      jobs: ["Nhân viên CSKH chuyên nghiệp (Call/Chat/Email)", "Community Manager", "Customer Success Specialist", "Social Media Moderator & Support", "Customer Experience Coordinator", "Nhân viên xử lý khiếu nại & hòa giải", "Loyalty Program Executive"],
+      why: "tấm lòng nhiệt tình với con người và khả năng xây dựng cộng đồng bền chặt",
+      holland_req: { S: 10, E: 4, C: 4 },
+      mbti_req: { E: 2, F: 3, J: 2 },
+      num_mapping: { "1":4, "2":8, "3":6, "4":5, "5":5, "6":9, "7":4, "8":5, "9":8 },
+      market_demand: 78, market_salary: 55
+    },
+    {
+      name: "Kinh doanh cộng đồng & Referral Marketing",
+      jobs: ["Affiliate Marketer chuyên nghiệp", "Đại lý / Nhà phân phối độc lập", "Community-based Sales Leader", "Nhóm trưởng kinh doanh theo mạng lưới", "Brand Ambassador khu vực", "Đối tác kinh doanh nhượng quyền nhỏ", "Referral Program Coordinator"],
+      why: "năng lực lan tỏa và kết nối để tạo giá trị cho toàn bộ cộng đồng xung quanh",
+      holland_req: { S: 8, E: 7, A: 4 },
+      mbti_req: { E: 3, F: 2, N: 1 },
+      num_mapping: { "1":6, "2":7, "3":7, "4":5, "5":6, "6":9, "7":4, "8":6, "9":9 },
+      market_demand: 72, market_salary: 60
+    }
+  ],
+
+  "Kinh tế & Tài chính": [
+    {
+      name: "Kế toán & Hành chính tài chính",
+      jobs: ["Kế toán viên entry / Junior Accountant", "Kế toán bán hàng & kho", "Nhân viên hành chính tài chính", "Thu ngân chuyên nghiệp", "Kế toán thuế entry", "Kế toán công nợ / AR-AP Clerk", "Nhân viên lập hóa đơn & chứng từ"],
+      why: "sự chính xác, kỷ luật và tư duy hệ thống vững chắc trong quản lý con số",
+      holland_req: { C: 10, I: 5, S: 3 },
+      mbti_req: { I: 2, S: 2, T: 3, J: 3 },
+      num_mapping: { "1":4, "2":5, "3":3, "4":10, "5":4, "6":6, "7":8, "8":8, "9":4 },
+      market_demand: 80, market_salary: 65
+    },
+    {
+      name: "Tư vấn bảo hiểm & Tài chính cá nhân",
+      jobs: ["Tư vấn bảo hiểm nhân thọ", "Giao dịch viên ngân hàng (Teller)", "Tư vấn tài chính cá nhân entry", "Nhân viên ngân hàng bán lẻ", "Tư vấn bảo hiểm xe / nhà / sức khỏe", "Nhân viên giải ngân & hồ sơ tín dụng entry", "Financial Wellness Advisor entry"],
+      why: "sự đồng hành chân thành và quan tâm đến an toàn tài chính của từng khách hàng",
+      holland_req: { S: 8, E: 6, I: 5 },
+      mbti_req: { E: 2, F: 2, J: 2 },
+      num_mapping: { "1":5, "2":7, "3":5, "4":5, "5":5, "6":9, "7":6, "8":7, "9":7 },
+      market_demand: 78, market_salary: 68
+    },
+    {
+      name: "Sales tài chính & Đầu tư",
+      jobs: ["Tư vấn đầu tư chứng khoán entry", "Sales Bảo hiểm chuyên nghiệp", "Môi giới chứng khoán entry", "Business Development ngân hàng", "Tư vấn quỹ đầu tư / ETF", "Nhân viên phát triển khách hàng FinTech", "Sales BĐS & tư vấn tài chính nhà ở"],
+      why: "năng lực thuyết phục và tư duy nắm bắt cơ hội đầu tư tăng trưởng",
+      holland_req: { E: 9, I: 6, C: 4 },
+      mbti_req: { E: 3, T: 2, N: 2 },
+      num_mapping: { "1":9, "2":5, "3":6, "4":6, "5":6, "6":5, "7":7, "8":9, "9":5 },
+      market_demand: 82, market_salary: 85
+    },
+    {
+      name: "Phân tích tài chính & Đầu tư định lượng",
+      jobs: ["Junior Financial Analyst", "Analyst chứng khoán entry", "Data Analyst tài chính", "Credit Analyst entry", "Equity Research Assistant", "Valuation Analyst entry", "Risk Analyst entry (ngân hàng / bảo hiểm)"],
+      why: "thiên hướng phân tích sâu và nghiên cứu cơ hội đầu tư theo dữ liệu thực tế",
+      holland_req: { I: 9, C: 7, E: 3 },
+      mbti_req: { I: 2, T: 3, N: 2 },
+      num_mapping: { "1":5, "2":4, "3":4, "4":9, "5":5, "6":4, "7":10, "8":8, "9":4 },
+      market_demand: 80, market_salary: 80
+    }
+  ],
+
+  "Kỹ thuật & Công nghệ": [
+    {
+      name: "Sửa chữa điện tử, điện thoại, laptop",
+      jobs: ["Kỹ thuật viên sửa chữa điện thoại / laptop", "Technician điện tử gia dụng", "Sửa chữa thiết bị số (máy tính bảng/PC)", "IT Hardware Technician", "Kỹ thuật viên bảo hành thiết bị điện tử", "Máy in & thiết bị văn phòng Technician", "Console & Gaming Device Repair Technician"],
+      why: "đôi tay khéo léo và tư duy phân tích lỗi kỹ thuật một cách chính xác",
+      holland_req: { R: 9, I: 6, C: 4 },
+      mbti_req: { I: 2, S: 2, T: 3 },
+      num_mapping: { "1":5, "2":4, "3":4, "4":9, "5":5, "6":5, "7":8, "8":6, "9":4 },
+      market_demand: 75, market_salary: 62
+    },
+    {
+      name: "Lắp đặt điện, điện lạnh, năng lượng mặt trời",
+      jobs: ["Thợ điện dân dụng & công nghiệp", "Kỹ thuật viên điện lạnh / HVAC", "Lắp đặt hệ thống điện mặt trời (Solar PV)", "Kỹ thuật viên tự động hóa nhà thông minh (Smart Home)", "Thợ điện công trình xây dựng", "Kỹ thuật viên bơm nước & hệ thống cấp thoát", "Lắp đặt hệ thống an ninh CCTV & báo động"],
+      why: "kỹ năng thực hành tay chân và sự tỉ mỉ trong lắp đặt hệ thống kỹ thuật an toàn",
+      holland_req: { R: 10, C: 5, I: 4 },
+      mbti_req: { I: 1, S: 2, T: 3 },
+      num_mapping: { "1":5, "2":5, "3":4, "4":9, "5":7, "6":5, "7":5, "8":7, "9":4 },
+      market_demand: 82, market_salary: 70
+    },
+    {
+      name: "Cơ khí & Gia công chế tạo",
+      jobs: ["Thợ cơ khí lành nghề", "Vận hành máy CNC / gia công chính xác", "Kỹ thuật viên hàn công nghiệp (que / MIG / TIG)", "Nhân viên bảo trì máy móc sản xuất", "Thợ tiện / phay / bào chuyên nghiệp", "Kỹ thuật viên lắp ráp cơ khí chính xác", "Thợ kết cấu thép & kim loại"],
+      why: "sự kiên nhẫn, chính xác và tay nghề thực hành trong môi trường sản xuất",
+      holland_req: { R: 9, C: 7, I: 3 },
+      mbti_req: { S: 2, T: 3, J: 2 },
+      num_mapping: { "1":4, "2":5, "3":4, "4":9, "5":5, "6":5, "7":5, "8":8, "9":4 },
+      market_demand: 75, market_salary: 65
+    },
+    {
+      name: "Kiểm soát chất lượng (QC) & Lab Technician",
+      jobs: ["QC Inspector / Kiểm tra chất lượng sản phẩm", "Lab Technician phân tích chất lượng", "Kỹ thuật viên đo lường & hiệu chuẩn", "Nhân viên kiểm tra IQC/OQC/PQC", "QA Documentation Specialist entry", "Food Safety Technician (kiểm tra an toàn thực phẩm)", "Textile QC Inspector"],
+      why: "tư duy hệ thống và sự chú ý đến từng chi tiết nhỏ trong quy trình sản xuất",
+      holland_req: { C: 9, R: 6, I: 5 },
+      mbti_req: { I: 2, T: 3, J: 3 },
+      num_mapping: { "1":4, "2":5, "3":3, "4":9, "5":4, "6":6, "7":7, "8":7, "9":4 },
+      market_demand: 76, market_salary: 62
+    },
+    {
+      name: "Technical Sales & Tư vấn kỹ thuật",
+      jobs: ["Technical Sales / Sales kỹ thuật B2B", "Pre-sales Engineer entry", "Tư vấn kỹ thuật ứng dụng tại hiện trường", "Field Service Engineer", "Application Engineer entry", "Nhân viên bán máy móc thiết bị công nghiệp", "Solution Consultant kỹ thuật"],
+      why: "kết hợp am hiểu kỹ thuật chuyên sâu với kỹ năng thuyết phục và tư vấn khách hàng",
+      holland_req: { E: 8, R: 6, I: 5 },
+      mbti_req: { E: 2, T: 2, S: 2 },
+      num_mapping: { "1":8, "2":5, "3":5, "4":6, "5":6, "6":5, "7":5, "8":8, "9":5 },
+      market_demand: 80, market_salary: 78
+    },
+    {
+      name: "Mở tiệm sửa chữa / Kinh doanh kỹ thuật",
+      jobs: ["Chủ tiệm sửa chữa điện tử / điện máy", "Tự kinh doanh dịch vụ kỹ thuật", "Nhà thầu điện / cơ khí quy mô nhỏ", "Chủ tiệm sửa xe máy / ô tô", "Kinh doanh linh kiện điện tử", "Dịch vụ lắp đặt & bảo trì solar hộ gia đình", "Kỹ thuật viên tự do (Freelance Technician)"],
+      why: "tay nghề vững chắc kết hợp với tinh thần dám tự khởi nghiệp kinh doanh độc lập",
+      holland_req: { R: 8, E: 8, C: 4 },
+      mbti_req: { E: 2, T: 2, J: 2 },
+      num_mapping: { "1":9, "2":4, "3":5, "4":7, "5":7, "6":5, "7":5, "8":10, "9":5 },
+      market_demand: 72, market_salary: 72
+    }
+  ],
+
+  "Nghệ thuật & Sáng tạo": [
+    {
+      name: "Content chữa lành, tâm lý & truyền cảm hứng",
+      jobs: ["Content Creator chữa lành / phát triển bản thân", "Nhà văn / Blogger truyền cảm hứng", "Podcast Host chủ đề ý nghĩa sống", "Creator kênh YouTube chiều sâu", "Tác giả sách self-help / tự xuất bản", "Nhà thiết kế journal & planner cá nhân", "Mental Health Content Educator"],
+      why: "thiên hướng nội tâm sâu sắc và khát vọng chạm đến cảm xúc người xem qua nghệ thuật",
+      holland_req: { A: 8, S: 7, I: 4 },
+      mbti_req: { N: 2, F: 3, I: 2 },
+      num_mapping: { "1":4, "2":6, "3":8, "4":4, "5":6, "6":7, "7":9, "8":4, "9":9 },
+      market_demand: 70, market_salary: 55
+    },
+    {
+      name: "Content giải trí & xu hướng mạng xã hội",
+      jobs: ["TikToker / Short-form Video Creator", "Content Creator giải trí hài hước", "Streamer / Gaming Creator (YouTube/Twitch)", "Influencer xu hướng & lifestyle", "Reaction Content Creator", "Comedy Skit Creator", "Entertainment Podcast Host"],
+      why: "năng lượng biểu đạt mạnh mẽ và nhạy bén với xu hướng giải trí của công chúng",
+      holland_req: { A: 8, E: 7, S: 5 },
+      mbti_req: { E: 3, N: 2, P: 2 },
+      num_mapping: { "1":6, "2":5, "3":9, "4":4, "5":9, "6":5, "7":5, "8":5, "9":6 },
+      market_demand: 80, market_salary: 60
+    },
+    {
+      name: "Thiết kế đồ họa & Hình ảnh thương mại",
+      jobs: ["Graphic Designer Freelance", "Social Media Visual Designer", "Brand Identity Designer", "Illustrator thương mại", "Packaging Designer", "Infographic Designer", "Print & Publication Designer"],
+      why: "tư duy thẩm mỹ tinh tế và kỹ năng chuyển hóa ý tưởng thành hình ảnh thu hút",
+      holland_req: { A: 9, C: 5, I: 4 },
+      mbti_req: { I: 2, N: 2, F: 2 },
+      num_mapping: { "1":5, "2":5, "3":9, "4":7, "5":6, "6":5, "7":7, "8":5, "9":5 },
+      market_demand: 80, market_salary: 65
+    },
+    {
+      name: "Nhiếp ảnh & Video sản xuất thương mại",
+      jobs: ["Photographer sản phẩm / sự kiện Freelance", "Videographer thương mại", "Video Editor chuyên nghiệp (Premiere/DaVinci)", "Motion Graphic Designer (After Effects)", "Drone Operator & Aerial Photographer", "Wedding Photographer / Cinematographer", "Food & Product Photography Specialist"],
+      why: "con mắt thẩm mỹ và kỹ năng thực hành trong sản xuất hình ảnh - video thương mại",
+      holland_req: { A: 8, R: 6, I: 4 },
+      mbti_req: { I: 2, S: 1, P: 2 },
+      num_mapping: { "1":5, "2":5, "3":8, "4":5, "5":8, "6":5, "7":6, "8":5, "9":5 },
+      market_demand: 76, market_salary: 62
+    },
+    {
+      name: "MC sự kiện & Dẫn chương trình",
+      jobs: ["MC Sự kiện / Hội nghị chuyên nghiệp", "Dẫn chương trình truyền hình / online", "Host Podcast & Webinar", "MC Đám cưới", "MC Gameshow & Truyền hình thực tế", "Event Emcee cho thương hiệu & ra mắt sản phẩm", "Voice-over Artist (lồng tiếng / quảng cáo)"],
+      why: "kết hợp nghệ thuật biểu đạt ngôn từ và khả năng kết nối khán giả trong từng khoảnh khắc",
+      holland_req: { E: 7, A: 7, S: 6 },
+      mbti_req: { E: 3, F: 2, N: 1 },
+      num_mapping: { "1":7, "2":6, "3":9, "4":4, "5":8, "6":7, "7":5, "8":6, "9":7 },
+      market_demand: 68, market_salary: 62
+    },
+    {
+      name: "Content review sản phẩm & Kỹ thuật số",
+      jobs: ["Tech Reviewer YouTube / TikTok", "Nhà đánh giá sản phẩm chuyên nghiệp", "Unboxer / Product Content Specialist", "Content I-commerce Specialist", "Gadget Tester & Reviewer Freelance", "App & Software Reviewer", "Beauty / Fashion Product Reviewer"],
+      why: "sự kết hợp giữa tư duy phân tích kỹ thuật và khả năng trình bày cuốn hút",
+      holland_req: { I: 6, A: 6, C: 5 },
+      mbti_req: { I: 2, T: 2, J: 1 },
+      num_mapping: { "1":5, "2":5, "3":7, "4":8, "5":6, "6":5, "7":7, "8":6, "9":5 },
+      market_demand: 74, market_salary: 58
+    }
+  ],
+
+  "Giáo dục & Đào tạo": [
+    {
+      name: "Gia sư & Giáo viên tư thục 1-1",
+      jobs: ["Gia sư online / offline môn học (Toán/Lý/Hóa/Anh...)", "Giáo viên mầm non / tiểu học tư thục", "Trợ giảng trung tâm anh ngữ", "Dạy kỹ năng sống 1-1 cho học sinh", "Giáo viên dạy kèm môn nghệ thuật (nhạc / vẽ)", "Giáo viên tiếng Anh trẻ em online (Cambly/iTalki)", "Gia sư tiếng Việt cho người nước ngoài"],
+      why: "tấm lòng kiên nhẫn, yêu trẻ và niềm vui thực sự khi thấy người học tiến bộ",
+      holland_req: { S: 10, I: 5, A: 3 },
+      mbti_req: { I: 1, F: 3, J: 2 },
+      num_mapping: { "1":4, "2":7, "3":6, "4":6, "5":5, "6":9, "7":7, "8":5, "9":8 },
+      market_demand: 78, market_salary: 55
+    },
+    {
+      name: "Trainer kỹ năng mềm & Facilitator workshop",
+      jobs: ["Trainer kỹ năng mềm Freelance", "Facilitator workshop phát triển cá nhân", "Corporate Trainer entry", "Life Skills Coach nhóm", "Team Building Facilitator", "Sales Training Specialist entry", "Leadership Development Trainer entry"],
+      why: "nhiệt huyết đào tạo người lớn và khả năng truyền cảm hứng tạo thay đổi thực sự",
+      holland_req: { E: 8, S: 7, A: 4 },
+      mbti_req: { E: 3, N: 2, F: 2 },
+      num_mapping: { "1":7, "2":6, "3":8, "4":5, "5":6, "6":7, "7":5, "8":6, "9":9 },
+      market_demand: 76, market_salary: 65
+    },
+    {
+      name: "Online Educator & Content giáo dục số",
+      jobs: ["Giảng viên khóa học online (Udemy/Kyna)", "YouTuber / TikToker giáo dục", "Creator nội dung học tập", "Podcast giáo dục & phát triển", "Nhà thiết kế chương trình học (Instructional Designer entry)", "E-learning Content Creator", "Nhà sản xuất video giáo dục"],
+      why: "sáng tạo không ngừng trong cách truyền đạt kiến thức hấp dẫn qua nền tảng số",
+      holland_req: { A: 6, S: 6, E: 6 },
+      mbti_req: { N: 2, P: 1, E: 2 },
+      num_mapping: { "1":6, "2":6, "3":9, "4":5, "5":7, "6":6, "7":6, "8":5, "9":7 },
+      market_demand: 82, market_salary: 65
+    },
+    {
+      name: "Giáo viên nghệ thuật & Năng khiếu",
+      jobs: ["Giáo viên âm nhạc / piano / guitar / ukulele tư thục", "Giáo viên mỹ thuật / vẽ", "Huấn luyện viên dance / thể thao", "Giáo viên diễn xuất / MC entry", "Giáo viên ballet & múa thiếu nhi", "Huấn luyện viên bơi lội / võ thuật", "Giáo viên yoga / thiền trẻ em"],
+      why: "đam mê nghệ thuật và niềm vui lan tỏa ngọn lửa sáng tạo đến người học",
+      holland_req: { A: 9, S: 7, E: 3 },
+      mbti_req: { F: 3, P: 2, E: 1 },
+      num_mapping: { "1":5, "2":6, "3":9, "4":4, "5":7, "6":7, "7":6, "8":4, "9":7 },
+      market_demand: 70, market_salary: 52
+    },
+    {
+      name: "Tư vấn giáo dục & Hướng nghiệp",
+      jobs: ["Nhân viên tư vấn tuyển sinh", "Tư vấn du học / học bổng", "Career Counselor / Chuyên viên hướng nghiệp entry", "Academic Advisor", "Tư vấn chương trình học quốc tế", "Nhân viên hỗ trợ học sinh đặc biệt (Special Education Support)", "College Application Coach Freelance"],
+      why: "khả năng lắng nghe sâu và định hướng giúp người khác tìm con đường phù hợp nhất",
+      holland_req: { S: 8, E: 6, I: 5 },
+      mbti_req: { E: 2, F: 2, N: 2 },
+      num_mapping: { "1":6, "2":7, "3":6, "4":5, "5":5, "6":8, "7":6, "8":6, "9":8 },
+      market_demand: 74, market_salary: 60
+    }
+  ],
+
+  "Tâm lý học ứng dụng": [
+    {
+      name: "Life Coach & Khai vấn phát triển bản thân",
+      jobs: ["Life Coach Freelance", "Personal Development Coach", "Mindset & Habit Coach entry", "Facilitator workshop khai vấn bản thân", "Career Coach Freelance", "Relationship Coach entry", "Holistic Wellness Coach"],
+      why: "năng lượng truyền cảm hứng mạnh mẽ và khát vọng đồng hành giúp người khác thay đổi",
+      holland_req: { E: 7, S: 7, A: 5 },
+      mbti_req: { E: 2, N: 2, F: 2 },
+      num_mapping: { "1":7, "2":7, "3":8, "4":4, "5":6, "6":7, "7":6, "8":6, "9":9 },
+      market_demand: 72, market_salary: 68
+    },
+    {
+      name: "Tư vấn chữa lành & Hỗ trợ tâm lý cộng đồng",
+      jobs: ["Tư vấn viên cộng đồng / Trợ lý tâm lý", "Peer Counselor / Mentor hỗ trợ 1-1", "Tình nguyện viên sức khỏe tâm thần", "Nhân viên hỗ trợ trường học (School Counselor entry)", "Crisis Support Volunteer", "Bereavement Support Facilitator", "Nhân viên hỗ trợ tái hòa nhập cộng đồng"],
+      why: "sự đồng cảm sâu sắc và khả năng tạo không gian an toàn cho người đang cần hỗ trợ",
+      holland_req: { S: 9, I: 6, A: 4 },
+      mbti_req: { I: 2, N: 2, F: 3 },
+      num_mapping: { "1":4, "2":7, "3":6, "4":4, "5":5, "6":8, "7":9, "8":4, "9":9 },
+      market_demand: 65, market_salary: 52
+    },
+    {
+      name: "Art Therapy & Trị liệu sáng tạo",
+      jobs: ["Art Therapist hỗ trợ cộng đồng", "Music Therapist entry", "Expressive Arts Facilitator", "Nhà trị liệu qua nghệ thuật sáng tạo", "Drama & Play Therapist entry", "Sand Tray Therapy Facilitator", "Creative Writing Therapist Freelance"],
+      why: "dùng nghệ thuật như cây cầu để chữa lành và kết nối lại với nội tâm sâu nhất",
+      holland_req: { A: 9, S: 7, I: 4 },
+      mbti_req: { F: 3, N: 2, I: 1 },
+      num_mapping: { "1":4, "2":6, "3":8, "4":4, "5":5, "6":7, "7":9, "8":4, "9":8 },
+      market_demand: 58, market_salary: 52
+    },
+    {
+      name: "Diễn giả động lực & Motivational Speaker",
+      jobs: ["Motivational Speaker / Diễn giả entry", "Trainer truyền cảm hứng hành động", "Host sự kiện phát triển bản thân", "Podcaster chủ đề tâm lý & sống ý nghĩa", "Youth Motivator / Speaker cho học sinh", "TEDx Speaker entry", "Corporate Wellness Speaker"],
+      why: "sức mạnh ngôn từ và năng lực truyền lửa hành động cho đám đông",
+      holland_req: { E: 9, A: 7, S: 6 },
+      mbti_req: { E: 3, N: 2, F: 2 },
+      num_mapping: { "1":9, "2":5, "3":8, "4":4, "5":6, "6":6, "7":5, "8":6, "9":9 },
+      market_demand: 65, market_salary: 70
+    }
+  ],
+
+  "Y Dược & Sức khỏe": [
+    {
+      name: "Điều dưỡng & Chăm sóc sức khỏe trực tiếp",
+      jobs: ["Điều dưỡng viên / Y tá bệnh viện tư nhân", "Kỹ thuật viên y tế (xét nghiệm / X-quang)", "Vật lý trị liệu viên trung cấp", "Chăm sóc người cao tuổi / bệnh nhân tại nhà", "Điều dưỡng phòng khám ngoại trú", "Kỹ thuật viên phục hồi chức năng", "Home Care Nurse / Điều dưỡng tại nhà"],
+      why: "bàn tay chăm sóc tận tâm và tấm lòng đồng hành trong từng khoảnh khắc người bệnh cần",
+      holland_req: { S: 8, R: 7, I: 4 },
+      mbti_req: { S: 2, F: 3, J: 2 },
+      num_mapping: { "1":4, "2":7, "3":5, "4":6, "5":5, "6":9, "7":6, "8":5, "9":8 },
+      market_demand: 85, market_salary: 65
+    },
+    {
+      name: "Spa trị liệu & Chăm sóc da chuyên sâu",
+      jobs: ["Kỹ thuật viên Spa / thẩm mỹ viện", "Chuyên viên chăm sóc da & trị liệu", "Massage Therapist chuyên nghiệp", "Beauty Technician cao cấp", "Waxing & Depilation Specialist", "Body Treatment Therapist", "Aromatherapy & Reflexology Practitioner"],
+      why: "sự tận tâm chăm chút từng chi tiết và khả năng mang lại cảm giác thư giãn sâu sắc",
+      holland_req: { S: 8, R: 5, I: 5 },
+      mbti_req: { I: 2, F: 3, S: 1 },
+      num_mapping: { "1":4, "2":6, "3":6, "4":6, "5":6, "6":9, "7":7, "8":5, "9":7 },
+      market_demand: 78, market_salary: 60
+    },
+    {
+      name: "Trang điểm nghệ thuật & Tạo mẫu tóc sáng tạo",
+      jobs: ["Makeup Artist Freelance (sự kiện / cưới hỏi)", "Hairstylist sáng tạo", "Nail Artist chuyên nghiệp", "Beauty Technician sự kiện đặc biệt", "Lash Technician (nối mi)", "Bridal Makeup Specialist", "SFX / Theatrical Makeup Artist"],
+      why: "đôi tay tài hoa và con mắt thẩm mỹ trong nghệ thuật tôn vinh vẻ đẹp con người",
+      holland_req: { A: 8, R: 7, S: 5 },
+      mbti_req: { F: 2, P: 2, E: 1 },
+      num_mapping: { "1":5, "2":5, "3":9, "4":5, "5":7, "6":7, "7":5, "8":5, "9":6 },
+      market_demand: 75, market_salary: 60
+    },
+    {
+      name: "Nhân viên nhà thuốc & Kinh doanh dược phẩm",
+      jobs: ["Nhân viên nhà thuốc / Dược sĩ trung cấp", "Trình dược viên / Medical Representative (MR)", "Sales thiết bị y tế", "Tư vấn sản phẩm sức khỏe & thực phẩm chức năng", "Nhân viên quản lý kho dược phẩm", "Dược sĩ bán lẻ chuỗi nhà thuốc", "Tư vấn dinh dưỡng lâm sàng entry"],
+      why: "kiến thức y dược vững chắc kết hợp với khả năng tư vấn và chăm sóc sức khỏe cộng đồng",
+      holland_req: { I: 6, C: 6, E: 6 },
+      mbti_req: { S: 2, J: 2, T: 2 },
+      num_mapping: { "1":5, "2":5, "3":5, "4":8, "5":5, "6":8, "7":7, "8":7, "9":6 },
+      market_demand: 80, market_salary: 68
+    },
+    {
+      name: "Dinh dưỡng & Health Coaching",
+      jobs: ["Chuyên gia tư vấn dinh dưỡng Freelance", "Health Coach cá nhân", "Huấn luyện viên thể hình & lối sống lành mạnh (PT)", "Nhân viên thực phẩm sức khỏe & organic", "Meal Prep Coach / Tư vấn thực đơn cá nhân", "Wellness Program Coordinator entry", "Online Fitness & Nutrition Coach"],
+      why: "đam mê sống lành mạnh và khao khát giúp mọi người chăm sóc tốt hơn cho bản thân",
+      holland_req: { S: 8, I: 5, C: 5 },
+      mbti_req: { F: 2, N: 2, E: 2 },
+      num_mapping: { "1":5, "2":6, "3":6, "4":6, "5":6, "6":9, "7":7, "8":5, "9":8 },
+      market_demand: 78, market_salary: 62
+    },
+    {
+      name: "Quản lý tiệm làm đẹp / Mở cơ sở thẩm mỹ",
+      jobs: ["Chủ tiệm salon-spa", "Quản lý cơ sở thẩm mỹ viện", "Giám sát chất lượng dịch vụ làm đẹp", "Franchise Owner thương hiệu làm đẹp", "Beauty Clinic Manager", "Spa Operations Director", "Chủ chuỗi nail salon"],
+      why: "tay nghề vững chắc kết hợp với tinh thần kinh doanh và năng lực lãnh đạo đội ngũ",
+      holland_req: { E: 8, A: 5, C: 6 },
+      mbti_req: { E: 2, T: 2, J: 2 },
+      num_mapping: { "1":8, "2":5, "3":6, "4":6, "5":6, "6":7, "7":4, "8":9, "9":5 },
+      market_demand: 72, market_salary: 68
+    }
+  ],
+
+  "Khoa học Xã hội & Nhân văn": [
+    {
+      name: "Copywriter & Biên tập nội dung chuyên nghiệp",
+      jobs: ["Copywriter thương mại Freelance", "Biên tập viên nội dung số", "Content Strategist entry", "Nhà văn viết thuê chuyên nghiệp", "UX Writer / Microcopy Specialist entry", "Scriptwriter cho video & quảng cáo", "Grant Writer / Proposal Writer"],
+      why: "ngôn từ sắc sảo và khả năng kể chuyện thu hút trong mọi định dạng nội dung",
+      holland_req: { A: 9, I: 6, C: 4 },
+      mbti_req: { I: 2, N: 2, F: 2 },
+      num_mapping: { "1":5, "2":6, "3":9, "4":5, "5":6, "6":5, "7":8, "8":5, "9":6 },
+      market_demand: 78, market_salary: 62
+    },
+    {
+      name: "Phóng viên & Nhà báo đa nền tảng",
+      jobs: ["Phóng viên cộng tác / Nhà báo Freelance", "Blogger chuyên đề có uy tín", "Podcaster tin tức & phân tích xã hội", "Content Journalist đa nền tảng", "Fact-checker & Verification Journalist", "Investigative Blogger entry", "Video Journalist / VJ Freelance"],
+      why: "tư duy phản biện, óc quan sát tinh tế và khát vọng kể những câu chuyện có giá trị",
+      holland_req: { I: 7, A: 7, S: 5 },
+      mbti_req: { N: 2, I: 2, F: 1 },
+      num_mapping: { "1":5, "2":6, "3":7, "4":5, "5":6, "6":5, "7":9, "8":5, "9":8 },
+      market_demand: 65, market_salary: 58
+    },
+    {
+      name: "PR & Truyền thông thương hiệu",
+      jobs: ["Nhân viên PR / Quan hệ công chúng entry", "Event Coordinator / Tổ chức sự kiện", "Brand Ambassador", "Social Media PR Specialist", "Influencer Relations Executive", "Press Release Writer Freelance", "Corporate Communications Assistant"],
+      why: "năng lực xây dựng câu chuyện thương hiệu và kết nối công chúng một cách chân thực",
+      holland_req: { E: 8, A: 7, S: 5 },
+      mbti_req: { E: 3, N: 2, F: 1 },
+      num_mapping: { "1":8, "2":6, "3":8, "4":5, "5":6, "6":6, "7":5, "8":7, "9":8 },
+      market_demand: 72, market_salary: 65
+    },
+    {
+      name: "Nhân viên xã hội & Hỗ trợ cộng đồng",
+      jobs: ["Nhân viên xã hội cộng đồng", "Tình nguyện viên tổ chức NGO / phi lợi nhuận", "Chuyên viên hỗ trợ xã hội entry", "Case Manager / Social Worker entry", "Nhân viên hỗ trợ người khuyết tật", "Child Protection Support Officer entry", "Community Outreach Coordinator"],
+      why: "tâm huyết phụng sự và khả năng đồng hành với những người cần giúp đỡ nhất",
+      holland_req: { S: 9, I: 5, A: 4 },
+      mbti_req: { F: 3, N: 2, I: 1 },
+      num_mapping: { "1":4, "2":7, "3":6, "4":5, "5":5, "6":8, "7":7, "8":4, "9":9 },
+      market_demand: 62, market_salary: 50
+    }
+  ],
+
+  "Luật & Pháp lý": [
+    {
+      name: "Trợ lý pháp lý & Paralegal",
+      jobs: ["Trợ lý luật sư / Paralegal chuyên nghiệp", "Thư ký tòa án / Thư ký pháp lý", "Nhân viên pháp lý hỗ trợ", "Legal Assistant Freelance", "Contract Review Assistant", "Intellectual Property (IP) Assistant", "Immigration Document Specialist"],
+      why: "tư duy logic chặt chẽ và sự chú ý tuyệt đối đến từng chi tiết pháp luật",
+      holland_req: { I: 8, C: 8, S: 3 },
+      mbti_req: { I: 2, T: 3, J: 3 },
+      num_mapping: { "1":5, "2":5, "3":4, "4":9, "5":4, "6":5, "7":9, "8":7, "9":4 },
+      market_demand: 70, market_salary: 62
+    },
+    {
+      name: "Hành chính pháp lý & Công chứng",
+      jobs: ["Nhân viên hành chính pháp lý doanh nghiệp", "Nhân viên công chứng / lưu trữ hồ sơ pháp luật", "Hành chính doanh nghiệp có hiểu biết pháp lý", "Nhân viên đăng ký kinh doanh & cấp phép", "Compliance Officer entry", "Records Management Specialist", "Legal Compliance Assistant"],
+      why: "sự chính xác, kỷ luật và cam kết tuân thủ quy trình pháp lý nghiêm ngặt",
+      holland_req: { C: 9, I: 6, S: 4 },
+      mbti_req: { S: 2, T: 3, J: 3 },
+      num_mapping: { "1":4, "2":5, "3":3, "4":9, "5":4, "6":5, "7":7, "8":8, "9":4 },
+      market_demand: 68, market_salary: 60
+    },
+    {
+      name: "Kinh doanh Bất động sản & Pháp lý",
+      jobs: ["Môi giới BĐS chuyên sâu pháp lý", "Nhân viên kinh doanh BĐS entry", "Tư vấn hợp đồng thương mại entry", "Sales BĐS & Dự án", "Nhân viên thẩm định giá BĐS entry", "Tư vấn đầu tư BĐS cá nhân", "Property Manager entry"],
+      why: "kết hợp hiểu biết pháp lý vững vàng với kỹ năng đàm phán thương vụ BĐS",
+      holland_req: { E: 9, I: 6, C: 5 },
+      mbti_req: { E: 2, T: 2, S: 1 },
+      num_mapping: { "1":9, "2":5, "3":5, "4":6, "5":6, "6":5, "7":5, "8":9, "9":5 },
+      market_demand: 78, market_salary: 82
+    }
+  ],
+
+  "Du lịch & Dịch vụ": [
+    {
+      name: "Nấu ăn chay / Thực dưỡng & Ẩm thực chữa lành",
+      jobs: ["Đầu bếp thực dưỡng Freelance", "Coach ẩm thực lành mạnh", "Creator nội dung ẩm thực sức khỏe", "Instructor nấu ăn chay online", "Raw Food Chef Specialist", "Fermentation & Probiotic Food Maker", "Plant-based Catering Specialist"],
+      why: "hành trình chữa lành bắt đầu từ bữa ăn - thiên hướng tâm linh và phụng sự qua ẩm thực",
+      holland_req: { S: 7, R: 6, I: 5 },
+      mbti_req: { N: 2, F: 3, I: 1 },
+      num_mapping: { "1":4, "2":6, "3":6, "4":5, "5":5, "6":8, "7":9, "8":4, "9":9 },
+      market_demand: 65, market_salary: 52
+    },
+    {
+      name: "Nấu ăn dinh dưỡng gia đình & Mẹ-bé",
+      jobs: ["Đầu bếp dinh dưỡng gia đình / mẹ-bé", "Nấu ăn theo đặt hàng tại nhà", "Chef dinh dưỡng Freelance", "Dạy nấu ăn lành mạnh online", "Baby Food Specialist", "Meal Prep Service Provider", "Healthy Bento Box Creator"],
+      why: "tình yêu chăm sóc gia đình và ý thức dinh dưỡng lành mạnh cho người thân yêu",
+      holland_req: { S: 8, R: 6, C: 4 },
+      mbti_req: { S: 2, F: 3, J: 2 },
+      num_mapping: { "1":4, "2":7, "3":5, "4":6, "5":5, "6":9, "7":6, "8":5, "9":8 },
+      market_demand: 68, market_salary: 52
+    },
+    {
+      name: "Đầu bếp sáng tạo & Làm bánh nghệ thuật",
+      jobs: ["Đầu bếp sáng tạo / Pastry Chef Freelance", "Làm bánh nghệ thuật theo đơn đặt hàng", "Ẩm thực fusion & thực đơn đặc biệt", "Food Stylist / Food Blogger", "Cake Artist / Wedding Cake Designer", "Chocolate & Confectionery Artisan", "Fusion Street Food Entrepreneur"],
+      why: "đam mê sáng tạo không giới hạn trong việc biến nguyên liệu thành tác phẩm ẩm thực",
+      holland_req: { A: 8, R: 7, S: 4 },
+      mbti_req: { N: 2, F: 2, P: 2 },
+      num_mapping: { "1":5, "2":5, "3":9, "4":5, "5":8, "6":6, "7":6, "8":5, "9":6 },
+      market_demand: 70, market_salary: 58
+    },
+    {
+      name: "Ẩm thực đường phố & Kinh doanh F&B nhỏ",
+      jobs: ["Kinh doanh xe đẩy / quán ăn nhỏ", "Food Truck / Bán online home-cook", "Ẩm thực đường phố chuyên nghiệp", "Catering nhỏ cho sự kiện", "Chủ quán trà sữa / cà phê nhỏ", "Homemade Food Seller (Bán đồ ăn tự làm online)", "Pop-up Restaurant & Ghost Kitchen Operator"],
+      why: "tinh thần dám nghĩ dám làm và năng lực tạo dòng tiền linh hoạt từ tay nghề nấu ăn",
+      holland_req: { E: 8, R: 6, S: 5 },
+      mbti_req: { E: 2, S: 2, P: 2 },
+      num_mapping: { "1":8, "2":5, "3":6, "4":5, "5":9, "6":5, "7":4, "8":8, "9":5 },
+      market_demand: 70, market_salary: 58
+    },
+    {
+      name: "Quản lý quán & Vận hành F&B",
+      jobs: ["Quản lý nhà hàng / quán cà phê nhỏ", "F&B Manager entry", "Giám sát ca & đội ngũ nhân viên", "Chủ quán tự kinh doanh", "Barista chuyên nghiệp & Coffee Shop Manager", "Restaurant Operations Coordinator", "Beverage Director entry (Bar Manager)"],
+      why: "năng lực tổ chức vận hành và lãnh đạo đội ngũ trong môi trường F&B sôi động",
+      holland_req: { E: 8, C: 7, S: 5 },
+      mbti_req: { E: 2, T: 2, J: 3 },
+      num_mapping: { "1":7, "2":5, "3":5, "4":7, "5":6, "6":6, "7":4, "8":9, "9":5 },
+      market_demand: 75, market_salary: 65
+    },
+    {
+      name: "Hướng dẫn viên du lịch & Lữ hành",
+      jobs: ["Hướng dẫn viên du lịch nội địa / quốc tế", "Tour Guide Freelance (ngoại ngữ)", "Nhân viên đặt tour / lữ hành", "Travel Content Creator", "Local Experience Host (Airbnb Experiences)", "Adventure Tour Guide (leo núi / lặn biển)", "City Walking Tour Guide Freelance"],
+      why: "tình yêu khám phá và khả năng kể chuyện văn hóa - lịch sử thu hút du khách",
+      holland_req: { E: 7, S: 7, A: 5 },
+      mbti_req: { E: 2, P: 2, N: 1 },
+      num_mapping: { "1":6, "2":6, "3":7, "4":5, "5":9, "6":6, "7":6, "8":5, "9":7 },
+      market_demand: 72, market_salary: 60
+    },
+    {
+      name: "Lễ tân & Dịch vụ khách sạn chuyên nghiệp",
+      jobs: ["Nhân viên lễ tân khách sạn", "Concierge / Bellstaff entry", "Guest Relations Specialist", "Nhân viên đặt phòng / Reservation", "Nhân viên Housekeeping Supervisor entry", "Front Office Agent (quốc tế / 4-5 sao)", "Airport Lounge Attendant"],
+      why: "sự chuyên nghiệp phục vụ và tấm lòng nhiệt tình tạo trải nghiệm đáng nhớ cho khách",
+      holland_req: { S: 9, C: 6, E: 4 },
+      mbti_req: { E: 2, S: 2, F: 2 },
+      num_mapping: { "1":5, "2":7, "3":5, "4":6, "5":6, "6":9, "7":5, "8":6, "9":7 },
+      market_demand: 72, market_salary: 55
+    }
+  ]
+};
+
+// Bảng chủ đề số học (Pythagorean)
+const NUM_THEMES = {
+  1: "tiên phong & độc lập", 2: "hợp tác & hòa giải", 3: "sáng tạo & biểu đạt",
+  4: "kỷ luật & quy trình", 5: "tự do & trải nghiệm", 6: "chăm sóc & trách nhiệm",
+  7: "tâm linh & phân tích sâu", 8: "thành tựu & quản trị", 9: "phụng sự & lý tưởng"
+};
+
+// Nhãn Holland mô tả
+const HOLLAND_LABELS = {
+  R: "thiên hướng thực hành tay chân", I: "tư duy phân tích & nghiên cứu",
+  A: "năng lực sáng tạo nghệ thuật", S: "tinh thần phục vụ & kết nối con người",
+  E: "bản năng kinh doanh & lãnh đạo", C: "tư duy tổ chức & quy trình"
+};
+
+/**
+ * Cham diem 1 ngach theo 3 lop: Holland, MBTI, Nhan so hoc
+ */
+function scoreVocationalNiche(niche, hPct, mbtiCode, userNums) {
+  // Lop 1: Holland (60%) — dung holland_req (moi) hoac hw (cu fallback)
+  const hwMap = niche.holland_req || niche.hw || {};
+  const hwEntries = Object.entries(hwMap);
+  const totalHW = hwEntries.reduce((s, [, w]) => s + w, 0) || 1;
+  const hollandScore = hwEntries.reduce((s, [code, w]) => s + (hPct[code] || 0) * w, 0) / (totalHW * 100) * 100;
+
+  // Lop 2: MBTI (30%) — dung mbti_req (object) hoac mb (array cu fallback)
+  let mbtiScore = 50;
+  if (niche.mbti_req) {
+    const mbtiMap = niche.mbti_req;
+    const pairs = { I: 'E', E: 'I', S: 'N', N: 'S', T: 'F', F: 'T', J: 'P', P: 'J' };
+    let hits = 0, total = 0;
+    for (const [letter, weight] of Object.entries(mbtiMap)) {
+      total += weight;
+      if ((mbtiCode || '').includes(letter)) hits += weight;
+    }
+    mbtiScore = total > 0 ? (hits / total) * 100 : 50;
+  } else {
+    const mbLetters = niche.mb || [];
+    mbtiScore = mbLetters.length > 0
+      ? (mbLetters.filter(l => (mbtiCode || '').includes(l)).length / mbLetters.length) * 100
+      : 50;
+  }
+
+  // Lop 3: Nhan so hoc (10%) — dung num_mapping (object) hoac num (array cu fallback)
+  let numScore = 0;
+  if (niche.num_mapping) {
+    const scores = userNums.map(n => niche.num_mapping[String(n)] || 0);
+    numScore = scores.length > 0 ? Math.max(...scores) : 0;
+  } else {
+    numScore = (niche.num || []).some(n => (userNums || []).includes(n)) ? 100 : 0;
+  }
+
+  return hollandScore * 0.60 + mbtiScore * 0.30 + numScore * 0.10;
+}
+
+// Bảng định hướng phát triển theo ngách (dùng cho VOCATIONAL growthPath)
+const VOCATIONAL_GROWTH = {
+  "Lập trình viên / Web Developer tự học (bootcamp)": "Năm 1-2: Junior dev freelance → Năm 3-4: Mid-level developer / Fullstack → Năm 5+: Senior Engineer, Tech Lead hoặc tự mở công ty phần mềm.",
+  "Data Analyst / Phân tích dữ liệu": "Năm 1-2: Analyst thực thi (Excel/SQL) → Năm 3-4: BI Analyst / Data Scientist entry → Năm 5+: Data Lead, Analytics Manager hoặc tư vấn độc lập.",
+  "UI/UX Designer / Web Designer sáng tạo": "Năm 1-2: Designer Freelance → Năm 3-4: Senior Designer / Product Designer → Năm 5+: Design Lead, Creative Director hoặc Agency riêng.",
+  "IT Support & Kỹ thuật viên hệ thống": "Năm 1-2: Helpdesk / IT Support → Năm 3-4: System Admin / Network Engineer → Năm 5+: IT Manager, Infrastructure Lead.",
+  "IT Sales & Business Analyst": "Năm 1-2: Sales IT entry → Năm 3-4: Account Manager / BA chính → Năm 5+: Sales Manager, Product Manager hoặc tư vấn giải pháp.",
+  "Bán hàng B2B & Phát triển kinh doanh": "Năm 1-2: Sales Rep / BDR → Năm 3-4: Account Executive / Team Lead → Năm 5+: Sales Manager, GM hoặc khởi nghiệp kinh doanh.",
+  "Tư vấn bán hàng trải nghiệm (mỹ phẩm, thời trang, làm đẹp)": "Năm 1-2: Nhân viên tư vấn → Năm 3-4: Brand Advisor / Stylist cá nhân → Năm 5+: Quản lý cửa hàng, mở tiệm riêng hoặc KOL thương hiệu.",
+  "Content Creator & Social Media Manager": "Năm 1-2: Creator / Copywriter entry → Năm 3-4: Social Media Manager / Content Strategist → Năm 5+: Creative Director, xây kênh cá nhân triệu người theo dõi.",
+  "Bán hàng online & Performance Marketing": "Năm 1-2: Nhân viên TMĐT / Ads → Năm 3-4: Marketing Specialist / Campaign Lead → Năm 5+: Marketing Manager, Growth Hacker hoặc Digital Agency.",
+  "Chăm sóc khách hàng & Community Manager": "Năm 1-2: CSKH chuyên nghiệp → Năm 3-4: Team Lead / Community Manager → Năm 5+: Customer Success Manager, Head of Community.",
+  "Kinh doanh cộng đồng & Referral Marketing": "Năm 1-2: Affiliate / Đại lý → Năm 3-4: Sales Leader / Quản lý nhóm → Năm 5+: Regional Manager hoặc mở mạng lưới phân phối.",
+  "Kế toán & Hành chính tài chính": "Năm 1-2: Kế toán viên entry → Năm 3-4: Kế toán tổng hợp / Tài chính → Năm 5+: Kế toán trưởng, CFO hoặc mở văn phòng kế toán.",
+  "Tư vấn bảo hiểm & Tài chính cá nhân": "Năm 1-2: Tư vấn entry → Năm 3-4: Unit Manager / Financial Planner → Năm 5+: Agency Director, độc lập tư vấn tài chính cá nhân.",
+  "Sales tài chính & Đầu tư": "Năm 1-2: Sales / Môi giới entry → Năm 3-4: Senior Broker / Investment Advisor → Năm 5+: Portfolio Manager, Fund Manager.",
+  "Phân tích tài chính & Đầu tư định lượng": "Năm 1-2: Junior Analyst → Năm 3-4: Financial Analyst / Quant entry → Năm 5+: CFA, Senior Analyst, Investment Strategist.",
+  "Sửa chữa điện tử, điện thoại, laptop": "Năm 1-2: Technician thực hành → Năm 3-4: Chuyên gia sửa chữa cao cấp → Năm 5+: Mở chuỗi tiệm hoặc trung tâm bảo hành.",
+  "Lắp đặt điện, điện lạnh, năng lượng mặt trời": "Năm 1-2: Thợ lành nghề → Năm 3-4: Kỹ thuật viên chính / Giám sát lắp đặt → Năm 5+: Nhà thầu độc lập, chuyên gia tư vấn Solar.",
+  "Cơ khí & Gia công chế tạo": "Năm 1-2: Công nhân kỹ thuật → Năm 3-4: Thợ chính / Vận hành CNC → Năm 5+: Giám sát sản xuất, Kỹ thuật viên trưởng.",
+  "Kiểm soát chất lượng (QC) & Lab Technician": "Năm 1-2: QC Inspector → Năm 3-4: QC Senior / Lab Lead → Năm 5+: Quality Manager, Head of QA/QC.",
+  "Technical Sales & Tư vấn kỹ thuật": "Năm 1-2: Technical Sales entry → Năm 3-4: Senior Tech Advisor / KAM → Năm 5+: Sales Director, mở công ty tư vấn kỹ thuật.",
+  "Mở tiệm sửa chữa / Kinh doanh kỹ thuật": "Năm 1-2: Vừa thực hành vừa xây thương hiệu → Năm 3-4: Chuỗi dịch vụ nhỏ → Năm 5+: Nhượng quyền hoặc phát triển thương hiệu khu vực.",
+  "Content chữa lành, tâm lý & truyền cảm hứng": "Năm 1-2: Creator nội dung chiều sâu → Năm 3-4: Influencer / Tác giả có cộng đồng → Năm 5+: Xuất bản sách, mở trường online, Speaker.",
+  "Content giải trí & xu hướng mạng xã hội": "Năm 1-2: TikToker / Streamer entry → Năm 3-4: Creator có lượng follower ổn định → Năm 5+: KOL, MCN Agency, Brand Deal chuyên nghiệp.",
+  "Thiết kế đồ họa & Hình ảnh thương mại": "Năm 1-2: Graphic Designer Freelance → Năm 3-4: Senior Designer / Art Director entry → Năm 5+: Creative Director, mở Studio thiết kế.",
+  "Nhiếp ảnh & Video sản xuất thương mại": "Năm 1-2: Photographer / Editor Freelance → Năm 3-4: Director of Photography / Lead Editor → Năm 5+: Production House riêng.",
+  "MC sự kiện & Dẫn chương trình": "Năm 1-2: MC event nhỏ → Năm 3-4: MC chuyên nghiệp có thương hiệu → Năm 5+: Host truyền hình, đào tạo MC, mở Agency.",
+  "Content review sản phẩm & Kỹ thuật số": "Năm 1-2: Reviewer kênh nhỏ → Năm 3-4: Tech Creator có uy tín → Năm 5+: KOL công nghệ, tư vấn thương hiệu, Media Partner.",
+  "Gia sư & Giáo viên tư thục 1-1": "Năm 1-2: Gia sư freelance → Năm 3-4: Trợ giảng / Giáo viên trung tâm → Năm 5+: Mở trung tâm dạy kèm, giảng dạy online.",
+  "Trainer kỹ năng mềm & Facilitator workshop": "Năm 1-2: Co-trainer / Facilitator entry → Năm 3-4: Lead Trainer / chương trình riêng → Năm 5+: Training Manager, Speaker, mở Academy.",
+  "Online Educator & Content giáo dục số": "Năm 1-2: Creator kênh giáo dục → Năm 3-4: Giảng viên khóa học có học viên → Năm 5+: Founder EdTech, platform học tập cá nhân.",
+  "Giáo viên nghệ thuật & Năng khiếu": "Năm 1-2: Giáo viên tư thục → Năm 3-4: Trưởng bộ môn / Đào tạo chuyên sâu → Năm 5+: Mở trung tâm nghệ thuật, thương hiệu nghệ sĩ.",
+  "Tư vấn giáo dục & Hướng nghiệp": "Năm 1-2: Nhân viên tư vấn tuyển sinh → Năm 3-4: Senior Counselor / Career Coach → Năm 5+: Chuyên gia hướng nghiệp độc lập, Director.",
+  "Life Coach & Khai vấn phát triển bản thân": "Năm 1-2: Coach entry / Đồng hành nhỏ → Năm 3-4: Coach chuyên nghiệp có khách hàng ổn định → Năm 5+: Master Coach, Speaker, mở Academy khai vấn.",
+  "Tư vấn chữa lành & Hỗ trợ tâm lý cộng đồng": "Năm 1-2: Tình nguyện / Trợ lý tâm lý → Năm 3-4: Tư vấn viên có chuyên môn → Năm 5+: Nhà tâm lý học độc lập, mở trung tâm trị liệu.",
+  "Art Therapy & Trị liệu sáng tạo": "Năm 1-2: Facilitator workshop nghệ thuật → Năm 3-4: Art Therapist có chứng chỉ → Năm 5+: Nhà trị liệu độc lập, mở studio trị liệu sáng tạo.",
+  "Diễn giả động lực & Motivational Speaker": "Năm 1-2: Presenter tại event nhỏ → Năm 3-4: Speaker chuyên nghiệp có phí → Năm 5+: Keynote Speaker, tác giả sách, xây cộng đồng.",
+  "Điều dưỡng & Chăm sóc sức khỏe trực tiếp": "Năm 1-2: Điều dưỡng thực thi → Năm 3-4: Điều dưỡng chuyên khoa / Phụ trách khoa → Năm 5+: Điều dưỡng trưởng, Quản lý y tế.",
+  "Spa trị liệu & Chăm sóc da chuyên sâu": "Năm 1-2: Kỹ thuật viên thực hành → Năm 3-4: Chuyên gia da liễu / Trị liệu cao cấp → Năm 5+: Mở spa riêng, đào tạo chuyên môn.",
+  "Trang điểm nghệ thuật & Tạo mẫu tóc sáng tạo": "Năm 1-2: Artist Freelance → Năm 3-4: Beauty Expert có thương hiệu → Năm 5+: Makeup Academy, thương hiệu mỹ phẩm, KOL làm đẹp.",
+  "Nhân viên nhà thuốc & Kinh doanh dược phẩm": "Năm 1-2: Nhân viên nhà thuốc / MR → Năm 3-4: Dược sĩ tư vấn / Senior MR → Năm 5+: Quản lý hệ thống nhà thuốc, Nhượng quyền chuỗi dược.",
+  "Dinh dưỡng & Health Coaching": "Năm 1-2: Coach / Tư vấn entry → Năm 3-4: Health Expert với chứng chỉ → Năm 5+: Thương hiệu cá nhân wellness, xuất bản sách.",
+  "Quản lý tiệm làm đẹp / Mở cơ sở thẩm mỹ": "Năm 1-2: Quản lý ca / Quản lý cơ sở → Năm 3-4: Chủ tiệm thành công → Năm 5+: Chuỗi salon, nhượng quyền thương hiệu.",
+  "Copywriter & Biên tập nội dung chuyên nghiệp": "Năm 1-2: Copywriter Freelance → Năm 3-4: Content Strategist / Senior Editor → Năm 5+: Editorial Director, mở Content Agency.",
+  "Phóng viên & Nhà báo đa nền tảng": "Năm 1-2: Cộng tác viên / Blogger → Năm 3-4: Phóng viên chính / Chuyên mục → Năm 5+: Biên tập trưởng, nhà báo độc lập uy tín.",
+  "PR & Truyền thông thương hiệu": "Năm 1-2: Nhân viên PR / Event → Năm 3-4: PR Manager / Brand Strategist → Năm 5+: Communications Director, mở PR Agency.",
+  "Nhân viên xã hội & Hỗ trợ cộng đồng": "Năm 1-2: Nhân viên NGO / cộng đồng → Năm 3-4: Chuyên viên / Case Manager → Năm 5+: Social Program Director, tư vấn chính sách.",
+  "Trợ lý pháp lý & Paralegal": "Năm 1-2: Paralegal / Trợ lý luật → Năm 3-4: Legal Specialist / In-house paralegal → Năm 5+: Pháp chế doanh nghiệp cao cấp, chuẩn bị bằng luật.",
+  "Hành chính pháp lý & Công chứng": "Năm 1-2: Hành chính pháp lý → Năm 3-4: Trưởng phòng pháp lý / Công chứng viên → Năm 5+: Giám đốc pháp chế, văn phòng công chứng riêng.",
+  "Kinh doanh Bất động sản & Pháp lý": "Năm 1-2: Môi giới BĐS entry → Năm 3-4: Senior Broker / Team Lead → Năm 5+: Sales Director, Nhà đầu tư BĐS chuyên nghiệp.",
+  "Nấu ăn chay / Thực dưỡng & Ẩm thực chữa lành": "Năm 1-2: Đầu bếp Freelance / Workshop nhỏ → Năm 3-4: Chef thương hiệu / Content ẩm thực → Năm 5+: Nhà hàng thuần chay, Academy nấu ăn.",
+  "Nấu ăn dinh dưỡng gia đình & Mẹ-bé": "Năm 1-2: Nấu ăn theo đơn / Dạy online → Năm 3-4: Chef dinh dưỡng có thương hiệu → Năm 5+: Chuỗi dịch vụ catering, xuất bản sách nấu ăn.",
+  "Đầu bếp sáng tạo & Làm bánh nghệ thuật": "Năm 1-2: Freelance / Nhận đơn đặt hàng → Năm 3-4: Pastry Chef thương hiệu → Năm 5+: Tiệm bánh nghệ thuật, Giảng dạy làm bánh.",
+  "Ẩm thực đường phố & Kinh doanh F&B nhỏ": "Năm 1-2: Khởi nghiệp xe đẩy / quán nhỏ → Năm 3-4: Mở rộng, xây thương hiệu địa phương → Năm 5+: Nhượng quyền, chuỗi F&B.",
+  "Quản lý quán & Vận hành F&B": "Năm 1-2: Quản lý ca → Năm 3-4: F&B Manager / Vận hành đa điểm → Năm 5+: Operations Director, Chủ chuỗi quán.",
+  "Hướng dẫn viên du lịch & Lữ hành": "Năm 1-2: Tour Guide freelance → Năm 3-4: HDV quốc tế / Product Manager tour → Năm 5+: Chủ công ty lữ hành, Travel KOL.",
+  "Lễ tân & Dịch vụ khách sạn chuyên nghiệp": "Năm 1-2: Front Desk / Receptionist → Năm 3-4: Supervisor / Guest Relations Manager → Năm 5+: Front Office Manager, Hotel GM."
+};
+
+/**
+ * Lấy kết quả ngách nghề cá nhân hóa cho người đi làm trực tiếp (không qua ĐH)
+ * Trả về đủ 4 thông tin: nghề cụ thể, ngách nghề, lĩnh vực, định hướng phát triển.
+ * @param {string} industry
+ * @param {Object} hPct
+ * @param {string} mbtiCode
+ * @param {number} missionNum
+ * @param {number} soulNum
+ * @param {number} lifepathNum
+ * @returns {{ jobs: string, nicheTitle: string, industry: string, growthPath: string, explanation: string }}
+ */
+function getVocationalResult(industry, hPct, mbtiCode, missionNum, soulNum, lifepathNum) {
+  const niches = VOCATIONAL_NICHES[industry];
+  if (!niches || niches.length === 0) {
+    return {
+      jobs: "Nhân viên thực thi, Trợ lý bộ phận, Nhân viên kinh doanh / hành chính",
+      nicheTitle: "Nhân viên thực thi tổng hợp",
+      industry: industry || "Đa ngành",
+      growthPath: "Năm 1-2: Tích lũy kinh nghiệm thực tế → Năm 3-4: Chuyên sâu 1 lĩnh vực → Năm 5+: Thăng tiến lên vị trí quản lý hoặc tự kinh doanh.",
+      explanation: ""
+    };
+  }
+
+  const userNums = [missionNum, soulNum, lifepathNum].filter(n => n && n >= 1 && n <= 9);
+
+  // Chấm điểm và sắp xếp
+  const scored = niches.map(n => ({ n, s: scoreVocationalNiche(n, hPct, mbtiCode, userNums) }))
+    .sort((a, b) => b.s - a.s);
+
+  const best   = scored[0].n;
+  const runner = scored[1]?.n;
+
+  // Tạo câu giải thích cá nhân hóa
+  const sortedH = Object.entries(hPct || {}).sort((a, b) => b[1] - a[1]);
+  const h1 = HOLLAND_LABELS[sortedH[0]?.[0]] || '';
+  const h2 = sortedH[1] ? ` kết hợp ${HOLLAND_LABELS[sortedH[1][0]] || ''}` : '';
+  const numTheme = (best.num || []).find(n => userNums.includes(n));
+  const numStr   = numTheme ? `, cùng chủ đề số ${numTheme} (${NUM_THEMES[numTheme] || ''})` : '';
+  const explanation = `Với ${h1}${h2}${numStr} — ngách "${best.name}" là nơi bạn có thể bắt đầu và phát triển rất tự nhiên, vì ${best.why}.`;
+
+  // Jobs = best + top-2 jobs của runner
+  const allJobs = [...best.jobs, ...(runner ? runner.jobs.slice(0, 2) : [])];
+
+  return {
+    jobs:       allJobs.join(' • '),
+    nicheTitle: best.name,
+    industry:   industry,
+    why:        best.why || '',           // Lý do ngắn gọn từ data ngách
+    growthPath: VOCATIONAL_GROWTH[best.name] || "Năm 1-2: Tích lũy kinh nghiệm thực tế → Năm 3-4: Chuyên sâu kỹ năng cốt lõi → Năm 5+: Thăng tiến hoặc tự kinh doanh.",
+    explanation
+  };
+}
+
 /**
  * Trả về { profession, nicheStr } cá nhân hóa theo profile người dùng
  * @param {string} industry - Ngành của nghề
@@ -1911,9 +2627,42 @@ async function generateReportUI() {
             advice = "Tập trung phát triển kỹ năng nghề thực tế và rút ngắn thời gian đào tạo.";
             displayCombo = "Tuyển sinh Cao đẳng / Trung cấp (Xét học bạ)";
         } else if (profile.eduPath === 'VOCATIONAL') {
-            displaySubjects = "Tham gia các khóa đào tạo ngắn hạn (3-6 tháng) về kỹ năng cốt lõi của " + (c.industry || "lĩnh vực này") + ". Bắt đầu làm việc ngay để tích lũy kinh nghiệm thực tế, có thể tự do hoặc kinh doanh nhỏ.";
-            advice = "Chú trọng cọ xát thực tiễn, bắt đầu từ vị trí nhỏ để học hỏi.";
-            displayCombo = "Học nghề tự do (Không yêu cầu thi THPT)";
+            const vocResult = getVocationalResult(c.industry, hPct, mbtiCode, missionNum, soulNum, lifepathNum);
+            // Tên nghề tiếng Việt (phần trước '/')
+            const vocNameVN = vocResult.nicheTitle.includes('/')
+              ? vocResult.nicheTitle.split('/')[0].trim()
+              : vocResult.nicheTitle;
+            displaySubjects = [
+              `NGHỀ HỌC: ${vocResult.nicheTitle}`,
+              `Lĩnh vực: ${vocResult.industry}`,
+              `Hình thức học: Khoa học nghề ngắn hạn (3–6 tháng) · Học việc tại cơ sở · Thực hành tại công ty`,
+              `Vị trí việc làm sau khi học nghề: ${vocResult.jobs}`,
+              `Phù hợp vì: ${vocResult.why || vocResult.explanation || ''}`
+            ].filter(s => s && !s.endsWith(': ')).join('\n');
+            advice = `Học nghề ${vocNameVN} tại trung tâm dạy nghề hoặc học việc trực tiếp — ra nghề ngay sau 3–6 tháng, không cần bằng Đại học.`;
+            displayCombo = `Học nghề ${vocNameVN}`;
+            // Lưu lại để dùng trong pdfPayload
+            return {
+              // VOCATIONAL: hiển thị tên ngách nghề học nghề, KHÔNG hiển thị tên nghề ĐH
+              name: vocResult.nicheTitle,
+              niche: vocResult.nicheTitle,
+              industry: vocResult.industry,
+              study_major: '',
+              vocResult,   // lưu toàn bộ để dùng ở forEach
+              ICI: +ICI.toFixed(2),
+              S_identity: +S_identity.toFixed(1),
+              S_niche: +S_niche.toFixed(1),
+              S_market: +S_market.toFixed(1),
+              cutoff: mockCutoff,
+              bucket,
+              advice,
+              dreamBonus,
+              isDreamMatch,
+              displayCombo,
+              displaySubjects,
+              displaySubjectsHtml: displaySubjects.replace(/\n/g, '<br>'),
+              numerology_peak: c.numerology_peak || null
+            };
         }
 
         return {
@@ -1932,6 +2681,7 @@ async function generateReportUI() {
           isDreamMatch,
           displayCombo,
           displaySubjects,
+          displaySubjectsHtml: typeof displaySubjects === 'string' ? displaySubjects.replace(/\n/g, '<br>') : displaySubjects,
           numerology_peak: c.numerology_peak || null
         };
       })
@@ -2106,11 +2856,20 @@ async function generateReportUI() {
 
     top5.forEach((entry, idx) => {
       const i = idx + 1;
-      const profInfo = getProfessionDisplay(entry.industry, hPct, profile.thptScores, ikigaiStrength, mbtiCode);
-      window.pdfPayload[`TOP${i}_TITLE`] = profInfo.profession ? `${profInfo.profession}${profInfo.nicheStr}` : entry.niche;
-      window.pdfPayload[`TOP${i}_NICHE`] = entry.niche;
-      window.pdfPayload[`TOP${i}_REF`] = entry.industry || "Chưa phân loại";
-      window.pdfPayload[`TOP${i}_FIELD`] = entry.study_major || "Đa ngành";
+      if (profile.eduPath === 'VOCATIONAL' && entry.vocResult) {
+        // VOCATIONAL: dùng dữ liệu ngách nghề học nghề thực sự
+        const vr = entry.vocResult;
+        window.pdfPayload[`TOP${i}_TITLE`] = vr.nicheTitle;
+        window.pdfPayload[`TOP${i}_NICHE`] = vr.nicheTitle;
+        window.pdfPayload[`TOP${i}_REF`] = vr.industry;
+        window.pdfPayload[`TOP${i}_FIELD`] = `Học nghề / Ứng tuyển trực tiếp — ${vr.industry}`;
+      } else {
+        const profInfo = getProfessionDisplay(entry.industry, hPct, profile.thptScores, ikigaiStrength, mbtiCode);
+        window.pdfPayload[`TOP${i}_TITLE`] = profInfo.profession ? `${profInfo.profession}${profInfo.nicheStr}` : entry.niche;
+        window.pdfPayload[`TOP${i}_NICHE`] = entry.niche;
+        window.pdfPayload[`TOP${i}_REF`] = entry.industry || "Chưa phân loại";
+        window.pdfPayload[`TOP${i}_FIELD`] = entry.study_major || "Đa ngành";
+      }
       window.pdfPayload[`TOP${i}_ICI`] = entry.ICI;
       window.pdfPayload[`TOP${i}_ICI_DETAIL`] = `Id:${entry.S_identity} · Ni:${entry.S_niche} · Mk:${entry.S_market}`;
       window.pdfPayload[`TOP${i}_SUBJECTS`] = entry.displayCombo || "Theo trường";
@@ -2359,8 +3118,17 @@ async function generateReportUI() {
           `;
         } catch (err) {
           console.error(err);
-          btn.innerHTML = 'Có lỗi xảy ra. Thử lại sau.';
-          btn.disabled = false;
+          const qrArea2 = document.getElementById('qr-payment-area');
+          if (qrArea2) {
+            qrArea2.style.display = 'block';
+            qrArea2.innerHTML = `<div style="padding: 20px 0; text-align: center;">
+              <div style="font-size: 18px; color: #f59e0b; font-weight: bold; margin-bottom: 10px;">⏳ Hệ thống đang quá tải, vui lòng chờ trong giây lát</div>
+              <button onclick="location.reload()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:6px;font-weight:bold;cursor:pointer;margin-top:10px;">Thử lại</button>
+            </div>`;
+          } else {
+            btn.innerHTML = '⏳ Hệ thống đang quá tải, vui lòng chờ trong giây lát';
+            btn.disabled = false;
+          }
         }
         return; // Dừng luồng tại đây, không gọi PayOS
       }
@@ -2441,7 +3209,24 @@ async function generateReportUI() {
                     .then(resData => {
                       if (resData && resData.success === false) {
                         window.isGeneratingPDF = false;
-                        qrArea.innerHTML = `<div style="color: red; padding: 20px 0;"><b>Lỗi tạo PDF:</b> ${resData.error || 'Lỗi không xác định'}. Vui lòng liên hệ Admin.</div>`;
+                        console.error("Lỗi tạo PDF (chi tiết kỹ thuật):", resData.error);
+                        qrArea.innerHTML = `
+                          <div style="padding: 20px 0; text-align: center;">
+                            <div style="font-size: 32px; margin-bottom: 10px;">😔</div>
+                            <h3 style="color: #f59e0b; margin-bottom: 10px;">Hệ thống đang bận</h3>
+                            <p style="color: #475569; margin-bottom: 15px;">Báo cáo của bạn chưa tạo được do sự cố tạm thời. Đơn hàng của bạn <strong>vẫn được ghi nhận</strong>, đội ngũ NCN Academy sẽ xử lý và gửi báo cáo vào email của bạn trong thời gian sớm nhất.</p>
+                            <p style="color: #94a3b8; font-size: 13px;">Nếu cần hỗ trợ gấp, vui lòng liên hệ qua Zalo/Fanpage.</p>
+                          </div>
+                        `;
+                      } else if (resData && resData.aiGenerationFailed) {
+                        console.warn("⚠️ Đơn " + resData.orderCode + ": aiGenerationFailed, PDF chưa hoàn chỉnh, chưa gửi cho khách.");
+                        qrArea.innerHTML = `
+                          <div style="padding: 20px 0; text-align: center;">
+                            <div style="font-size: 32px; margin-bottom: 10px;">⏳</div>
+                            <h3 style="color: #3b82f6; margin-bottom: 10px;">Đang xử lý báo cáo của bạn</h3>
+                            <p style="color: #475569;">Hệ thống đang bận xử lý phân tích chuyên sâu. Báo cáo sẽ được gửi vào email của bạn trong ít phút. Cảm ơn bạn đã kiên nhẫn chờ đợi!</p>
+                          </div>
+                        `;
                       } else if (resData && resData.pdfBase64) {
                         if (qrUnsubscribe) qrUnsubscribe();
                         const byteCharacters = atob(resData.pdfBase64);
@@ -2464,7 +3249,10 @@ async function generateReportUI() {
                     .catch(err => {
                       console.error("Lỗi tạo PDF từ frontend:", err);
                       window.isGeneratingPDF = false;
-                      qrArea.innerHTML = `<div style="color: red; padding: 20px 0;"><b>Lỗi hệ thống:</b> Không thể tạo PDF (${err.message}). Vui lòng F5 thử lại hoặc liên hệ Admin.</div>`;
+                      qrArea.innerHTML = `<div style="padding: 20px 0; text-align: center;">
+                        <div style="font-size: 18px; color: #f59e0b; font-weight: bold; margin-bottom: 10px;">⏳ Hệ thống đang quá tải, vui lòng chờ trong giây lát</div>
+                        <button onclick="window.isGeneratingPDF=false; location.reload();" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:6px;font-weight:bold;cursor:pointer;margin-top:10px;">Thử lại</button>
+                      </div>`;
                     });
                 }
               }
