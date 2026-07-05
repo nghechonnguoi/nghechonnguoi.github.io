@@ -1551,6 +1551,89 @@ const VOCATIONAL_NICHES = {
       market_demand: 72, market_salary: 55
     }
   ]
+
+,
+
+  "Quản trị Nhân sự": [
+    {
+      name: "Tuyển dụng & Nhân sự thực thi",
+      jobs: ["Nhân viên tuyển dụng entry", "Headhunter Freelance", "HR Recruiter", "Talent Acquisition Coordinator"],
+      hw: { S: 2, E: 1 }, mb: ["E","F","N"], num: [9,3],
+      why: "khả năng kết nối con người và nhạy cảm trong đánh giá tiềm năng ứng viên"
+    },
+    {
+      name: "Hành chính nhân sự & C&B",
+      jobs: ["Nhân viên hành chính nhân sự", "HR Admin Assistant", "Nhân viên C&B (tính lương thưởng)", "Nhân viên quản lý hồ sơ nhân sự"],
+      hw: { C: 2, S: 1 }, mb: ["S","J","F"], num: [4,6],
+      why: "tư duy tổ chức kỷ luật và tấm lòng phục vụ đội ngũ chu đáo"
+    },
+    {
+      name: "Đào tạo nội bộ & Phát triển nhân viên",
+      jobs: ["Nhân viên đào tạo nội bộ", "L&D Coordinator entry", "Trainer kỹ năng nghề", "Facilitator onboarding nhân viên mới"],
+      hw: { E: 2, S: 1 }, mb: ["E","F","N"], num: [9,3],
+      why: "nhiệt huyết phát triển con người và khả năng thiết kế trải nghiệm học tập hiệu quả"
+    },
+    {
+      name: "Employer Branding & Truyền thông nội bộ",
+      jobs: ["Employer Branding Specialist entry", "Nhân viên truyền thông nội bộ", "HR Marketing Coordinator", "Culture & Engagement Specialist entry"],
+      hw: { S: 1, A: 2 }, mb: ["E","F","P"], num: [9,6],
+      why: "tình yêu với con người và năng lực xây dựng môi trường làm việc tích cực, gắn kết"
+    }
+  ],
+
+  "Môi trường & Năng lượng Xanh": [
+    {
+      name: "Kỹ thuật viên lắp đặt điện mặt trời & Năng lượng tái tạo",
+      jobs: ["Solar Technician / Thợ lắp đặt điện mặt trời", "Kỹ thuật viên hệ thống năng lượng tái tạo", "Bảo trì hệ thống điện mặt trời", "Field Technician năng lượng xanh"],
+      hw: { R: 2, I: 1 }, mb: ["S","T","J"], num: [4,5],
+      why: "kỹ năng thực hành tay chân và ý thức bảo vệ môi trường trong từng công trình xanh"
+    },
+    {
+      name: "Kinh doanh giải pháp xanh & Tư vấn ESG",
+      jobs: ["Sales sản phẩm năng lượng tái tạo", "Tư vấn giải pháp tiết kiệm năng lượng cho doanh nghiệp", "Nhân viên kinh doanh thiết bị xanh", "ESG Coordinator entry"],
+      hw: { E: 2, S: 1 }, mb: ["E","N","F"], num: [9,1],
+      why: "kết hợp đam mê phát triển bền vững với kỹ năng thuyết phục và xây dựng mối quan hệ"
+    },
+    {
+      name: "Truyền thông môi trường & Cộng đồng xanh",
+      jobs: ["Nhân viên truyền thông môi trường", "Community Manager dự án xanh", "Điều phối viên chương trình tái chế cộng đồng", "Sustainability Content Creator"],
+      hw: { S: 2, A: 1 }, mb: ["E","F","N"], num: [9,3],
+      why: "nhiệt huyết phụng sự và khả năng lan tỏa ý thức bảo vệ môi trường đến cộng đồng"
+    },
+    {
+      name: "Vận hành dự án môi trường & Giám sát thực địa",
+      jobs: ["Nhân viên vận hành dự án môi trường", "Coordinator dự án CSR xanh", "Giám sát hiện trường thu gom & xử lý chất thải", "Environmental Project Assistant"],
+      hw: { C: 2, E: 1 }, mb: ["S","T","J"], num: [4,8],
+      why: "khả năng tổ chức và thực thi hiệu quả trong các dự án có tác động môi trường rõ ràng"
+    }
+  ],
+
+  "Tâm lý học Ứng dụng": [
+    {
+      name: "Life Coach & Khai vấn phát triển bản thân",
+      jobs: ["Life Coach Freelance", "Personal Development Coach", "Mindset & Habit Coach entry", "Facilitator workshop khai vấn bản thân"],
+      hw: { E: 1, S: 1, A: 1 }, mb: ["E","N","F"], num: [9,3],
+      why: "năng lượng truyền cảm hứng mạnh mẽ và khát vọng đồng hành giúp người khác thay đổi"
+    },
+    {
+      name: "Tư vấn chữa lành & Hỗ trợ tâm lý cộng đồng",
+      jobs: ["Tư vấn viên cộng đồng / Trợ lý tâm lý", "Peer Counselor / Mentor hỗ trợ 1-1", "Nhân viên hỗ trợ tâm lý học đường", "Social Support Worker entry"],
+      hw: { S: 2, I: 1 }, mb: ["I","N","F"], num: [7,9],
+      why: "sự đồng cảm sâu sắc và khả năng tạo không gian an toàn cho người đang cần hỗ trợ"
+    },
+    {
+      name: "Diễn giả động lực & Trainer truyền cảm hứng",
+      jobs: ["Motivational Speaker / Diễn giả entry", "Trainer truyền cảm hứng hành động", "Host sự kiện phát triển bản thân", "Podcaster chủ đề tâm lý & sống ý nghĩa"],
+      hw: { E: 2, A: 1 }, mb: ["E","N","F"], num: [1,9],
+      why: "sức mạnh ngôn từ và năng lực truyền lửa hành động cho đám đông"
+    },
+    {
+      name: "Art Therapy & Trị liệu sáng tạo",
+      jobs: ["Art Therapist hỗ trợ cộng đồng", "Expressive Arts Facilitator", "Nhà trị liệu qua hoạt động sáng tạo", "Workshop Healing Arts Host"],
+      hw: { A: 2, S: 1 }, mb: ["F","N","I"], num: [7,3],
+      why: "dùng nghệ thuật như cây cầu để chữa lành và kết nối lại với nội tâm sâu nhất"
+    }
+  ]
 };
 
 // Bảng chủ đề số học (Pythagorean)
