@@ -63,7 +63,17 @@ auth.onAuthStateChanged((user) => {
     // ✅ Tự động khôi phục kết quả nếu đã làm bài test trước đó (F5 không mất dữ liệu)
     const savedAnswers = localStorage.getItem("user_quiz_answers");
     const savedProfile = localStorage.getItem("active_student_profile");
-    if (savedAnswers && savedProfile) {
+    const savedQuizDate = localStorage.getItem("user_quiz_date");
+    // 🔄 NGÀY RESET: Xóa kết quả cũ trước 05/07/2026 để bắt buộc làm lại bài
+    const RESET_TIMESTAMP = new Date('2026-07-05T00:00:00.000Z').getTime();
+    const quizSavedAt = savedQuizDate ? parseInt(savedQuizDate) : 0;
+    if (savedAnswers && savedProfile && quizSavedAt < RESET_TIMESTAMP) {
+      // Xóa dữ liệu cũ — bắt buộc làm lại bài
+      localStorage.removeItem("user_quiz_answers");
+      localStorage.removeItem("active_student_profile");
+      localStorage.removeItem("user_quiz_date");
+      console.log("🔄 Đã xóa kết quả cũ — yêu cầu làm lại bài test mới.");
+    } else if (savedAnswers && savedProfile && quizSavedAt >= RESET_TIMESTAMP) {
       const profileContainer = document.getElementById("profile-container");
       const quizContainer = document.getElementById("quiz-container");
       if (profileContainer) profileContainer.classList.add("hidden");
@@ -389,6 +399,7 @@ function handleSelectOption(qId, value) {
 function finishQuiz() {
   document.getElementById("progress-fill").style.width = "100%";
   localStorage.setItem("user_quiz_answers", JSON.stringify(userAnswers));
+  localStorage.setItem("user_quiz_date", Date.now().toString()); // Lưu timestamp để kiểm tra reset
   console.log("=== HOÀN THÀNH KHẢO SÁT ===", userAnswers);
 
   document.getElementById("question-content").innerText =
