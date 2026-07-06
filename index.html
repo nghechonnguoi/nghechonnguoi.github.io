@@ -198,6 +198,29 @@
           VÀNG ĐƯỢC GỢI Ý</h3>
         <div id="career-recommendations-space">
         </div>
+        <!-- Nút Làm lại bài test -->
+        <div style="text-align:center; margin-top: 32px; padding-bottom: 40px;">
+          <button onclick="
+            localStorage.removeItem('user_quiz_answers');
+            localStorage.removeItem('active_student_profile');
+            localStorage.removeItem('user_quiz_date');
+            location.reload();
+          " style="
+            background: linear-gradient(135deg, #7c3aed, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 32px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(124,58,237,0.4);
+            transition: all 0.2s ease;
+          " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(124,58,237,0.5)'"
+             onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(124,58,237,0.4)'"
+          >🔄 Làm lại bài test</button>
+          <p style="color:#94a3b8; font-size:12px; margin-top:10px;">Kết quả hiện tại sẽ bị xóa và bạn sẽ được làm lại từ đầu.</p>
+        </div>
       </div>
     </div>
   </div>
