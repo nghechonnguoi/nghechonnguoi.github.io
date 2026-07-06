@@ -2071,10 +2071,38 @@ async function generateReportUI() {
           <span>Tổ hợp môn cần chuẩn bị: <strong>${entry.displayCombo}</strong></span>
           <span>Xu hướng thị trường: <strong>${entry.S_market >= 70 ? 'Cao ⚡' : 'Ổn định'}</strong></span>`;
         footerNote = `
-          <div style="margin-top:8px;padding:10px 14px;background:#ebf8ff;border-radius:8px;
-            font-size:13px;color:#2b6cb0;line-height:1.65;">
-            📖 <strong>Khối kiến thức & kỹ năng nền tảng THPT cần xây dựng sớm:</strong><br>
-            ${entry.displaySubjects}
+          <div style="margin-top:10px;">
+            <div style="font-size:12px;font-weight:800;color:#1e3a8a;
+              background:linear-gradient(90deg,#eff6ff,#f0fdf4);
+              border-left:4px solid #10b981;border-radius:6px 6px 0 0;
+              padding:7px 12px;"
+            >🎯 Mốn theo nghề này, hãy bắt đầu từ đây</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;
+              padding:7px;background:#f8fafc;border:1px solid #e2e8f0;
+              border-top:none;border-radius:0 0 6px 6px;">
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:7px 8px;">
+                <div style="font-size:11px;font-weight:800;color:#1e3a8a;border-bottom:1.5px solid #dbeafe;padding-bottom:4px;margin-bottom:5px;">📚 Kiến thức nền tảng</div>
+                <div style="font-size:11px;color:#334155;line-height:1.65;">${entry.kienthuc || entry.displaySubjects}</div>
+              </div>
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:7px 8px;">
+                <div style="font-size:11px;font-weight:800;color:#1e3a8a;border-bottom:1.5px solid #dbeafe;padding-bottom:4px;margin-bottom:5px;">🛠 Kỹ năng cần rèn</div>
+                <div style="font-size:11px;color:#334155;line-height:1.65;">${entry.kynang || entry.displaySubjects}</div>
+              </div>
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:7px 8px;">
+                <div style="font-size:11px;font-weight:800;color:#1e3a8a;border-bottom:1.5px solid #dbeafe;padding-bottom:4px;margin-bottom:5px;">🎓 Lộ trình học</div>
+                <div style="font-size:11px;color:#334155;line-height:1.65;">${entry.lotrinh || entry.trainingTime || 'Nghề ngắn hạn • Cao đẳng • Đại học'}</div>
+              </div>
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:7px 8px;">
+                <div style="font-size:11px;font-weight:800;color:#1e3a8a;border-bottom:1.5px solid #dbeafe;padding-bottom:4px;margin-bottom:5px;">💼 Cơ hội việc làm</div>
+                <div style="font-size:11px;color:#334155;line-height:1.65;">${entry.vieclem || entry.name}</div>
+              </div>
+              <div style="background:linear-gradient(90deg,#f0fdf4,#eff6ff);border:1.5px solid #bbf7d0;
+                border-radius:6px;padding:8px 12px;grid-column:1/-1;
+                display:flex;align-items:flex-start;gap:8px;">
+                <span style="font-size:11px;font-weight:800;color:#065f46;flex-shrink:0;">⭐ Lời khuyên NCN:</span>
+                <span style="font-size:11px;color:#1e3a8a;line-height:1.65;font-style:italic;font-weight:500;">${entry.advice}</span>
+              </div>
+            </div>
           </div>`;
       } else {
         // ── CHẾ ĐỘ ĐẠI HỌC ──────────────────────────────────────────────
@@ -2085,10 +2113,38 @@ async function generateReportUI() {
           <span>Điểm xét tuyển của bạn: <strong>${finalUserScore.toFixed(2)}</strong></span>
           <span>Tổ hợp môn gợi ý: <strong>${entry.displayCombo}</strong></span>`;
         footerNote = `
-          <div style="margin-top:8px;padding:10px 14px;background:#f0fff4;border-radius:8px;
-            font-size:13px;color:#276749;line-height:1.65;">
-            📖 <strong>Kiến thức & kỹ năng trọng tâm:</strong><br>
-            ${entry.displaySubjects}
+          <div style="margin-top:10px;">
+            <div style="font-size:12px;font-weight:800;color:#1e3a8a;
+              background:linear-gradient(90deg,#eff6ff,#f0fdf4);
+              border-left:4px solid #10b981;border-radius:6px 6px 0 0;
+              padding:7px 12px;"
+            >🎯 Mốn theo nghề này, hãy bắt đầu từ đây</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;
+              padding:7px;background:#f8fafc;border:1px solid #e2e8f0;
+              border-top:none;border-radius:0 0 6px 6px;">
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:7px 8px;">
+                <div style="font-size:11px;font-weight:800;color:#1e3a8a;border-bottom:1.5px solid #dbeafe;padding-bottom:4px;margin-bottom:5px;">📚 Kiến thức nền tảng</div>
+                <div style="font-size:11px;color:#334155;line-height:1.65;">${entry.kienthuc || entry.displaySubjects}</div>
+              </div>
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:7px 8px;">
+                <div style="font-size:11px;font-weight:800;color:#1e3a8a;border-bottom:1.5px solid #dbeafe;padding-bottom:4px;margin-bottom:5px;">🛠 Kỹ năng cần rèn</div>
+                <div style="font-size:11px;color:#334155;line-height:1.65;">${entry.kynang || entry.displaySubjects}</div>
+              </div>
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:7px 8px;">
+                <div style="font-size:11px;font-weight:800;color:#1e3a8a;border-bottom:1.5px solid #dbeafe;padding-bottom:4px;margin-bottom:5px;">🎓 Lộ trình học</div>
+                <div style="font-size:11px;color:#334155;line-height:1.65;">${entry.lotrinh || entry.trainingTime || 'Nghề ngắn hạn • Cao đẳng • Đại học'}</div>
+              </div>
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:7px 8px;">
+                <div style="font-size:11px;font-weight:800;color:#1e3a8a;border-bottom:1.5px solid #dbeafe;padding-bottom:4px;margin-bottom:5px;">💼 Cơ hội việc làm</div>
+                <div style="font-size:11px;color:#334155;line-height:1.65;">${entry.vieclem || entry.name}</div>
+              </div>
+              <div style="background:linear-gradient(90deg,#f0fdf4,#eff6ff);border:1.5px solid #bbf7d0;
+                border-radius:6px;padding:8px 12px;grid-column:1/-1;
+                display:flex;align-items:flex-start;gap:8px;">
+                <span style="font-size:11px;font-weight:800;color:#065f46;flex-shrink:0;">⭐ Lời khuyên NCN:</span>
+                <span style="font-size:11px;color:#1e3a8a;line-height:1.65;font-style:italic;font-weight:500;">${entry.advice}</span>
+              </div>
+            </div>
           </div>`;
       }
 
@@ -2102,7 +2158,7 @@ async function generateReportUI() {
         ${studyMajorTag}
         <div class="career-details">${detailsHTML}</div>
         ${footerNote}
-        <div class="career-advice">⚡ Lời khuyên chiến thuật: ${entry.advice}</div>`;
+        `;
 
       space.appendChild(card);
     });
