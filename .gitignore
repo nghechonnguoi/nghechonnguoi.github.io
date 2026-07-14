@@ -11,3 +11,4 @@ desktop.ini
 
 # Bỏ qua Node modules nếu có sau này
 node_modules/
+.vercel
