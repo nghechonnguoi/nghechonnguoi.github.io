@@ -16,7 +16,7 @@
   const BANK_BIN   = '970422';
   const BANK_ACCT  = '768688678';
   const BANK_OWNER = 'HO KINH DOANH NGHE CHON NGUOI';
-  const API_BASE = 'https://nghechonnguoi.com/api';
+  const API_BASE = 'https://www.nghechonnguoi.com/api';
   const COUNTDOWN_KEY = 'ncn_result_countdown';
   let countdownInterval = null;
 
@@ -128,7 +128,7 @@
 .ncn-section{padding:52px 20px;}
 .ncn-cont{max-width:640px;margin:0 auto;}
 .ncn-badge{display:inline-block;padding:4px 14px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
-.ncn-h2{font-size:clamp(20px,4vw,28px);font-weight:900;margin:0 0 24px;}
+.ncn-h2{font-size:clamp(24px,5vw,34px);font-weight:900;margin:0 0 24px;letter-spacing:-0.5px;}
 .ncn-career{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;border:1px solid #e2e8f0;background:#fff;margin-bottom:10px;}
 .ncn-star{display:inline-block;width:32px;height:32px;border-radius:10px;font-size:13px;font-weight:900;color:#fff;text-align:center;line-height:32px;flex-shrink:0;}
 .ncn-cta-btn{display:block;width:100%;padding:22px 16px;border:none;border-radius:18px;background:linear-gradient(135deg,#E8A838,#f0c060);color:#1B2A4A;font-size:16px;font-weight:900;cursor:pointer;text-align:center;transition:all .2s;box-shadow:0 8px 32px rgba(232,168,56,0.35);}
@@ -146,7 +146,7 @@
   </div>
   <div class="ncn-cont" style="text-align:center;padding-top:36px;">
     <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.5);margin:0 0 8px;">KẾT QUẢ CỦA BẠN</p>
-    <h1 style="font-size:clamp(22px,4vw,30px);font-weight:900;color:#fff;margin:0 0 28px;">Xin chào, <span style="color:#E8A838;">${firstName}</span>!</h1>
+    <h1 style="font-size:clamp(26px,5vw,36px);font-weight:900;color:#fff;margin:0 0 28px;">Xin chào, <span style="color:#E8A838;">${firstName}</span>!</h1>
     ${svgRing(score)}
     <p style="font-size:15px;font-weight:700;color:#fff;margin:0 0 6px;">Chỉ số phù hợp nghề nghiệp</p>
     <p style="font-size:12px;color:rgba(255,255,255,0.5);max-width:300px;margin:0 auto 20px;">Con số này cho biết câu trả lời của bạn rõ ràng đến đâu trong việc chỉ ra nhóm nghề phù hợp.</p>
