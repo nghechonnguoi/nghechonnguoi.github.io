@@ -1046,7 +1046,16 @@ async function generateReportUI() {
       D: 4, M: 4, V: 4, E: 5, N: 5, W: 5, F: 6, O: 6, X: 6,
       G: 7, P: 7, Y: 7, H: 8, Q: 8, Z: 8, I: 9, R: 9
     };
-    const VOWELS = new Set(['A', 'E', 'I', 'O', 'U', 'Y']);
+    const VOWELS = new Set(['A', 'E', 'I', 'O', 'U']); // Y duoc tinh rieng
+
+    const isYVowel = (word, index) => {
+      const prev = index > 0 ? word[index - 1] : null;
+      const next = index < word.length - 1 ? word[index + 1] : null;
+      const prevIsVowel = prev !== null && VOWELS.has(prev);
+      const nextIsVowel = next !== null && VOWELS.has(next);
+      if (prevIsVowel && nextIsVowel) return false;
+      return true;
+    };
 
     // Chuẩn hóa tên tiếng Việt → ký tự Latin hoa
     const toLatinUpper = (text) => {
@@ -1086,12 +1095,18 @@ async function generateReportUI() {
     let soulRaw = 0, missionRaw = 0, letterFreq = {};
 
     latinName.split(' ').forEach(word => {
-      for (const ch of word) {
+      for (let i = 0; i < word.length; i++) {
+        const ch = word[i];
         const v = LETTER_MAP[ch];
         if (!v) continue;
         missionRaw += v;
         letterFreq[v] = (letterFreq[v] || 0) + 1;
-        if (VOWELS.has(ch)) soulRaw += v;
+        
+        if (VOWELS.has(ch)) {
+          soulRaw += v;
+        } else if (ch === 'Y') {
+          if (isYVowel(word, i)) soulRaw += v;
+        }
       }
     });
 

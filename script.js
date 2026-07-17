@@ -1913,7 +1913,16 @@ async function generateReportUI() {
       D: 4, M: 4, V: 4, E: 5, N: 5, W: 5, F: 6, O: 6, X: 6,
       G: 7, P: 7, Y: 7, H: 8, Q: 8, Z: 8, I: 9, R: 9
     };
-    const VOWELS = new Set(['A', 'E', 'I', 'O', 'U', 'Y']);
+    const VOWELS = new Set(['A', 'E', 'I', 'O', 'U']); // Y được tính riêng
+
+    const isYVowel = (word, index) => {
+      const prev = index > 0 ? word[index - 1] : null;
+      const next = index < word.length - 1 ? word[index + 1] : null;
+      const prevIsVowel = prev !== null && VOWELS.has(prev);
+      const nextIsVowel = next !== null && VOWELS.has(next);
+      if (prevIsVowel && nextIsVowel) return false;
+      return true;
+    };
 
     // Chuẩn hóa tên tiếng Việt → ký tự Latin hoa
     const toLatinUpper = (text) => {
@@ -1953,12 +1962,18 @@ async function generateReportUI() {
     let soulRaw = 0, missionRaw = 0, letterFreq = {};
 
     latinName.split(' ').forEach(word => {
-      for (const ch of word) {
+      for (let i = 0; i < word.length; i++) {
+        const ch = word[i];
         const v = LETTER_MAP[ch];
         if (!v) continue;
         missionRaw += v;
         letterFreq[v] = (letterFreq[v] || 0) + 1;
-        if (VOWELS.has(ch)) soulRaw += v;
+        
+        if (VOWELS.has(ch)) {
+          soulRaw += v;
+        } else if (ch === 'Y') {
+          if (isYVowel(word, i)) soulRaw += v;
+        }
       }
     });
 
@@ -3260,129 +3275,194 @@ async function generateReportUI() {
           </div>
         `;
 
-        // 4. Lắng nghe Realtime Firestore để tự động tải PDF khi Backend đã tạo xong
-        qrUnsubscribe = db.collection('orders').doc(orderCodeNum.toString())
-          .onSnapshot(async (doc) => {
-            if (doc.exists) {
-              const data = doc.data();
-              if (data.status === 'PAID' && !data.pdfBase64 && !data.pdfUrl) {
-                qrArea.innerHTML = `
-                  <div style="padding: 20px 0;">
-                    <h3 style="color: #10b981; margin-bottom: 15px;">🎉 Đã nhận thanh toán! Đang tạo Báo cáo & Gửi Email...</h3>
-                    <div class="spinner" style="margin: 0 auto; width:30px;height:30px;border:3px solid #10b981;border-top-color:transparent;border-radius:50%;display:block;animation:spin 1s linear infinite;"></div>
-                    <p style="color: #ef4444; margin-top: 15px; font-weight: bold;">Vui lòng KHÔNG đóng trang này trong khi tạo báo cáo (khoảng 30 giây)!</p>
-                  </div>
-                `;
+        // ── Hàm render UI tiến trình 3 bước: Thanh toán → Đang xuất → Lưu về máy ──
+        function renderProgressUI(step, downloadUrl) {
+          var area = document.getElementById('qr-payment-area');
+          if (!area) return;
+          var done1 = step >= 1, done2 = step >= 3, done3 = step >= 3;
+          var active2 = step === 2;
+          var line1Color = step >= 2 ? '#10b981' : '#e2e8f0';
+          var line2Color = step >= 3 ? '#10b981' : '#e2e8f0';
 
-                // Frontend triggers PDF generation to avoid Vercel webhook timeout limits
-                if (!window.isGeneratingPDF) {
-                  window.isGeneratingPDF = true;
-                  fetch('https://ncn-academy-web.vercel.app/api/generate-pdf', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...window.pdfPayload, orderCode: orderCodeNum.toString() })
-                  })
-                    .then(async res => {
-                      if (!res.ok) {
-                        const text = await res.text();
-                        throw new Error(`Server returned ${res.status}: ${text}`);
-                      }
-                      return res.json();
-                    })
-                    .then(resData => {
-                      if (resData && resData.success === false) {
-                        window.isGeneratingPDF = false;
-                        console.error("Lỗi tạo PDF (chi tiết kỹ thuật):", resData.error);
-                        qrArea.innerHTML = `
-                          <div style="padding: 20px 0; text-align: center;">
-                            <div style="font-size: 32px; margin-bottom: 10px;">😔</div>
-                            <h3 style="color: #f59e0b; margin-bottom: 10px;">Hệ thống đang bận</h3>
-                            <p style="color: #475569; margin-bottom: 15px;">Báo cáo của bạn chưa tạo được do sự cố tạm thời. Đơn hàng của bạn <strong>vẫn được ghi nhận</strong>, đội ngũ NCN Academy sẽ xử lý và gửi báo cáo vào email của bạn trong thời gian sớm nhất.</p>
-                            <p style="color: #94a3b8; font-size: 13px;">Nếu cần hỗ trợ gấp, vui lòng liên hệ qua Zalo/Fanpage.</p>
-                          </div>
-                        `;
-                      } else if (resData && resData.aiGenerationFailed) {
-                        console.warn("⚠️ Đơn " + resData.orderCode + ": aiGenerationFailed, PDF chưa hoàn chỉnh, chưa gửi cho khách.");
-                        qrArea.innerHTML = `
-                          <div style="padding: 20px 0; text-align: center;">
-                            <div style="font-size: 32px; margin-bottom: 10px;">⏳</div>
-                            <h3 style="color: #3b82f6; margin-bottom: 10px;">Đang xử lý báo cáo của bạn</h3>
-                            <p style="color: #475569;">Hệ thống đang bận xử lý phân tích chuyên sâu. Báo cáo sẽ được gửi vào email của bạn trong ít phút. Cảm ơn bạn đã kiên nhẫn chờ đợi!</p>
-                          </div>
-                        `;
-                      } else if (resData && resData.pdfBase64) {
-                        if (qrUnsubscribe) qrUnsubscribe();
-                        const byteCharacters = atob(resData.pdfBase64);
-                        const byteNumbers = new Array(byteCharacters.length);
-                        for (let i = 0; i < byteCharacters.length; i++) {
-                          byteNumbers[i] = byteCharacters.charCodeAt(i);
-                        }
-                        const byteArray = new Uint8Array(byteNumbers);
-                        const blob = new Blob([byteArray], { type: 'application/pdf' });
-                        const url = window.URL.createObjectURL(blob);
-                        qrArea.innerHTML = `
-                          <div style="padding: 20px 0;">
-                            <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tạo Báo cáo thành công!</h3>
-                            <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo PDF đã sẵn sàng. Vui lòng bấm nút dưới đây để tải về:</p>
-                            <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai.pdf" target="_blank" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
-                          </div>
-                        `;
-                      }
-                    })
-                    .catch(err => {
-                      console.error("Lỗi tạo PDF từ frontend:", err);
-                      window.isGeneratingPDF = false;
-                      qrArea.innerHTML = `<div style="padding: 20px 0; text-align: center;">
-                        <div style="font-size: 18px; color: #f59e0b; font-weight: bold; margin-bottom: 10px;">⏳ Hệ thống đang quá tải, vui lòng chờ trong giây lát</div>
-                        <button onclick="window.isGeneratingPDF=false; location.reload();" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:6px;font-weight:bold;cursor:pointer;margin-top:10px;">Thử lại</button>
-                      </div>`;
-                    });
-                }
-              }
+          function circleStyle(active, done) {
+            if (done) return 'background:#10b981;color:white;border:2px solid #10b981;';
+            if (active) return 'background:#3b82f6;color:white;border:2px solid #3b82f6;';
+            return 'background:#f1f5f9;color:#94a3b8;border:2px solid #e2e8f0;';
+          }
+          function labelStyle(active, done) {
+            if (done) return 'color:#10b981;font-weight:700;';
+            if (active) return 'color:#1e293b;font-weight:700;';
+            return 'color:#94a3b8;font-weight:500;';
+          }
 
-              if (data.status === 'PAID' && data.pdfDone) {
-                if (qrUnsubscribe) qrUnsubscribe(); // Dừng lắng nghe
+          var spinnerHtml = '<span style="display:inline-block;width:18px;height:18px;border:2px solid white;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;"></span>';
 
-                if (data.pdfBase64 || data.pdfUrl) {
-                  try {
-                    let url = data.pdfUrl;
+          var step1Icon = done1 ? '✓' : '💳';
+          var step2Icon = done2 ? '✓' : (active2 ? spinnerHtml : '📄');
+          var step3Icon = done3 ? '✓' : '⬇️';
 
-                    if (!url && data.pdfBase64) {
-                      // Chuyển Base64 thành Blob
-                      const byteCharacters = atob(data.pdfBase64);
-                      const byteNumbers = new Array(byteCharacters.length);
-                      for (let i = 0; i < byteCharacters.length; i++) {
-                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                      }
-                      const byteArray = new Uint8Array(byteNumbers);
-                      const blob = new Blob([byteArray], { type: 'application/pdf' });
+          var msgHtml = '';
+          if (step === 1) {
+            msgHtml = '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 16px;text-align:center;margin-top:4px;">' +
+              '<div style="font-size:20px;margin-bottom:6px;">🎉</div>' +
+              '<div style="color:#15803d;font-weight:700;font-size:15px;margin-bottom:4px;">Đã nhận thanh toán!</div>' +
+              '<div style="color:#475569;font-size:13px;">Hệ thống đang chuẩn bị tạo báo cáo riêng cho bạn...</div>' +
+              '</div>';
+          } else if (step === 2) {
+            msgHtml = '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 16px;text-align:center;margin-top:4px;">' +
+              '<div style="font-size:13px;color:#1d4ed8;font-weight:600;margin-bottom:8px;">⏳ Đang phân tích & tạo báo cáo cá nhân hoá...</div>' +
+              '<div style="background:#dbeafe;border-radius:6px;height:7px;overflow:hidden;margin:6px 0;">' +
+              '<div style="height:100%;background:linear-gradient(90deg,#3b82f6,#6366f1);border-radius:6px;width:40%;animation:ncn-bar 2.5s ease-in-out infinite;"></div></div>' +
+              '<div style="color:#475569;font-size:12px;margin-top:6px;">Quá trình này mất 30–90 giây. Vui lòng không đóng trang.</div>' +
+              '</div>' +
+              '<style>@keyframes ncn-bar{0%{margin-left:-40%}100%{margin-left:100%}}</style>';
+          } else if (step === 3 && downloadUrl) {
+            msgHtml = '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:18px;text-align:center;margin-top:4px;">' +
+              '<div style="font-size:24px;margin-bottom:8px;">🎊</div>' +
+              '<div style="color:#15803d;font-weight:700;font-size:16px;margin-bottom:6px;">Báo cáo đã sẵn sàng!</div>' +
+              '<div style="color:#475569;font-size:13px;margin-bottom:14px;">Báo cáo cũng đã được <b>gửi vào Email</b> của bạn.</div>' +
+              '<a href="' + downloadUrl + '" download="Bao-Cao-Dinh-Vi-Tuong-Lai.pdf" target="_blank" ' +
+              'style="background:linear-gradient(135deg,#10b981,#059669);color:white;text-decoration:none;padding:13px 30px;border-radius:8px;font-weight:bold;font-size:15px;display:inline-block;box-shadow:0 4px 14px rgba(16,185,129,0.35);">⬇️ LƯU BÁO CÁO VỀ MÁY</a>' +
+              '</div>';
+          } else if (step === 3 && !downloadUrl) {
+            msgHtml = '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;text-align:center;margin-top:4px;">' +
+              '<div style="font-size:22px;margin-bottom:8px;">✅</div>' +
+              '<div style="color:#15803d;font-weight:700;font-size:15px;margin-bottom:6px;">Báo cáo đã tạo thành công!</div>' +
+              '<div style="color:#475569;font-size:13px;">Hệ thống đã <b>gửi PDF vào Email</b> của bạn. Kiểm tra Hộp thư đến (hoặc Spam).</div>' +
+              '</div>';
+          }
 
-                      url = window.URL.createObjectURL(blob);
-                    }
+          area.innerHTML =
+            '<div style="padding:16px 8px 8px;">' +
+              '<div style="display:flex;align-items:flex-start;justify-content:center;margin-bottom:20px;">' +
+                '<div style="display:flex;flex-direction:column;align-items:center;flex:1;max-width:110px;">' +
+                  '<div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:bold;' + circleStyle(true, done1) + '">' + step1Icon + '</div>' +
+                  '<div style="margin-top:8px;font-size:12px;text-align:center;line-height:1.4;' + labelStyle(done1, done1) + '">Thanh toán<br>thành công</div>' +
+                '</div>' +
+                '<div style="flex:1;height:2px;margin-top:22px;background:' + line1Color + ';max-width:50px;transition:background 0.5s;"></div>' +
+                '<div style="display:flex;flex-direction:column;align-items:center;flex:1;max-width:110px;">' +
+                  '<div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:bold;' + circleStyle(active2, done2) + '">' + step2Icon + '</div>' +
+                  '<div style="margin-top:8px;font-size:12px;text-align:center;line-height:1.4;' + labelStyle(active2, done2) + '">Đang xuất<br>báo cáo</div>' +
+                '</div>' +
+                '<div style="flex:1;height:2px;margin-top:22px;background:' + line2Color + ';max-width:50px;transition:background 0.5s;"></div>' +
+                '<div style="display:flex;flex-direction:column;align-items:center;flex:1;max-width:110px;">' +
+                  '<div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:bold;' + circleStyle(step===3, done3) + '">' + step3Icon + '</div>' +
+                  '<div style="margin-top:8px;font-size:12px;text-align:center;line-height:1.4;' + labelStyle(step===3, done3) + '">Lưu báo cáo<br>về máy</div>' +
+                '</div>' +
+              '</div>' +
+              msgHtml +
+            '</div>';
+        }
 
-                    qrArea.innerHTML = `
-                      <div style="padding: 20px 0;">
-                        <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Thanh toán & Tải Báo cáo thành công!</h3>
-                        <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Báo cáo đã sẵn sàng và <b>cũng đã được gửi vào Email</b> của bạn. Vui lòng bấm nút dưới đây để tải về:</p>
-                        <a href="${url}" download="Bao-Cao-Dinh-Vi-Tuong-Lai-${profile.fullName.replace(/\s+/g, '-')}.pdf" target="_blank" style="background: #10b981; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">LƯU BÁO CÁO VỀ MÁY</a>
-                      </div>
-                    `;
-                  } catch (pdfErr) {
-                    console.error(pdfErr);
-                    qrArea.innerHTML = `<div style="color: red; padding: 20px 0;">Đã tạo PDF nhưng có lỗi khi hiển thị. Vui lòng kiểm tra Email hoặc liên hệ Admin.</div>`;
-                  }
-                } else if (data.pdfNote) {
-                  qrArea.innerHTML = `
-                    <div style="padding: 20px 0;">
-                      <h3 style="color: #10b981; margin-bottom: 10px;">🎉 Tạo Báo cáo thành công!</h3>
-                      <p style="color: #475569; font-weight: 500; margin-bottom: 15px;">Do dung lượng báo cáo siêu chi tiết quá lớn, hệ thống đã <b>gửi bản gốc PDF vào Email</b> của bạn thay vì tải trực tiếp trên web.</p>
-                      <p style="color: #f59e0b; font-weight: bold; margin-bottom: 15px;">Vui lòng kiểm tra Hộp thư đến (hoặc thư mục Spam/Thư rác) của email để nhận báo cáo.</p>
-                    </div>
-                  `;
-                }
-              }
+        // ── Xử lý UI khi phát hiện PAID (dùng chung onSnapshot + polling + manual) ──
+        var _paymentHandled = false;
+        function handlePaidStatus(data) {
+          if (_paymentHandled) return;
+          var area = document.getElementById('qr-payment-area');
+          if (!area) return;
+
+          // Đã có PDF sẵn → bước 3 luôn
+          if (data.status === 'PAID' && data.pdfDone) {
+            _paymentHandled = true;
+            if (qrUnsubscribe) { qrUnsubscribe(); qrUnsubscribe = null; }
+            if (window._pollInterval) { clearInterval(window._pollInterval); window._pollInterval = null; }
+            var url = data.pdfUrl || null;
+            if (!url && data.pdfBase64) {
+              try {
+                var bc = atob(data.pdfBase64), ba = new Uint8Array(bc.length);
+                for (var i = 0; i < bc.length; i++) ba[i] = bc.charCodeAt(i);
+                url = window.URL.createObjectURL(new Blob([ba], { type: 'application/pdf' }));
+              } catch(e) {}
             }
+            renderProgressUI(3, url);
+            return;
+          }
+
+          // PAID nhưng PDF chưa xong → bước 1 → bước 2 → gọi generate-pdf
+          if (data.status === 'PAID' && !data.pdfDone) {
+            if (_paymentHandled) return;
+            renderProgressUI(1, null);
+            setTimeout(function() {
+              if (!_paymentHandled) renderProgressUI(2, null);
+            }, 1500);
+
+            if (!window.isGeneratingPDF) {
+              window.isGeneratingPDF = true;
+              fetch('https://ncn-academy-web.vercel.app/api/generate-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.assign({}, window.pdfPayload, { orderCode: orderCodeNum.toString() }))
+              })
+              .then(function(res) {
+                if (!res.ok) return res.text().then(function(t) { throw new Error(res.status + ': ' + t); });
+                return res.json();
+              })
+              .then(function(resData) {
+                var liveArea = document.getElementById('qr-payment-area');
+                if (!liveArea) return;
+                if (resData && resData.pdfBase64) {
+                  _paymentHandled = true;
+                  if (qrUnsubscribe) { qrUnsubscribe(); qrUnsubscribe = null; }
+                  if (window._pollInterval) { clearInterval(window._pollInterval); window._pollInterval = null; }
+                  var bc = atob(resData.pdfBase64), ba = new Uint8Array(bc.length);
+                  for (var i = 0; i < bc.length; i++) ba[i] = bc.charCodeAt(i);
+                  var blobUrl = window.URL.createObjectURL(new Blob([ba], { type: 'application/pdf' }));
+                  renderProgressUI(3, blobUrl);
+                } else if (resData && resData.aiGenerationFailed) {
+                  // Giữ bước 2, thông báo sẽ gửi email
+                  renderProgressUI(2, null);
+                } else if (resData && resData.success === false) {
+                  window.isGeneratingPDF = false;
+                  liveArea.innerHTML = '<div style="padding:16px;text-align:center;"><div style="font-size:28px;margin-bottom:10px;">😔</div><h3 style="color:#f59e0b;margin-bottom:10px;">Hệ thống đang bận</h3><p style="color:#475569;margin-bottom:12px;">Đơn hàng của bạn <strong>vẫn được ghi nhận</strong>. Đội ngũ NCN Academy sẽ gửi báo cáo vào email sớm nhất.</p><p style="color:#94a3b8;font-size:13px;">Cần hỗ trợ: Zalo/Fanpage NCN Academy.</p></div>';
+                }
+              })
+              .catch(function(err) {
+                console.error('Lỗi tạo PDF:', err);
+                window.isGeneratingPDF = false;
+                var liveArea = document.getElementById('qr-payment-area');
+                if (liveArea) liveArea.innerHTML = '<div style="padding:16px;text-align:center;"><div style="font-size:16px;color:#f59e0b;font-weight:bold;margin-bottom:10px;">⏳ Đang xử lý, vui lòng chờ...</div><button onclick="window.isGeneratingPDF=false;location.reload();" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:6px;font-weight:bold;cursor:pointer;margin-top:8px;">Tải lại trang</button></div>';
+              });
+            }
+          }
+        }
+
+        // 4a. Lắng nghe Firestore realtime (primary)
+        qrUnsubscribe = db.collection('orders').doc(orderCodeNum.toString())
+          .onSnapshot(function(doc) {
+            if (!doc.exists) return;
+            console.log('[NCN] onSnapshot:', doc.data().status, 'pdfDone:', doc.data().pdfDone);
+            handlePaidStatus(doc.data());
+          }, function(err) {
+            console.error('[NCN] onSnapshot error:', err);
           });
+
+        // 4b. HTTP Polling fallback mỗi 5s
+        if (window._pollInterval) clearInterval(window._pollInterval);
+        window._pollInterval = setInterval(function() {
+          if (_paymentHandled) { clearInterval(window._pollInterval); window._pollInterval = null; return; }
+          fetch('https://ncn-academy-web.vercel.app/api/order-status?orderCode=' + orderCodeNum)
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(d) {
+              if (d && d.status === 'PAID') handlePaidStatus(d);
+            }).catch(function() {});
+        }, 5000);
+
+        // 4c. Nút bấm thủ công
+        window._ncnManualCheck = function() {
+          var btn = document.getElementById('ncn-manual-check-btn');
+          if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang kiểm tra...'; }
+          fetch('https://ncn-academy-web.vercel.app/api/order-status?orderCode=' + orderCodeNum)
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+              if (d.status === 'PAID') {
+                handlePaidStatus(d);
+              } else {
+                if (btn) { btn.disabled = false; btn.textContent = '🔄 Kiểm tra lại'; }
+                var hint = document.querySelector('#ncn-paid-btn-wrap p');
+                if (hint) hint.innerHTML = '<span style="color:#ef4444">⚠️ Chưa nhận được giao dịch. Kiểm tra lại nội dung chuyển khoản.</span>';
+              }
+            }).catch(function() { if (btn) { btn.disabled = false; btn.textContent = '🔄 Kiểm tra lại'; } });
+        };
 
       } catch (err) {
         console.error(err);
