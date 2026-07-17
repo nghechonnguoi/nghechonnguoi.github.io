@@ -16,7 +16,7 @@
   const BANK_BIN   = '970422';
   const BANK_ACCT  = '768688678';
   const BANK_OWNER = 'HO KINH DOANH NGHE CHON NGUOI';
-  const API_BASE = 'https://www.nghechonnguoi.com/api';
+  const API_BASE = 'https://ncn-academy-web.vercel.app/api';
   const COUNTDOWN_KEY = 'ncn_result_countdown';
   let countdownInterval = null;
 

@@ -48,116 +48,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();  // 🗄️ Khởi tạo Firestore để lưu dữ liệu khách hàng
-// LẮNG NGHE TRẠNG THÁI TÀI KHOẢN (TỰ ĐỘNG ĐÓNG/MỞ KHÓA WEBAPP)
-auth.onAuthStateChanged((user) => {
-  const authView = document.getElementById("auth-container");
-  if (user) {
-    // Nếu đã đăng nhập thành công -> Ẩn màn hình khóa đi để làm bài test
-    authView.classList.add("hidden");
-    console.log("Đã kết nối tài khoản khách hàng:", user.email);
-
-    // Tự động điền email của người dùng vào form nếu hòm thư đang trống
-    if (document.getElementById("customerEmail")) {
-      document.getElementById("customerEmail").value = user.email;
-    }
-    // ✅ Tự động khôi phục kết quả nếu đã làm bài test trước đó (F5 không mất dữ liệu)
-    const savedAnswers = localStorage.getItem("user_quiz_answers");
-    const savedProfile = localStorage.getItem("active_student_profile");
-    const savedQuizDate = localStorage.getItem("user_quiz_date");
-    // 🔄 NGÀY RESET: Xóa kết quả cũ trước 05/07/2026 để bắt buộc làm lại bài
-    const RESET_TIMESTAMP = new Date('2026-07-05T00:00:00.000Z').getTime();
-    const quizSavedAt = savedQuizDate ? parseInt(savedQuizDate) : 0;
-    if (savedAnswers && savedProfile && quizSavedAt < RESET_TIMESTAMP) {
-      // Xóa dữ liệu cũ — bắt buộc làm lại bài
-      localStorage.removeItem("user_quiz_answers");
-      localStorage.removeItem("active_student_profile");
-      localStorage.removeItem("user_quiz_date");
-      console.log("🔄 Đã xóa kết quả cũ — yêu cầu làm lại bài test mới.");
-    } else if (savedAnswers && savedProfile && quizSavedAt >= RESET_TIMESTAMP) {
-      const profileContainer = document.getElementById("profile-container");
-      const quizContainer = document.getElementById("quiz-container");
-      if (profileContainer) profileContainer.classList.add("hidden");
-      if (quizContainer) quizContainer.classList.add("hidden");
-      generateReportUI();
-      return; // Không cần chạy tiếp
-    }
-  } else {
-    // Nếu chưa đăng nhập hoặc đã bấm đăng xuất -> Hiện lại màn hình khóa
-    authView.classList.remove("hidden");
-  }
-});
-
-// Hàm xử lý Đăng nhập nhanh bằng Google Pop-up
-async function handleGoogleLogin() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  try {
-    await auth.signInWithPopup(provider);
-    // Đăng nhập thành công — onAuthStateChanged tự xử lý UI
-  } catch (error) {
-    if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-      return;
-    }
-    if (error.code === 'auth/unauthorized-domain') {
-      alert("LỖI TÊN MIỀN: Tên miền 'quiz.nghechonnguoi.com' chưa được thêm vào Authorized Domains trong Firebase Console. Vui lòng vào Firebase -> Authentication -> Settings -> Authorized Domains để thêm tên miền này.");
-      return;
-    }
-    if (error.code === 'auth/popup-blocked') {
-      try {
-        await auth.signInWithRedirect(provider);
-      } catch (redirectError) {
-        alert('Không thể đăng nhập Google. Vui lòng thử Email/Mật khẩu.');
-      }
-      return;
-    }
-    alert('Lỗi đăng nhập Google: ' + error.message + " (" + error.code + ")");
-  }
-}
-
-// Hàm xử lý Đăng ký tài khoản Email mới
-async function handleEmailRegister() {
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
-  if (!email || !password) { alert("Vui lòng nhập đủ Email và Mật khẩu!"); return; }
-
-  try {
-    await auth.createUserWithEmailAndPassword(email, password);
-    alert("Tạo tài khoản thành công! Bạn có thể làm bài test ngay bây giờ.");
-  } catch (error) {
-    if (error.code === 'auth/email-already-in-use') {
-      alert("Email này đã được đăng ký. Vui lòng bấm ĐĂNG NHẬP thay vì Đăng ký.");
-    } else if (error.code === 'auth/weak-password') {
-      alert("Mật khẩu quá ngắn, vui lòng nhập ít nhất 6 ký tự.");
-    } else {
-      alert("Lỗi đăng ký: " + error.message + " (" + error.code + ")");
-    }
-  }
-}
-
-// Hàm xử lý Đăng nhập Email truyền thống
-async function handleEmailLogin() {
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
-  if (!email || !password) { alert("Vui lòng nhập đủ Email và Mật khẩu!"); return; }
-
-  try {
-    await auth.signInWithEmailAndPassword(email, password);
-  } catch (error) {
-    if (error.code === 'auth/user-not-found') {
-      alert("Tài khoản chưa tồn tại! Bạn hãy bấm nút ĐĂNG KÝ để tạo tài khoản trước nhé.");
-    } else if (error.code === 'auth/wrong-password') {
-      alert("Bạn đã nhập sai mật khẩu. Vui lòng thử lại.");
-    } else {
-      alert("Lỗi đăng nhập: " + error.message + " (" + error.code + ")");
-    }
-  }
-}
-
-// Hàm đăng xuất (Gọi hàm này khi muốn khóa hệ thống lại)
-function handleLogout() {
-  auth.signOut().then(() => {
-    location.reload();
-  });
-}
+// ─── XÓA BỎ LOGIC FIREBASE AUTH TẠI ĐÂY ───
 // ─── TRẠNG THÁI TOÀN CỤC ────────────────────────────────────────────────────
 let questions = [];
 let currentQuestionIndex = 0;
@@ -165,6 +56,20 @@ let userAnswers = {};
 
 // ─── KHỞI ĐỘNG SAU KHI DOM LOAD ─────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+  // ✅ Tự động khôi phục kết quả nếu đã làm bài test trước đó (F5 không mất dữ liệu)
+  const savedAnswers = localStorage.getItem("user_quiz_answers");
+  const savedProfile = localStorage.getItem("active_student_profile");
+  const savedQuizDate = localStorage.getItem("user_quiz_date");
+  const RESET_TIMESTAMP = new Date('2026-07-05T00:00:00.000Z').getTime();
+  const quizSavedAt = savedQuizDate ? parseInt(savedQuizDate) : 0;
+  if (savedAnswers && savedProfile && quizSavedAt >= RESET_TIMESTAMP) {
+    const profileContainer = document.getElementById("profile-container");
+    const quizContainer = document.getElementById("quiz-container");
+    if (profileContainer) profileContainer.classList.add("hidden");
+    if (quizContainer) quizContainer.classList.add("hidden");
+    generateReportUI();
+  }
+
   const profileForm = document.getElementById("profile-form");
   if (!profileForm) return;
 
@@ -197,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
       birthDate: studentProfile.birthDate,
       email: studentProfile.email,
       phone: studentProfile.phone,
-      uid: firebase.auth().currentUser?.uid || null,
+      uid: null,
       submittedAt: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(err => console.warn("Firestore save warning:", err));
 

@@ -31,64 +31,7 @@ const firebaseConfig = {
 
 // Khởi tạo các phân hệ đám mây (Giữ nguyên phần code khởi tạo phía dưới)
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db   = firebase.firestore();  // 🗄️ Khởi tạo Firestore để lưu dữ liệu khách hàng
-// LẮNG NGHE TRẠNG THÁI TÀI KHOẢN (TỰ ĐỘNG ĐÓNG/MỞ KHÓA WEBAPP)
-auth.onAuthStateChanged((user) => {
-  const authView = document.getElementById("auth-container");
-  if (user) {
-    // Nếu đã đăng nhập thành công -> Ẩn màn hình khóa đi để làm bài test
-    authView.classList.add("hidden");
-    console.log("Đã kết nối tài khoản khách hàng:", user.email);
-
-    // Tự động điền email của người dùng vào form nếu hòm thư đang trống
-    if (document.getElementById("customerEmail")) {
-      document.getElementById("customerEmail").value = user.email;
-    }
-  } else {
-    // Nếu chưa đăng nhập hoặc đã bấm đăng xuất -> Hiện lại màn hình khóa
-    authView.classList.remove("hidden");
-  }
-});
-
-// Hàm xử lý Đăng nhập nhanh bằng Google Pop-up
-async function handleGoogleLogin() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  try {
-    await auth.signInWithPopup(provider);
-    alert("Đăng nhập tài khoản Google thành công!");
-  } catch (error) {
-    alert("Lỗi đăng nhập Google: " + error.message);
-  }
-}
-
-// Hàm xử lý Đăng ký tài khoản Email mới
-async function handleEmailRegister() {
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
-  if (!email || !password) { alert("Vui lòng nhập đủ Email và Mật khẩu!"); return; }
-
-  try {
-    await auth.createUserWithEmailAndPassword(email, password);
-    alert("Tạo tài khoản thành công! Bạn có thể làm bài test ngay bây giờ.");
-  } catch (error) {
-    alert("Lỗi đăng ký: " + error.message);
-  }
-}
-
-// Hàm xử lý Đăng nhập Email truyền thống
-async function handleEmailLogin() {
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
-  if (!email || !password) { alert("Vui lòng nhập đủ Email và Mật khẩu!"); return; }
-
-  try {
-    await auth.signInWithEmailAndPassword(email, password);
-    alert("Đăng nhập thành công!");
-  } catch (error) {
-    alert("Sai mật khẩu hoặc tài khoản chưa đăng ký: " + error.message);
-  }
-}
 
 // Hàm đăng xuất (Gọi hàm này khi muốn khóa hệ thống lại)
 function handleLogout() {
@@ -103,6 +46,20 @@ let userAnswers = {};
 
 // ─── KHỞI ĐỘNG SAU KHI DOM LOAD ─────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+  // ✅ Tự động khôi phục kết quả nếu đã làm bài test trước đó (F5 không mất dữ liệu)
+  const savedAnswers = localStorage.getItem("user_quiz_answers");
+  const savedProfile = localStorage.getItem("active_student_profile");
+  const savedQuizDate = localStorage.getItem("user_quiz_date");
+  const RESET_TIMESTAMP = new Date('2026-07-05T00:00:00.000Z').getTime();
+  const quizSavedAt = savedQuizDate ? parseInt(savedQuizDate) : 0;
+  if (savedAnswers && savedProfile && quizSavedAt >= RESET_TIMESTAMP) {
+    const profileContainer = document.getElementById("profile-container");
+    const quizContainer = document.getElementById("quiz-container");
+    if (profileContainer) profileContainer.classList.add("hidden");
+    if (quizContainer) quizContainer.classList.add("hidden");
+    generateReportUI();
+  }
+
   const profileForm = document.getElementById("profile-form");
   if (!profileForm) return;
 
@@ -130,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
       birthDate: studentProfile.birthDate,
       email:     studentProfile.email,
       phone:     studentProfile.phone,
-      uid:       firebase.auth().currentUser?.uid || null,
+      uid:       null,
       submittedAt: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(err => console.warn("Firestore save warning:", err));
 
