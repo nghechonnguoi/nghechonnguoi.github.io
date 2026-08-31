@@ -10,8 +10,8 @@
   const CAMPAIGN_END   = new Date('2026-07-28T23:59:59+07:00');
   const now = new Date();
   const IS_CAMPAIGN = now >= CAMPAIGN_START && now <= CAMPAIGN_END;
-  const PRICE = IS_CAMPAIGN ? 399000 : 568000;
-  const PRICE_DISPLAY = IS_CAMPAIGN ? '399.000?' : '568.000?';
+  const PRICE = IS_CAMPAIGN ? 399000 : 799000;
+  const PRICE_DISPLAY = IS_CAMPAIGN ? '399.000đ' : '799.000đ';
   const PRICE_ORIGINAL_DISPLAY = '1.358.000đ'
   const BANK_BIN   = '970422';
   const BANK_ACCT  = '768688678';
@@ -237,6 +237,99 @@
     window._ncnOpenCheckout = () => openCheckout(payload);
     startCountdown();
     fetchAiData(payload).then(ai => { renderInsights(ai); renderCareers(ai); renderRisk(ai); });
+
+    // ── Zalo floating button ──────────────────────────────────────────────────
+    if (!document.getElementById('ncn-zalo-fab')) {
+      const ZALO_PHONE = '0986864591';
+      const fab = document.createElement('div');
+      fab.id = 'ncn-zalo-fab';
+      fab.innerHTML = `
+        <style>
+          #ncn-zalo-fab {
+            position: fixed;
+            bottom: 24px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            font-family: 'Inter', sans-serif;
+          }
+          #ncn-zalo-fab .ncn-fab-tooltip {
+            background: #fff;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 14px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.25s ease;
+            pointer-events: none;
+          }
+          #ncn-zalo-fab .ncn-fab-tooltip span {
+            display: block;
+            font-weight: 400;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+          }
+          #ncn-zalo-fab:hover .ncn-fab-tooltip {
+            opacity: 1;
+            transform: translateX(0);
+          }
+          #ncn-zalo-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #0068FF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0,104,255,0.45);
+            cursor: pointer;
+            text-decoration: none;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+          #ncn-zalo-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 30px rgba(0,104,255,0.55);
+          }
+          #ncn-zalo-btn::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(0,104,255,0.35);
+            animation: ncn-zalo-ring 1.8s ease-out infinite;
+          }
+          @keyframes ncn-zalo-ring {
+            0%   { transform: scale(1);   opacity: 0.8; }
+            100% { transform: scale(1.5); opacity: 0; }
+          }
+          #ncn-zalo-btn svg { width: 30px; height: 30px; }
+        </style>
+        <div class="ncn-fab-tooltip">
+          Tư vấn qua Zalo
+          <span>📞 ${ZALO_PHONE}</span>
+        </div>
+        <a id="ncn-zalo-btn"
+           href="https://zalo.me/${ZALO_PHONE}"
+           target="_blank"
+           rel="noopener"
+           title="Liên hệ Zalo ${ZALO_PHONE}">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" rx="32" fill="#0068FF"/>
+            <text x="32" y="42" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="24" fill="#fff">Z</text>
+          </svg>
+        </a>
+      `;
+      document.body.appendChild(fab);
+    }
   }
 
   function renderInsights(ai) {
@@ -279,3 +372,4 @@
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', waitForResult); }
   else { waitForResult(); }
 })();
+
