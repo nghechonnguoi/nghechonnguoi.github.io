@@ -6,6 +6,28 @@
 (function () {
   'use strict';
 
+  // ── Referral capture (backup — script.js chạy trước, nhưng đề phòng race) ──
+  (function() {
+    try {
+      const urlRef = new URLSearchParams(window.location.search).get('ref');
+      if (urlRef) {
+        const code = urlRef.trim().toUpperCase();
+        localStorage.setItem('ncn_referral_code', code);
+        sessionStorage.setItem('ncn_ref', code);
+      }
+    } catch {}
+  })();
+
+  // Đọc referral code (ưu tiên: sessionStorage → localStorage)
+  function getRef() {
+    try {
+      return sessionStorage.getItem('ncn_ref')
+          || localStorage.getItem('ncn_referral_code')
+          || localStorage.getItem('referralCode')
+          || '';
+    } catch { return ''; }
+  }
+
   const CAMPAIGN_START = new Date('2026-07-15T00:00:00+07:00');
   const CAMPAIGN_END   = new Date('2026-07-28T23:59:59+07:00');
   const now = new Date();
@@ -84,7 +106,7 @@
       const btn = document.getElementById('ncn-pay-btn'); const errEl = document.getElementById('ncn-modal-error');
       btn.disabled = true; btn.textContent = '⏳ Đang xử lý...'; errEl.style.display = 'none';
       try {
-        await fetch(`${API_BASE}/create-order`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ orderCode: orderCodeNum, orderId: `NCN-${orderCodeNum}`, amount: finalAmount, customerName: payload.HOTEN || '', customerEmail: payload.EMAIL || '', customerPhone: payload.DIEN_THOAI || '', payload }) });
+        await fetch(`${API_BASE}/create-order`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ orderCode: orderCodeNum, orderId: `NCN-${orderCodeNum}`, amount: finalAmount, customerName: payload.HOTEN || '', customerEmail: payload.EMAIL || '', customerPhone: payload.DIEN_THOAI || '', payload, referralCode: getRef() }) });
         if (finalAmount === 0) {
           document.getElementById('ncn-modal-body').innerHTML = '<div style="text-align:center;padding:32px 16px;"><div style="font-size:48px;margin-bottom:16px;">⏳</div><p style="font-weight:800;font-size:18px;color:#fff;">Đang tạo báo cáo...</p></div>';
           const pdfRes = await fetch(`${API_BASE}/generate-pdf`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });

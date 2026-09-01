@@ -26,13 +26,21 @@
   const urlParams = new URLSearchParams(window.location.search);
   const refFromUrl = urlParams.get('ref');
   if (refFromUrl) {
-    localStorage.setItem('ncn_referral_code', refFromUrl.trim().toUpperCase());
-    console.log(`🔗 Đã ghi nhận mã giới thiệu: ${refFromUrl.trim().toUpperCase()}`);
+    const code = refFromUrl.trim().toUpperCase();
+    localStorage.setItem('ncn_referral_code', code);
+    try { sessionStorage.setItem('ncn_ref', code); } catch {}
+    console.log(`🔗 Đã ghi nhận mã giới thiệu: ${code}`);
   }
 })();
 
 function getReferralCode() {
-  return localStorage.getItem('ncn_referral_code') || null;
+  try {
+    return sessionStorage.getItem('ncn_ref')
+        || localStorage.getItem('ncn_referral_code')
+        || null;
+  } catch {
+    return localStorage.getItem('ncn_referral_code') || null;
+  }
 }
 const firebaseConfig = {
   apiKey: "AIzaSyDXYwk4_lfXDGp3L8wcUt9NEdduNsGl_t4",
@@ -1538,6 +1546,183 @@ const VOCATIONAL_NICHES = {
       hw: { A: 2, S: 1 }, mb: ["F","N","I"], num: [7,3],
       why: "dùng nghệ thuật như cây cầu để chữa lành và kết nối lại với nội tâm sâu nhất"
     }
+  ],
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  NHÓM MỚI: Bán dẫn & Điện tử (Việt Nam mục tiêu 50.000 kỹ sư đến 2030)
+  // ══════════════════════════════════════════════════════════════════════════
+  "Bán dẫn & Điện tử": [
+    {
+      name: "Kỹ sư Thiết kế Vi mạch (IC Design)",
+      jobs: ["IC Layout Designer entry", "Analog/Digital Circuit Designer", "FPGA Engineer entry", "Kỹ sư thiết kế RTL/Verilog", "Kỹ sư EDA Tools Operator", "Kỹ sư tích hợp IP Core", "Vi mạch ASIC/SoC Design entry"],
+      why: "tư duy logic cực kỳ chặt chẽ và khả năng thiết kế hệ thống phức tạp ở cấp độ silicon",
+      holland_req: { R: 9, I: 8, C: 7 },
+      mbti_req: { I: 3, T: 3, J: 2, N: 1 },
+      num_mapping: { "1":6, "2":5, "3":4, "4":10, "5":5, "6":4, "7":9, "8":6, "9":4 },
+      market_demand: 90, market_salary: 90
+    },
+    {
+      name: "Kỹ sư Kiểm thử & Xác minh Chip (Verification)",
+      jobs: ["Chip Verification Engineer entry", "DFT (Design for Testability) Engineer", "ATE (Automated Test Equipment) Operator", "Kỹ sư kiểm thử board mạch", "Signal Integrity Engineer entry", "Quality Engineer linh kiện bán dẫn"],
+      why: "tư duy kiểm định tỉ mỉ và khả năng tìm lỗi trong hệ thống phức tạp nhiều lớp",
+      holland_req: { R: 8, C: 9, I: 7 },
+      mbti_req: { I: 2, T: 3, J: 3, S: 1 },
+      num_mapping: { "1":5, "2":6, "3":3, "4":10, "5":4, "6":5, "7":8, "8":6, "9":4 },
+      market_demand: 88, market_salary: 85
+    },
+    {
+      name: "Kỹ sư Điện tử & Viễn thông",
+      jobs: ["Kỹ sư điện tử viễn thông entry", "RF Engineer entry", "Embedded Systems Engineer", "Kỹ sư lắp ráp PCB & SMT", "Kỹ sư sửa chữa thiết bị điện tử", "Kỹ sư bảo trì thiết bị viễn thông", "IoT Hardware Engineer entry"],
+      why: "kỹ năng thực hành kết nối điện tử với đam mê xây dựng thiết bị phần cứng thực tế",
+      holland_req: { R: 9, I: 7, C: 5 },
+      mbti_req: { S: 2, T: 3, J: 2 },
+      num_mapping: { "1":6, "2":4, "3":4, "4":9, "5":5, "6":4, "7":8, "8":6, "9":4 },
+      market_demand: 85, market_salary: 78
+    },
+    {
+      name: "Kỹ thuật viên Sản xuất Công nghệ cao (Manufacturing)",
+      jobs: ["Process Technician nhà máy bán dẫn", "Cleanroom Operator", "Wafer Fabrication Technician", "CNC Operator công nghệ cao", "Kỹ thuật viên QC linh kiện điện tử", "Equipment Maintenance Technician nhà máy FDI"],
+      why: "tay nghề vận hành thiết bị chính xác và kỷ luật quy trình sản xuất sạch",
+      holland_req: { R: 10, C: 8, I: 4 },
+      mbti_req: { S: 3, T: 2, J: 3 },
+      num_mapping: { "1":5, "2":5, "3":3, "4":10, "5":4, "6":5, "7":6, "8":7, "9":4 },
+      market_demand: 85, market_salary: 72
+    },
+    {
+      name: "Cơ điện tử & Robot Công nghiệp",
+      jobs: ["Kỹ sư cơ điện tử entry", "Robot Technician FANUC/ABB/KUKA", "PLC Programmer entry (Siemens/Mitsubishi)", "Kỹ sư SCADA & HMI entry", "Kỹ thuật viên băng chuyền tự động", "Drones Technician & Calibration", "Kỹ sư bảo trì robot hàn/sơn/lắp ráp"],
+      why: "kết hợp tư duy kỹ thuật và đam mê điều khiển hệ thống máy móc thông minh",
+      holland_req: { R: 9, I: 7, C: 6 },
+      mbti_req: { T: 3, S: 2, J: 2 },
+      num_mapping: { "1":6, "2":4, "3":4, "4":9, "5":5, "6":4, "7":8, "8":7, "9":4 },
+      market_demand: 88, market_salary: 80
+    }
+  ],
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  NHÓM MỚI: Nghề thủ công & Handmade (Thị trường VN tăng mạnh qua Etsy, TikTok)
+  // ══════════════════════════════════════════════════════════════════════════
+  "Nghề thủ công & Handmade": [
+    {
+      name: "Thủ công mỹ nghệ & Thiết kế sản phẩm handmade",
+      jobs: ["Người làm nến thơm & sản phẩm thủ công bán online", "Thợ gốm & Ceramic Artist", "Thợ mây tre lá & đồ decor thiết kế", "Thợ sơn mài nghệ thuật", "Artisan đồ gỗ mini & nội thất trang trí", "Người làm đồ trang trí nhà theo phong cách tối giản", "Nhà thiết kế quà tặng doanh nghiệp văn hóa Việt"],
+      why: "bàn tay khéo léo kết hợp con mắt thẩm mỹ tạo ra sản phẩm có hồn mang giá trị văn hóa",
+      holland_req: { A: 9, R: 7, C: 4 },
+      mbti_req: { F: 2, P: 2, N: 2 },
+      num_mapping: { "1":6, "2":5, "3":8, "4":7, "5":7, "6":7, "7":6, "8":5, "9":7 },
+      market_demand: 72, market_salary: 60
+    },
+    {
+      name: "Trang sức handmade & Thời trang thủ công",
+      jobs: ["Người làm trang sức bạc handmade", "Macramé Artist & Accessories Maker", "Thêu tay & Crochet Artist", "Người thiết kế phụ kiện vải", "Thợ làm mũ & phụ kiện cá nhân hóa", "Beading Artist & Wire Wrap Jewelry", "Upcycling Fashion Designer"],
+      why: "tinh tế trong từng đường nét thủ công và khả năng kể câu chuyện qua thiết kế đeo",
+      holland_req: { A: 10, R: 6, S: 4 },
+      mbti_req: { F: 3, P: 2, I: 1 },
+      num_mapping: { "1":5, "2":6, "3":9, "4":6, "5":7, "6":8, "7":5, "8":5, "9":7 },
+      market_demand: 68, market_salary: 55
+    },
+    {
+      name: "Sản phẩm chăm sóc cá nhân tự nhiên & Wellness thủ công",
+      jobs: ["Người làm xà phòng tự nhiên handmade", "Nhà pha tinh dầu & nước hoa artisan", "Người làm nến thơm thiền định & healing", "Maker sản phẩm skincare tự nhiên", "DIY Bath & Body Products Seller", "Herbalist & Sản phẩm thảo mộc", "Người làm bộ self-care & journaling gift set"],
+      why: "hiểu biết về thảo mộc tự nhiên kết hợp tâm huyết tạo ra sản phẩm chăm sóc bền vững",
+      holland_req: { A: 8, I: 6, S: 7 },
+      mbti_req: { F: 3, N: 2, P: 1 },
+      num_mapping: { "1":5, "2":7, "3":8, "4":5, "5":6, "6":9, "7":7, "8":5, "9":8 },
+      market_demand: 75, market_salary: 62
+    },
+    {
+      name: "Bán hàng thủ công quốc tế & Xây dựng thương hiệu Etsy",
+      jobs: ["Etsy Shop Owner xuất khẩu hàng thủ công VN", "TikTok/Pinterest Handmade Seller", "Người xây dựng thương hiệu slow living", "Dropshipping thủ công mỹ nghệ", "Người bán hàng thủ công trên Amazon Handmade", "Wholesale Artisan cho boutique quốc tế", "Print-on-demand kết hợp thiết kế thủ công"],
+      why: "kết hợp sáng tạo thủ công với tư duy thương mại điện tử để đưa hàng Việt ra thế giới",
+      holland_req: { A: 7, E: 8, C: 5 },
+      mbti_req: { E: 2, N: 2, P: 1 },
+      num_mapping: { "1":8, "2":5, "3":8, "4":5, "5":9, "6":5, "7":5, "8":9, "9":6 },
+      market_demand: 78, market_salary: 65
+    },
+    {
+      name: "Dạy workshop thủ công & Tạo nội dung hướng dẫn",
+      jobs: ["Workshop Instructor thủ công sáng tạo", "YouTube/TikTok DIY Creator", "Bán video hướng dẫn thủ công online", "Bán pattern & mẫu thiết kế kỹ thuật số", "Người bán bộ kit nguyên liệu DIY", "Giáo viên nghề thủ công cho trẻ em", "Facilitator workshop healing arts"],
+      why: "khả năng chia sẻ kỹ năng thủ công qua dạy học và tạo nội dung truyền cảm hứng",
+      holland_req: { A: 8, S: 7, E: 5 },
+      mbti_req: { E: 2, F: 2, N: 2 },
+      num_mapping: { "1":6, "2":6, "3":9, "4":5, "5":7, "6":7, "7":6, "8":5, "9":8 },
+      market_demand: 74, market_salary: 58
+    }
+  ],
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  NHÓM MỚI: Giáo dục trực tuyến & EdTech
+  // ══════════════════════════════════════════════════════════════════════════
+  "Giáo dục trực tuyến & EdTech": [
+    {
+      name: "Người dạy kỹ năng online & Content giáo dục",
+      jobs: ["Giáo viên ngoại ngữ online (Preply, iTalki)", "YouTube Educator chủ đề kỹ năng", "Creator khóa học Udemy/Teachable", "Dạy toán/lý/hóa cho học sinh qua Zoom", "Gia sư online toàn thời gian", "Người dạy kỹ năng mềm online", "Podcast giáo dục kỹ năng nghề"],
+      why: "đam mê chia sẻ kiến thức và khả năng đơn giản hóa điều phức tạp cho người học",
+      holland_req: { S: 9, A: 6, E: 5 },
+      mbti_req: { E: 2, F: 2, N: 2 },
+      num_mapping: { "1":6, "2":7, "3":8, "4":5, "5":6, "6":8, "7":6, "8":5, "9":9 },
+      market_demand: 82, market_salary: 68
+    },
+    {
+      name: "Đào tạo AI & Kỹ năng số cho người không chuyên",
+      jobs: ["AI Literacy Trainer doanh nghiệp", "Người dạy sử dụng ChatGPT/AI tools", "Digital Skills Trainer cho người trung niên", "Tech Educator kỹ năng Excel/Data entry", "Người hướng dẫn làm việc với công cụ AI", "Facilitator workshop AI cho giáo viên", "Tư vấn chuyển đổi số cho SME"],
+      why: "đứng ở giao điểm công nghệ và giáo dục, giúp người khác không bị bỏ lại trong kỷ nguyên AI",
+      holland_req: { S: 8, I: 6, E: 7 },
+      mbti_req: { E: 2, T: 2, N: 2 },
+      num_mapping: { "1":7, "2":5, "3":7, "4":6, "5":7, "6":5, "7":7, "8":7, "9":6 },
+      market_demand: 85, market_salary: 72
+    },
+    {
+      name: "Tư vấn nghề nghiệp & Phát triển cá nhân online",
+      jobs: ["Career Coach online cho học sinh/sinh viên", "Tư vấn du học & định hướng ngành nghề", "Resume & LinkedIn Consultant", "Life Skills Coach online", "Mentor cho người trẻ chuyển ngành", "Facilitator cộng đồng học tập online", "Người dẫn chương trình mentorship"],
+      why: "bản năng thấu hiểu con người kết hợp kinh nghiệm định hướng giúp người khác tìm đường đi đúng",
+      holland_req: { S: 9, E: 7, A: 4 },
+      mbti_req: { E: 2, F: 3, N: 2 },
+      num_mapping: { "1":8, "2":7, "3":7, "4":5, "5":6, "6":7, "7":6, "8":6, "9":9 },
+      market_demand: 80, market_salary: 70
+    },
+    {
+      name: "Thiết kế khóa học & Instructional Design",
+      jobs: ["Instructional Designer entry (doanh nghiệp)", "E-learning Content Creator (Articulate/Rise)", "LMS Administrator (Moodle/Canvas)", "Course Producer & Curriculum Builder", "Video Editor nội dung giáo dục", "Storyboard Artist khóa học", "Gamification Designer cho học tập"],
+      why: "kết hợp tư duy giáo dục và kỹ năng thiết kế để tạo trải nghiệm học tập hấp dẫn",
+      holland_req: { A: 7, I: 6, S: 6, C: 5 },
+      mbti_req: { N: 2, T: 2, J: 2 },
+      num_mapping: { "1":6, "2":5, "3":8, "4":8, "5":6, "6":5, "7":7, "8":5, "9":6 },
+      market_demand: 80, market_salary: 72
+    }
+  ],
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  NHÓM MỚI: Nông nghiệp công nghệ cao (AgriTech)
+  // ══════════════════════════════════════════════════════════════════════════
+  "Nông nghiệp công nghệ cao": [
+    {
+      name: "Nông nghiệp chính xác & IoT Farm",
+      jobs: ["Kỹ thuật viên nông nghiệp thông minh", "IoT Sensor Technician nông trại", "Drone Operator phun thuốc & khảo sát", "Precision Farming Consultant", "Kỹ sư hệ thống tưới tự động", "Quản lý dữ liệu nông trại số", "Nhà phân tích đất & cây trồng"],
+      why: "kết hợp kiến thức nông nghiệp với công nghệ IoT để tối ưu năng suất và bền vững",
+      holland_req: { R: 8, I: 7, C: 5 },
+      mbti_req: { S: 2, T: 2, J: 2 },
+      num_mapping: { "1":6, "2":5, "3":4, "4":9, "5":6, "6":5, "7":8, "8":6, "9":5 },
+      market_demand: 78, market_salary: 68
+    },
+    {
+      name: "Nông nghiệp hữu cơ & Thực phẩm sạch",
+      jobs: ["Người sản xuất rau sạch hữu cơ", "Nhà vườn thủy canh & khí canh", "Người nuôi trồng thực phẩm theo tiêu chuẩn VietGAP", "Tư vấn chứng nhận hữu cơ", "Người bán nông sản sạch trực tiếp (farm-to-table)", "Người xây dựng thương hiệu nông sản", "Nhà phân phối thực phẩm sạch địa phương"],
+      why: "tâm huyết với nông nghiệp bền vững và mong muốn cung cấp thực phẩm lành mạnh cho cộng đồng",
+      holland_req: { R: 8, S: 6, I: 5 },
+      mbti_req: { F: 2, S: 2, J: 2 },
+      num_mapping: { "1":5, "2":6, "3":6, "4":7, "5":5, "6":9, "7":6, "8":6, "9":8 },
+      market_demand: 75, market_salary: 62
+    },
+    {
+      name: "Công nghệ sau thu hoạch & Chế biến thực phẩm",
+      jobs: ["Kỹ thuật viên bảo quản nông sản", "Người vận hành dây chuyền chế biến thực phẩm", "QC Technician thực phẩm", "Kỹ sư công nghệ lên men & chế biến", "Người làm thực phẩm chức năng handmade", "Chuyên gia đóng gói & truy xuất nguồn gốc", "Xuất khẩu nông sản & thực phẩm chế biến"],
+      why: "hiểu biết quy trình từ đồng ruộng đến bàn ăn giúp nâng giá trị nông sản Việt",
+      holland_req: { R: 8, C: 7, I: 5 },
+      mbti_req: { S: 3, T: 2, J: 2 },
+      num_mapping: { "1":5, "2":5, "3":5, "4":9, "5":5, "6":6, "7":6, "8":7, "9":5 },
+      market_demand: 75, market_salary: 65
+    }
   ]
 };
 
@@ -1652,7 +1837,28 @@ const VOCATIONAL_GROWTH = {
   "Ẩm thực đường phố & Kinh doanh F&B nhỏ": "Năm 1-2: Khởi nghiệp xe đẩy / quán nhỏ → Năm 3-4: Mở rộng, xây thương hiệu địa phương → Năm 5+: Nhượng quyền, chuỗi F&B.",
   "Quản lý quán & Vận hành F&B": "Năm 1-2: Quản lý ca → Năm 3-4: F&B Manager / Vận hành đa điểm → Năm 5+: Operations Director, Chủ chuỗi quán.",
   "Hướng dẫn viên du lịch & Lữ hành": "Năm 1-2: Tour Guide freelance → Năm 3-4: HDV quốc tế / Product Manager tour → Năm 5+: Chủ công ty lữ hành, Travel KOL.",
-  "Lễ tân & Dịch vụ khách sạn chuyên nghiệp": "Năm 1-2: Front Desk / Receptionist → Năm 3-4: Supervisor / Guest Relations Manager → Năm 5+: Front Office Manager, Hotel GM."
+  "Lễ tân & Dịch vụ khách sạn chuyên nghiệp": "Năm 1-2: Front Desk / Receptionist → Năm 3-4: Supervisor / Guest Relations Manager → Năm 5+: Front Office Manager, Hotel GM.",
+  // Bán dẫn & Điện tử
+  "Kỹ sư Thiết kế Vi mạch (IC Design)": "Năm 1-2: IC Layout / Junior Verification Engineer → Năm 3-4: Senior IC Designer / RTL Engineer → Năm 5+: Lead Design Engineer, tư vấn thiết kế chip độc lập.",
+  "Kỹ sư Kiểm thử & Xác minh Chip (Verification)": "Năm 1-2: Chip Verification / ATE Operator → Năm 3-4: Senior Verification Engineer / DFT Specialist → Năm 5+: Verification Lead, Test Architect.",
+  "Kỹ sư Điện tử & Viễn thông": "Năm 1-2: Kỹ sư lắp ráp / bảo trì thiết bị → Năm 3-4: RF / Embedded Engineer chính → Năm 5+: Senior Engineer, Technical Consultant.",
+  "Kỹ thuật viên Sản xuất Công nghệ cao (Manufacturing)": "Năm 1-2: Process Technician / QC → Năm 3-4: Senior Technician / Line Leader → Năm 5+: Production Engineer, Quality Manager nhà máy FDI.",
+  "Cơ điện tử & Robot Công nghiệp": "Năm 1-2: Robot Technician / PLC Programmer entry → Năm 3-4: Automation Engineer chính → Năm 5+: Senior Automation Engineer, Systems Integrator tự do.",
+  // Nghề thủ công & Handmade
+  "Thủ công mỹ nghệ & Thiết kế sản phẩm handmade": "Năm 1-2: Làm sản phẩm bán Etsy/Shopee → Năm 3-4: Xây thương hiệu, workshop → Năm 5+: Thương hiệu handmade quốc tế, dạy nghề có thu nhập ổn định.",
+  "Trang sức handmade & Thời trang thủ công": "Năm 1-2: Bán lẻ handmade online → Năm 3-4: Thương hiệu trang sức cá nhân, có đơn sỉ → Năm 5+: Boutique riêng, xuất khẩu phụ kiện thủ công.",
+  "Sản phẩm chăm sóc cá nhân tự nhiên & Wellness thủ công": "Năm 1-2: Bán sản phẩm handmade Wellness → Năm 3-4: Thương hiệu organic có độ nhận biết → Năm 5+: Chuỗi sản phẩm tự nhiên, workshop healing.",
+  "Bán hàng thủ công quốc tế & Xây dựng thương hiệu Etsy": "Năm 1-2: Etsy shop entry / TikTok Handmade → Năm 3-4: 5-sao Etsy / thương hiệu slow living → Năm 5+: Wholesale quốc tế, Amazon Handmade seller.",
+  "Dạy workshop thủ công & Tạo nội dung hướng dẫn": "Năm 1-2: Workshop nhỏ / YouTube DIY → Năm 3-4: Bán khóa học online, pattern số → Năm 5+: Platform giáo dục thủ công, community creator.",
+  // Giáo dục trực tuyến & EdTech
+  "Người dạy kỹ năng online & Content giáo dục": "Năm 1-2: Gia sư online / Creator entry → Năm 3-4: Khóa học trên Udemy / YouTube 100K+ → Năm 5+: Thương hiệu giáo dục cá nhân, thu nhập thụ động.",
+  "Đào tạo AI & Kỹ năng số cho người không chuyên": "Năm 1-2: Trainer doanh nghiệp / Workshop → Năm 3-4: AI Literacy Consultant có tên tuổi → Năm 5+: Đào tạo doanh nghiệp quy mô lớn, xuất bản tài liệu.",
+  "Tư vấn nghề nghiệp & Phát triển cá nhân online": "Năm 1-2: Career Coach entry / Blog nghề nghiệp → Năm 3-4: Coach có chứng chỉ / cộng đồng → Năm 5+: Nền tảng tư vấn nghề, tác giả sách.",
+  "Thiết kế khóa học & Instructional Design": "Năm 1-2: Freelance ID / E-learning creator → Năm 3-4: ID Senior / L&D Designer doanh nghiệp → Năm 5+: Head of Learning Design, EdTech Consultant.",
+  // Nông nghiệp công nghệ cao
+  "Nông nghiệp chính xác & IoT Farm": "Năm 1-2: Kỹ thuật viên nông nghiệp / Vận hành drone → Năm 3-4: Precision Farming Specialist → Năm 5+: AgriTech Consultant, tư vấn dự án nông nghiệp số.",
+  "Nông nghiệp hữu cơ & Thực phẩm sạch": "Năm 1-2: Canh tác hữu cơ, bán trực tiếp → Năm 3-4: Thương hiệu nông sản sạch → Năm 5+: Chuỗi cung ứng nông sản sạch, xuất khẩu.",
+  "Công nghệ sau thu hoạch & Chế biến thực phẩm": "Năm 1-2: Kỹ thuật viên chế biến / QC → Năm 3-4: Process Technician Senior / Quản lý sản xuất → Năm 5+: Plant Manager, tư vấn công nghệ chế biến."
 };
 
 /**
@@ -2125,15 +2331,16 @@ async function generateReportUI() {
       })
       .sort((a, b) => b.S_identity - a.S_identity);
 
-    // ── DIVERSITY PRE-FILTER SAU VÒNG 1: giữ tối đa 2 entries per industry ──
+    // ── DIVERSITY PRE-FILTER SAU VÒNG 1: giữ tối đa 1 entry per industry ──
     // Đảm bảo không có ngành nào chiếm quá nhiều slot trước khi vào Vòng 2
+    // Fix: ≤2 → ≤1 để buộc đa dạng ngay từ đầu; pool 30→40 tránh thiếu ứng viên
     const round1 = (() => {
       const _indCount = {};
       return _r1All.filter(({ c }) => {
-        const ind = c.industry || 'other';
+        const ind = (c.sub_industry || c.industry || 'other');
         _indCount[ind] = (_indCount[ind] || 0) + 1;
-        return _indCount[ind] <= 2;
-      }).slice(0, 30);
+        return _indCount[ind] <= 1;
+      }).slice(0, 40);
     })();
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -2169,7 +2376,8 @@ async function generateReportUI() {
 
         // ── MBTI Compatibility ──────────────────────────────────────────────
         // Base = 40: nghề không khớp MBTI chỉ được 40/100 — phạt rõ hơn base=60 cũ
-        let mbtiBase = 40;
+        // Fix: base 40→20 — penalty MBTI thực sự có ý nghĩa, không bị sàn ảo
+        let mbtiBase = 20;
         for (const letter of mbtiCode) {
           if (c.mbti_req?.[letter]) mbtiBase += c.mbti_req[letter] * 6;
         }
@@ -2289,11 +2497,13 @@ async function generateReportUI() {
         const isStrategyCareer = RE_STRATEGY_DOMAIN.test(nameLC);
 
         if (isSpeechCareer || isStrategyCareer) {
+          // Fix: +12→+8 để giảm bias cho Marketing/Truyền thông khi người dùng có SPEECH/STRATEGY
           if (ikigaiTalent.SPEECH >= 4 || ikigaiTalent.STRATEGY >= 4) {
-            S_niche = Math.min(100, S_niche + 12);
+            S_niche = Math.min(100, S_niche + 8);
           }
+          // Fix: stacking +5→+4 (cả 2 tài năng đều cao)
           if (ikigaiTalent.SPEECH >= 4 && ikigaiTalent.STRATEGY >= 4) {
-            S_niche = Math.min(100, S_niche + 5);
+            S_niche = Math.min(100, S_niche + 4);
           }
         }
 
@@ -2346,15 +2556,15 @@ async function generateReportUI() {
       })
       .sort((a, b) => b.S_niche - a.S_niche);
 
-    // ── DIVERSITY PRE-FILTER SAU VÒNG 2: giữ tối đa 2 entries per industry ──
-    // Tránh để 1 ngành chiếm hết slot trong Vòng 3
+    // ── DIVERSITY PRE-FILTER SAU VÒNG 2: giữ tối đa 1 entry per sub_industry / industry ──
+    // Tránh để 1 ngành chiếm hết slot trong Vòng 3; pool 15→18 để không thiếu ứng viên
     const round2Filtered = (() => {
       const _indCount = {};
       return round2.filter(({ c }) => {
-        const ind = c.industry || 'other';
+        const ind = (c.sub_industry || c.industry || 'other');
         _indCount[ind] = (_indCount[ind] || 0) + 1;
-        return _indCount[ind] <= 2;
-      }).slice(0, 15);
+        return _indCount[ind] <= 1;
+      }).slice(0, 18);
     })();
 
     // ── CLINICAL CONSTRAINT FLAGS (từ câu Q_CONSTRAINT_CLINICAL) ─────────────
@@ -2384,10 +2594,15 @@ async function generateReportUI() {
       .map(({ c, S_identity, S_niche, dreamBonus, isDreamMatch, careerTopH }) => {
         const demand = c.market_demand ?? 50;
         const salary = c.market_salary ?? 50;
+        // growth_score: 1–10 (từ careers_matrix.json) → nhân 10 = 10–100
+        // Phản ánh xu hướng tăng trưởng ngành tại Việt Nam 2025-2035
+        const growthRaw = (c.growth_score ?? 6.0) * 10; // default 6.0 = trung bình
 
         // Hệ số phạt lý thuyết thuần bão hòa (demand < 75)
         const theoryPenalty = RE_THEORY_PENALTY.test(c.name) && demand < 75 ? 0.60 : 1.0;
-        const S_market = (demand * theoryPenalty * 0.55) + (salary * theoryPenalty * 0.45);
+        // Công thức mới: demand×0.40 + salary×0.30 + growth×0.30
+        // Ưu tiên ngành tăng trưởng khi các nghề có điểm identity/niche tương đương
+        const S_market = theoryPenalty * (demand * 0.40 + salary * 0.30 + growthRaw * 0.30);
 
         // ── CLINICAL CONSTRAINT PENALTY (sợ máu / tránh lâm sàng) ───────────
         const nameLC2 = (c.name + ' ' + (c.niche || '')).toLowerCase();
@@ -2732,10 +2947,12 @@ async function generateReportUI() {
       entry._profTitle = pInfo.profession || entry.niche || entry.name;
     }
 
-    // LỚP 1: Lấy 1 nghề tốt nhất mỗi industry (round3 đã sort ICI giảm dần)
+    // LỚP 1: Lấy 1 nghề tốt nhất mỗi sub_industry / industry
+    // Fix: dùng sub_industry (IT chia thành 7 nhóm) thay vì chỉ industry
+    // → ngăn IT chiếm 2 slot trong Top 5 với tên nghề gần giống nhau
     const industryBestMap = {};
     for (const entry of round3) {
-      const ind = entry.industry || 'other';
+      const ind = (entry.sub_industry || entry.industry || 'other');
       if (!industryBestMap[ind]) {
         industryBestMap[ind] = entry;
       }
@@ -2745,20 +2962,26 @@ async function generateReportUI() {
     const primaryCandidates = Object.values(industryBestMap)
       .sort((a, b) => b.ICI - a.ICI);
 
-    // LỚP 2: Lọc tiếp bằng PROFESSION TITLE dedup (tên hiển thị thực tế)
+    // LỚP 2: Lọc tiếp bằng PROFESSION TITLE dedup + parent-industry cap
     const top5 = [];
-    const usedProfTitles = []; // Dùng profTitle (tên hiển thị) để so sánh, không dùng niche
+    const usedProfTitles = [];
+    const usedParentIndustries = {}; // Fix: giới hạn tối đa 2 slot cùng ngành cha trong Top 5
 
     for (const entry of primaryCandidates) {
       if (top5.length >= 5) break;
       const entryProfTitle = entry._profTitle;
-      // Chặn nếu tên nghề hiển thị đã giống với nghề đã chọn
       const isDupProf = usedProfTitles.some(p =>
         p === entryProfTitle || isTooSimilar(entryProfTitle, p)
       );
-      if (!isDupProf) {
+      // Giới hạn tối đa 2 nghề cùng ngành cha trong Top 5
+      const parentInd = entry.industry || 'other';
+      const parentCount = usedParentIndustries[parentInd] || 0;
+      const isOverParentCap = parentCount >= 2;
+
+      if (!isDupProf && !isOverParentCap) {
         top5.push(entry);
         usedProfTitles.push(entryProfTitle);
+        usedParentIndustries[parentInd] = parentCount + 1;
       }
     }
 
@@ -3423,6 +3646,5 @@ async function generateReportUI() {
 
   } catch (err) {
     console.error('Lỗi thực thi Universal Layered Algorithm v5.0:', err);
-    alert('Đã xảy ra sự cố trong quá trình phân tích ma trận. Vui lòng thử lại!');
   }
 }
