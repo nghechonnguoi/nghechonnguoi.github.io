@@ -2009,8 +2009,21 @@ async function generateReportUI() {
   }
 
   try {
-    const res = await fetch('data/careers_matrix.json?v=' + new Date().getTime());
-    const database = await res.json();
+    // Fetch với retry — không dùng timestamp cache-bust để browser có thể cache file ~1MB
+    let database = null;
+    let fetchError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch('data/careers_matrix.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        database = await res.json();
+        break;
+      } catch (e) {
+        fetchError = e;
+        if (attempt < 2) await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+      }
+    }
+    if (!database) throw new Error('Không thể tải dữ liệu nghề nghiệp: ' + (fetchError?.message || 'timeout'));
     const careers = database.careers || [];
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -3646,5 +3659,17 @@ async function generateReportUI() {
 
   } catch (err) {
     console.error('Lỗi thực thi Universal Layered Algorithm v5.0:', err);
+    // Hiển thị thông báo lỗi thân thiện cho người dùng
+    const reportContainer = document.getElementById('report-container');
+    const optionsSpace = document.getElementById('options-space');
+    const errTarget = reportContainer || optionsSpace;
+    if (errTarget) {
+      errTarget.innerHTML = `
+        <div style="background:#1e293b;border:1.5px solid #ef4444;border-radius:12px;padding:28px;text-align:center;margin-top:20px;">
+          <p style="color:#ef4444;font-size:18px;font-weight:700;margin-bottom:10px;">⚠️ Đã xảy ra sự cố</p>
+          <p style="color:#cbd5e1;font-size:14px;margin-bottom:20px;">Hệ thống gặp lỗi khi phân tích dữ liệu. Vui lòng thử lại.</p>
+          <button onclick="location.reload()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">🔄 Thử lại</button>
+        </div>`;
+    }
   }
 }
