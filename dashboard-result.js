@@ -264,6 +264,7 @@
     <div style="margin-bottom:20px;">
       <div style="display:inline-block;padding:4px 14px;border-radius:999px;background:rgba(43,168,140,0.15);border:1px solid rgba(43,168,140,0.3);margin-bottom:12px;"><span style="font-size:12px;font-weight:700;color:#2BA88C;">Tiết kiệm ${IS_CAMPAIGN ? '959.000đ' : '790.000đ'}</span></div>
       <div style="display:flex;align-items:baseline;justify-content:center;gap:12px;"><span style="text-decoration:line-through;color:rgba(255,255,255,0.4);font-size:16px;">${PRICE_ORIGINAL_DISPLAY}</span><span style="font-size:clamp(32px,7vw,44px);font-weight:900;color:#E8A838;">${PRICE_DISPLAY}</span></div>
+      <p style="font-size:14px;color:rgba(255,255,255,0.6);max-width:400px;margin:12px auto 0;">Quy&#7871;t &#273;&#7883;nh sai c&#243; th&#7875; khi&#7871;n b&#7841;n m&#7845;t 4 n&#259;m &#273;&#7841;i h&#7885;c v&#224; h&#224;ng tr&#259;m tri&#7879;u &#273;&#7891;ng.</p>
     </div>
     <button class="ncn-cta-btn" id="ncn-main-cta">XEM NGAY 5 NGHỀ PHÙ HỢP NHẤT VỚI BẠN<br><span style="font-size:12px;font-weight:600;opacity:0.8;">& ĐỊNH HƯỚNG PHÁT TRIỂN TRONG TƯƠNG LAI</span></button>
     <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:12px;">Nhận file PDF trong 30 giây · Thanh toán bảo mật</p>
@@ -411,4 +412,5 @@
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', waitForResult); }
   else { waitForResult(); }
 })();
+
 
