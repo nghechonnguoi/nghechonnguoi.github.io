@@ -31,64 +31,7 @@ const firebaseConfig = {
 
 // Khởi tạo các phân hệ đám mây (Giữ nguyên phần code khởi tạo phía dưới)
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db   = firebase.firestore();  // 🗄️ Khởi tạo Firestore để lưu dữ liệu khách hàng
-// LẮNG NGHE TRẠNG THÁI TÀI KHOẢN (TỰ ĐỘNG ĐÓNG/MỞ KHÓA WEBAPP)
-auth.onAuthStateChanged((user) => {
-  const authView = document.getElementById("auth-container");
-  if (user) {
-    // Nếu đã đăng nhập thành công -> Ẩn màn hình khóa đi để làm bài test
-    authView.classList.add("hidden");
-    console.log("Đã kết nối tài khoản khách hàng:", user.email);
-
-    // Tự động điền email của người dùng vào form nếu hòm thư đang trống
-    if (document.getElementById("customerEmail")) {
-      document.getElementById("customerEmail").value = user.email;
-    }
-  } else {
-    // Nếu chưa đăng nhập hoặc đã bấm đăng xuất -> Hiện lại màn hình khóa
-    authView.classList.remove("hidden");
-  }
-});
-
-// Hàm xử lý Đăng nhập nhanh bằng Google Pop-up
-async function handleGoogleLogin() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  try {
-    await auth.signInWithPopup(provider);
-    alert("Đăng nhập tài khoản Google thành công!");
-  } catch (error) {
-    alert("Lỗi đăng nhập Google: " + error.message);
-  }
-}
-
-// Hàm xử lý Đăng ký tài khoản Email mới
-async function handleEmailRegister() {
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
-  if (!email || !password) { alert("Vui lòng nhập đủ Email và Mật khẩu!"); return; }
-
-  try {
-    await auth.createUserWithEmailAndPassword(email, password);
-    alert("Tạo tài khoản thành công! Bạn có thể làm bài test ngay bây giờ.");
-  } catch (error) {
-    alert("Lỗi đăng ký: " + error.message);
-  }
-}
-
-// Hàm xử lý Đăng nhập Email truyền thống
-async function handleEmailLogin() {
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
-  if (!email || !password) { alert("Vui lòng nhập đủ Email và Mật khẩu!"); return; }
-
-  try {
-    await auth.signInWithEmailAndPassword(email, password);
-    alert("Đăng nhập thành công!");
-  } catch (error) {
-    alert("Sai mật khẩu hoặc tài khoản chưa đăng ký: " + error.message);
-  }
-}
 
 // Hàm đăng xuất (Gọi hàm này khi muốn khóa hệ thống lại)
 function handleLogout() {
@@ -103,6 +46,20 @@ let userAnswers = {};
 
 // ─── KHỞI ĐỘNG SAU KHI DOM LOAD ─────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+  // ✅ Tự động khôi phục kết quả nếu đã làm bài test trước đó (F5 không mất dữ liệu)
+  const savedAnswers = localStorage.getItem("user_quiz_answers");
+  const savedProfile = localStorage.getItem("active_student_profile");
+  const savedQuizDate = localStorage.getItem("user_quiz_date");
+  const RESET_TIMESTAMP = new Date('2026-07-05T00:00:00.000Z').getTime();
+  const quizSavedAt = savedQuizDate ? parseInt(savedQuizDate) : 0;
+  if (savedAnswers && savedProfile && quizSavedAt >= RESET_TIMESTAMP) {
+    const profileContainer = document.getElementById("profile-container");
+    const quizContainer = document.getElementById("quiz-container");
+    if (profileContainer) profileContainer.classList.add("hidden");
+    if (quizContainer) quizContainer.classList.add("hidden");
+    generateReportUI();
+  }
+
   const profileForm = document.getElementById("profile-form");
   if (!profileForm) return;
 
@@ -130,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
       birthDate: studentProfile.birthDate,
       email:     studentProfile.email,
       phone:     studentProfile.phone,
-      uid:       firebase.auth().currentUser?.uid || null,
+      uid:       null,
       submittedAt: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(err => console.warn("Firestore save warning:", err));
 
@@ -1046,7 +1003,16 @@ async function generateReportUI() {
       D: 4, M: 4, V: 4, E: 5, N: 5, W: 5, F: 6, O: 6, X: 6,
       G: 7, P: 7, Y: 7, H: 8, Q: 8, Z: 8, I: 9, R: 9
     };
-    const VOWELS = new Set(['A', 'E', 'I', 'O', 'U', 'Y']);
+    const VOWELS = new Set(['A', 'E', 'I', 'O', 'U']); // Y duoc tinh rieng
+
+    const isYVowel = (word, index) => {
+      const prev = index > 0 ? word[index - 1] : null;
+      const next = index < word.length - 1 ? word[index + 1] : null;
+      const prevIsVowel = prev !== null && VOWELS.has(prev);
+      const nextIsVowel = next !== null && VOWELS.has(next);
+      if (prevIsVowel && nextIsVowel) return false;
+      return true;
+    };
 
     // Chuẩn hóa tên tiếng Việt → ký tự Latin hoa
     const toLatinUpper = (text) => {
@@ -1086,12 +1052,18 @@ async function generateReportUI() {
     let soulRaw = 0, missionRaw = 0, letterFreq = {};
 
     latinName.split(' ').forEach(word => {
-      for (const ch of word) {
+      for (let i = 0; i < word.length; i++) {
+        const ch = word[i];
         const v = LETTER_MAP[ch];
         if (!v) continue;
         missionRaw += v;
         letterFreq[v] = (letterFreq[v] || 0) + 1;
-        if (VOWELS.has(ch)) soulRaw += v;
+        
+        if (VOWELS.has(ch)) {
+          soulRaw += v;
+        } else if (ch === 'Y') {
+          if (isYVowel(word, i)) soulRaw += v;
+        }
       }
     });
 
@@ -1338,15 +1310,16 @@ async function generateReportUI() {
       })
       .sort((a, b) => b.S_identity - a.S_identity);
 
-    // ── DIVERSITY PRE-FILTER SAU VÒNG 1: giữ tối đa 2 entries per industry ──
+    // ── DIVERSITY PRE-FILTER SAU VÒNG 1: giữ tối đa 1 entry per industry ──
     // Đảm bảo không có ngành nào chiếm quá nhiều slot trước khi vào Vòng 2
+    // Fix: ≤2 → ≤1 để buộc đa dạng ngay từ đầu; pool 30→40 tránh thiếu ứng viên
     const round1 = (() => {
       const _indCount = {};
       return _r1All.filter(({ c }) => {
-        const ind = c.industry || 'other';
+        const ind = (c.sub_industry || c.industry || 'other');
         _indCount[ind] = (_indCount[ind] || 0) + 1;
-        return _indCount[ind] <= 2;
-      }).slice(0, 30);
+        return _indCount[ind] <= 1;
+      }).slice(0, 40);
     })();
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -1382,7 +1355,8 @@ async function generateReportUI() {
 
         // ── MBTI Compatibility ──────────────────────────────────────────────
         // Base = 40: nghề không khớp MBTI chỉ được 40/100 — phạt rõ hơn base=60 cũ
-        let mbtiBase = 40;
+        // Fix: base 40→20 — penalty MBTI thực sự có ý nghĩa, không bị sàn ảo
+        let mbtiBase = 20;
         for (const letter of mbtiCode) {
           if (c.mbti_req?.[letter]) mbtiBase += c.mbti_req[letter] * 6;
         }
@@ -1502,11 +1476,13 @@ async function generateReportUI() {
         const isStrategyCareer = RE_STRATEGY_DOMAIN.test(nameLC);
 
         if (isSpeechCareer || isStrategyCareer) {
+          // Fix: +12→+8 để giảm bias cho Marketing/Truyền thông
           if (ikigaiTalent.SPEECH >= 4 || ikigaiTalent.STRATEGY >= 4) {
-            S_niche = Math.min(100, S_niche + 12);
+            S_niche = Math.min(100, S_niche + 8);
           }
+          // Fix: stacking +5→+4
           if (ikigaiTalent.SPEECH >= 4 && ikigaiTalent.STRATEGY >= 4) {
-            S_niche = Math.min(100, S_niche + 5);
+            S_niche = Math.min(100, S_niche + 4);
           }
         }
 
@@ -1559,15 +1535,15 @@ async function generateReportUI() {
       })
       .sort((a, b) => b.S_niche - a.S_niche);
 
-    // ── DIVERSITY PRE-FILTER SAU VÒNG 2: giữ tối đa 2 entries per industry ──
-    // Tránh để 1 ngành chiếm hết slot trong Vòng 3
+    // ── DIVERSITY PRE-FILTER SAU VÒNG 2: giữ tối đa 1 entry per sub_industry / industry ──
+    // Tránh để 1 ngành chiếm hết slot trong Vòng 3; pool 15→18
     const round2Filtered = (() => {
       const _indCount = {};
       return round2.filter(({ c }) => {
-        const ind = c.industry || 'other';
+        const ind = (c.sub_industry || c.industry || 'other');
         _indCount[ind] = (_indCount[ind] || 0) + 1;
-        return _indCount[ind] <= 2;
-      }).slice(0, 15);
+        return _indCount[ind] <= 1;
+      }).slice(0, 18);
     })();
 
     // ── CLINICAL CONSTRAINT FLAGS (từ câu Q_CONSTRAINT_CLINICAL) ─────────────
@@ -1597,10 +1573,13 @@ async function generateReportUI() {
       .map(({ c, S_identity, S_niche, dreamBonus, isDreamMatch, careerTopH }) => {
         const demand = c.market_demand ?? 50;
         const salary = c.market_salary ?? 50;
+        // growth_score: 1–10 → nhân 10 = 10–100
+        const growthRaw = (c.growth_score ?? 6.0) * 10;
 
         // Hệ số phạt lý thuyết thuần bão hòa (demand < 75)
         const theoryPenalty = RE_THEORY_PENALTY.test(c.name) && demand < 75 ? 0.60 : 1.0;
-        const S_market = (demand * theoryPenalty * 0.55) + (salary * theoryPenalty * 0.45);
+        // demand×0.40 + salary×0.30 + growth×0.30
+        const S_market = theoryPenalty * (demand * 0.40 + salary * 0.30 + growthRaw * 0.30);
 
         // ── CLINICAL CONSTRAINT PENALTY (sợ máu / tránh lâm sàng) ───────────
         const nameLC2 = (c.name + ' ' + (c.niche || '')).toLowerCase();
@@ -1890,10 +1869,11 @@ async function generateReportUI() {
       entry._profTitle = pInfo.profession || entry.niche || entry.name;
     }
 
-    // LỚP 1: Lấy 1 nghề tốt nhất mỗi industry (round3 đã sort ICI giảm dần)
+    // LỚP 1: Lấy 1 nghề tốt nhất mỗi sub_industry / industry
+    // Fix: dùng sub_industry (IT chia thành 7 nhóm) thay vì chỉ industry
     const industryBestMap = {};
     for (const entry of round3) {
-      const ind = entry.industry || 'other';
+      const ind = (entry.sub_industry || entry.industry || 'other');
       if (!industryBestMap[ind]) {
         industryBestMap[ind] = entry;
       }
@@ -1903,20 +1883,25 @@ async function generateReportUI() {
     const primaryCandidates = Object.values(industryBestMap)
       .sort((a, b) => b.ICI - a.ICI);
 
-    // LỚP 2: Lọc tiếp bằng PROFESSION TITLE dedup (tên hiển thị thực tế)
+    // LỚP 2: Lọc tiếp bằng PROFESSION TITLE dedup + parent-industry cap
     const top5 = [];
-    const usedProfTitles = []; // Dùng profTitle (tên hiển thị) để so sánh, không dùng niche
+    const usedProfTitles = [];
+    const usedParentIndustries = {}; // Fix: giới hạn tối đa 2 slot cùng ngành cha trong Top 5
 
     for (const entry of primaryCandidates) {
       if (top5.length >= 5) break;
       const entryProfTitle = entry._profTitle;
-      // Chặn nếu tên nghề hiển thị đã giống với nghề đã chọn
       const isDupProf = usedProfTitles.some(p =>
         p === entryProfTitle || isTooSimilar(entryProfTitle, p)
       );
-      if (!isDupProf) {
+      const parentInd = entry.industry || 'other';
+      const parentCount = usedParentIndustries[parentInd] || 0;
+      const isOverParentCap = parentCount >= 2;
+
+      if (!isDupProf && !isOverParentCap) {
         top5.push(entry);
         usedProfTitles.push(entryProfTitle);
+        usedParentIndustries[parentInd] = parentCount + 1;
       }
     }
 
@@ -2165,6 +2150,5 @@ async function generateReportUI() {
 
   } catch (err) {
     console.error('Lỗi thực thi Universal Layered Algorithm v5.0:', err);
-    alert('Đã xảy ra sự cố trong quá trình phân tích ma trận. Vui lòng thử lại!');
   }
 }

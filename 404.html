@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Nghề Chọn Người</title>
+  <script>
+    /**
+     * GitHub Pages 404 fallback — dùng để handle clean URLs.
+     * Nếu URL có dạng /ref/CODE → redirect sang /?ref=CODE
+     * Các path khác → redirect về /
+     */
+    (function () {
+      try {
+        var path = window.location.pathname;
+        var refMatch = path.match(/^\/ref\/([A-Za-z0-9\-_]+)\/?$/);
+        if (refMatch) {
+          var code = refMatch[1].trim().toUpperCase();
+          // Lưu vào storage ngay trước khi redirect
+          localStorage.setItem('ncn_referral_code', code);
+          try { sessionStorage.setItem('ncn_ref', code); } catch {}
+          window.location.replace('/?ref=' + encodeURIComponent(code));
+        } else {
+          // Path lạ khác → về trang chính
+          window.location.replace('/');
+        }
+      } catch (e) {
+        window.location.replace('/');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <p style="font-family:sans-serif;text-align:center;padding:48px;color:#64748b;">
+    Đang chuyển hướng...
+  </p>
+</body>
+</html>
