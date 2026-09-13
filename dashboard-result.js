@@ -96,9 +96,27 @@
       const msgEl = document.getElementById('ncn-coupon-msg');
       if (!code) { msgEl.textContent = 'Vui lòng nhập mã'; msgEl.style.color = '#f87171'; return; }
       try {
-        const res = await fetch(`${API_BASE}/apply-coupon`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ coupon: code, orderCode: String(orderCodeNum) }) });
+        const res = await fetch(`${API_BASE}/apply-coupon`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ coupon: code, action: 'validate', orderCode: String(orderCodeNum) }) });
         const d = await res.json();
-        if (d.success) { finalAmount = 0; document.getElementById('ncn-price-display').textContent = 'MIỄN PHÍ'; document.getElementById('ncn-pay-btn').textContent = '🔓 NHẬN BÁO CÁO MIỄN PHÍ'; msgEl.textContent = '✅ Mã hợp lệ! Miễn phí 100%'; msgEl.style.color = '#34d399'; }
+        if (d.success) {
+          const apiDiscount = Number(d.discountAmount ?? 0);
+          if (apiDiscount > 0) {
+            // Coupon giảm 1 phần (VD: GIAM50 → -50k)
+            finalAmount = Math.max(0, PRICE - apiDiscount);
+            const fmtNew = finalAmount.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('ncn-price-display').textContent = fmtNew;
+            document.getElementById('ncn-pay-btn').textContent = `🔓 THANH TOÁN ${fmtNew}`;
+            msgEl.textContent = `✅ Giảm ${apiDiscount.toLocaleString('vi-VN')}đ! Giá còn ${fmtNew}`;
+            msgEl.style.color = '#34d399';
+          } else {
+            // Coupon miễn phí 100%
+            finalAmount = 0;
+            document.getElementById('ncn-price-display').textContent = 'MIỄN PHÍ';
+            document.getElementById('ncn-pay-btn').textContent = '🔓 NHẬN BÁO CÁO MIỄN PHÍ';
+            msgEl.textContent = '✅ Mã hợp lệ! Miễn phí 100%';
+            msgEl.style.color = '#34d399';
+          }
+        }
         else { msgEl.textContent = '❌ ' + (d.message || 'Mã không hợp lệ'); msgEl.style.color = '#f87171'; }
       } catch { msgEl.textContent = '❌ Lỗi kiểm tra mã'; msgEl.style.color = '#f87171'; }
     };
@@ -106,14 +124,15 @@
       const btn = document.getElementById('ncn-pay-btn'); const errEl = document.getElementById('ncn-modal-error');
       btn.disabled = true; btn.textContent = '⏳ Đang xử lý...'; errEl.style.display = 'none';
       try {
-        await fetch(`${API_BASE}/create-order`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ orderCode: orderCodeNum, orderId: `NCN-${orderCodeNum}`, amount: finalAmount, customerName: payload.HOTEN || '', customerEmail: payload.EMAIL || '', customerPhone: payload.DIEN_THOAI || '', payload, referralCode: getRef() }) });
+        // Tạo order với amount = giá gốc, discountAmount được lưu riêng qua apply-coupon
+        await fetch(`${API_BASE}/create-order`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ orderCode: orderCodeNum, orderId: `NCN-${orderCodeNum}`, amount: PRICE, customerName: payload.HOTEN || '', customerEmail: payload.EMAIL || '', customerPhone: payload.DIEN_THOAI || '', payload, referralCode: getRef() }) });
         if (finalAmount === 0) {
           document.getElementById('ncn-modal-body').innerHTML = '<div style="text-align:center;padding:32px 16px;"><div style="font-size:48px;margin-bottom:16px;">⏳</div><p style="font-weight:800;font-size:18px;color:#fff;">Đang tạo báo cáo...</p></div>';
           const pdfRes = await fetch(`${API_BASE}/generate-pdf`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
           if (!pdfRes.ok) throw new Error('Lỗi tạo PDF');
           showDone(URL.createObjectURL(await pdfRes.blob()), payload.HOTEN || 'BaoCao'); return;
         }
-        // Tao QR VietQR truc tiep - MB Bank, khong can PayOS
+        // Tạo QR VietQR — amount = finalAmount (giá sau giảm coupon)
         const desc = `NCN ${orderCodeNum}`;
         const qrUrl = `https://img.vietqr.io/image/${BANK_BIN}-${BANK_ACCT}-compact2.png?amount=${finalAmount}&addInfo=${encodeURIComponent(desc)}&accountName=${encodeURIComponent(BANK_OWNER)}`;
         showQR(qrUrl, desc, finalAmount, orderCodeNum, payload);

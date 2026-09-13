@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Đang chuyển hướng...</title>
+  <script>
+    // Đọc code từ URL path: /ref/AFFILIATECODE
+    // GitHub Pages không support server-side redirect,
+    // nên dùng JS để đọc pathname và redirect sang /?ref=CODE
+    (function () {
+      try {
+        // pathname = /ref/AFFILIATECODE hoặc /ref/AFFILIATECODE/
+        var parts = window.location.pathname.replace(/\/$/, '').split('/');
+        var code = parts[parts.length - 1]; // lấy phần cuối
+
+        if (code && code !== 'ref') {
+          // Lưu vào localStorage ngay trước khi redirect
+          localStorage.setItem('ncn_referral_code', code.trim().toUpperCase());
+          try { sessionStorage.setItem('ncn_ref', code.trim().toUpperCase()); } catch {}
+          // Redirect về trang chính với ?ref= param
+          window.location.replace('/?ref=' + encodeURIComponent(code.trim().toUpperCase()));
+        } else {
+          // Không có code → về trang chính
+          window.location.replace('/');
+        }
+      } catch (e) {
+        window.location.replace('/');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <p style="font-family:sans-serif;text-align:center;padding:48px;color:#64748b;">
+    Đang chuyển hướng...
+  </p>
+</body>
+</html>
