@@ -2087,13 +2087,13 @@ async function generateReportUI() {
     };
 
     // — Tiềm năng (Lifepath): toàn bộ chữ số ngày/tháng/năm sinh —
-    const allDigits = profile.birthDate.replace(/\D/g, '').split('').map(Number);
-    const dayDigits = (profile.birthDate.split('/')[0] || '').replace(/\D/g, '').split('').map(Number);
-    const lifepathNum = reduceNum(allDigits.reduce((a, b) => a + b, 0), true);
-    const talentNum = reduceNum(dayDigits.reduce((a, b) => a + b, 0));
+    const allDigits = (profile.birthDate || '').replace(/\D/g, '').split('').map(Number);
+    const dayDigits = ((profile.birthDate || '').split('/')[0] || '').replace(/\D/g, '').split('').map(Number);
+    const lifepathNum = reduceNum(allDigits.reduce((a, b) => a + b, 0), true) || 5;
+    const talentNum = reduceNum(dayDigits.reduce((a, b) => a + b, 0)) || 5;
 
     // — Sứ mệnh, Khát vọng, Đam mê: từ họ tên đầy đủ —
-    const latinName = toLatinUpper(profile.fullName);
+    const latinName = toLatinUpper(profile.fullName || '');
     let soulRaw = 0, missionRaw = 0, letterFreq = {};
 
     latinName.split(' ').forEach(word => {
