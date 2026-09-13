@@ -208,6 +208,9 @@
   </div>
 </div>
 
+
+<!-- CTA TOP -->
+<div style="background:#fff;padding:20px;text-align:center;border-bottom:1px solid #f1f5f9;"><div style="max-width:560px;margin:0 auto;"><button class="ncn-cta-btn" id="ncn-cta-top">XEM NGAY 5 NGHỀ PHÙ HỢP NHẤT VỚI BẠN<br><span style="font-size:12px;font-weight:600;opacity:0.8;">& ĐỊNH HƯỚNG PHÁT TRIỂN TRONG TƯƠNG LAI</span></button><p style="font-size:11px;color:#94a3b8;margin-top:10px;">Nhận file PDF trong 30 giây · Thanh toán bảo mật</p></div></div>
 <!-- TOP 5 CAREERS -->
 <div class="ncn-section" style="background:#f8fafc;">
   <div class="ncn-cont">
@@ -254,6 +257,9 @@
   </div>
 </div>
 
+<!-- CTA MID -->
+<div style="background:#f0fdf9;padding:28px 20px;text-align:center;border-top:1px solid #d1fae5;border-bottom:1px solid #d1fae5;"><div style="max-width:560px;margin:0 auto;"><p style="font-size:14px;color:#0f172a;font-weight:700;margin:0 0 16px;">Báo cáo đầy đủ — cá nhân hóa cho bạn — sẵn sàng trong 30 giây</p><button class="ncn-cta-btn" id="ncn-cta-mid">XEM NGAY 5 NGHỀ PHÙ HỢP NHẤT VỚI BẠN<br><span style="font-size:12px;font-weight:600;opacity:0.8;">& ĐỊNH HƯỚNG PHÁT TRIỂN TRONG TƯƠNG LAI</span></button><p style="font-size:11px;color:#6b7280;margin-top:10px;">Nhận file PDF trong 30 giây · Thanh toán bảo mật</p></div></div>
+
 <!-- CTA -->
 <div style="background:linear-gradient(135deg,#1B2A4A 0%,#2d4a7a 100%);padding:56px 20px;">
   <div style="max-width:560px;margin:0 auto;text-align:center;">
@@ -274,6 +280,8 @@
 <div style="background:#1B2A4A;padding:20px;text-align:center;"><p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">© NCN Academy — Nghề Chọn Người</p></div>`;
 
     document.getElementById('ncn-main-cta').onclick = () => openCheckout(payload);
+    document.getElementById('ncn-cta-top').onclick = () => openCheckout(payload);
+    document.getElementById('ncn-cta-mid').onclick = () => openCheckout(payload);
     window._ncnOpenCheckout = () => openCheckout(payload);
     startCountdown();
     fetchAiData(payload).then(ai => { renderInsights(ai); renderCareers(ai); renderRisk(ai); });
