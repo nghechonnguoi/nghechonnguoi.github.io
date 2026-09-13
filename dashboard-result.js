@@ -6,7 +6,38 @@
 (function () {
   'use strict';
 
-  const PRICE = 568000;
+  // ── Referral capture (backup — script.js chạy trước, nhưng đề phòng race) ──
+  (function() {
+    try {
+      const urlRef = new URLSearchParams(window.location.search).get('ref');
+      if (urlRef) {
+        const code = urlRef.trim().toUpperCase();
+        localStorage.setItem('ncn_referral_code', code);
+        sessionStorage.setItem('ncn_ref', code);
+      }
+    } catch {}
+  })();
+
+  // Đọc referral code (ưu tiên: sessionStorage → localStorage)
+  function getRef() {
+    try {
+      return sessionStorage.getItem('ncn_ref')
+          || localStorage.getItem('ncn_referral_code')
+          || localStorage.getItem('referralCode')
+          || '';
+    } catch { return ''; }
+  }
+
+  const CAMPAIGN_START = new Date('2026-07-15T00:00:00+07:00');
+  const CAMPAIGN_END   = new Date('2026-07-28T23:59:59+07:00');
+  const now = new Date();
+  const IS_CAMPAIGN = now >= CAMPAIGN_START && now <= CAMPAIGN_END;
+  const PRICE = IS_CAMPAIGN ? 399000 : 799000;
+  const PRICE_DISPLAY = IS_CAMPAIGN ? '399.000đ' : '799.000đ';
+  const PRICE_ORIGINAL_DISPLAY = '1.358.000đ'
+  const BANK_BIN   = '970422';
+  const BANK_ACCT  = '768688678';
+  const BANK_OWNER = 'HO KINH DOANH NGHE CHON NGUOI';
   const API_BASE = 'https://ncn-academy-web.vercel.app/api';
   const COUNTDOWN_KEY = 'ncn_result_countdown';
   let countdownInterval = null;
@@ -56,7 +87,7 @@
     modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,0.85);backdrop-filter:blur(4px)';
     let finalAmount = PRICE;
     let orderCodeNum = parseInt((payload.MA_SO_HO_SO || '').replace(/[^0-9]/g, '').slice(-8)) || (Math.floor(Math.random() * 900000) + 100000);
-    modal.innerHTML = `<div style="background:#1e293b;color:#fff;border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;"><div style="display:flex;align-items:center;justify-content:space-between;padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);position:sticky;top:0;background:#1e293b;z-index:1;"><div><p style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#E8A838;margin:0 0 4px;">MỞ KHÓA BÁO CÁO ĐẦY ĐỦ</p><p style="font-size:15px;font-weight:900;color:#fff;margin:0;">Bản đồ sự nghiệp cá nhân hóa</p></div><button id="ncn-modal-close" style="background:rgba(255,255,255,0.08);border:none;color:#fff;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;">✕</button></div><div id="ncn-modal-body" style="padding:20px;"><div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:16px;"><p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin:0 0 12px;">📄 BÁO CÁO BAO GỒM</p>${['5 nghề phù hợp nhất — phân tích chi tiết','3 nghề nên tránh — và lý do cụ thể','Môi trường làm việc tối ưu','Lộ trình ngành học → nghề nghiệp → thu nhập','Chiến lược phát triển sự nghiệp 5 năm'].map(t=>`<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="color:#2BA88C;">✓</span><span style="font-size:13px;color:rgba(255,255,255,0.8);">${t}</span></div>`).join('')}</div><div style="text-align:center;margin-bottom:16px;"><span style="text-decoration:line-through;color:rgba(255,255,255,0.4);font-size:14px;margin-right:10px;">1.358.000đ</span><span id="ncn-price-display" style="font-size:32px;font-weight:900;color:#E8A838;">568.000đ</span></div><div style="display:flex;gap:8px;margin-bottom:8px;"><input id="ncn-coupon" type="text" placeholder="Nhập mã ưu đãi (nếu có)" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:#0f172a;color:#fff;font-size:13px;outline:none;"><button id="ncn-coupon-btn" style="background:#3b82f6;color:#fff;border:none;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Áp dụng</button></div><p id="ncn-coupon-msg" style="font-size:12px;margin:0 0 12px;min-height:16px;"></p><p id="ncn-modal-error" style="color:#f87171;font-size:13px;background:rgba(248,113,113,0.1);border-radius:8px;padding:8px 12px;display:none;margin-bottom:12px;"></p><button id="ncn-pay-btn" style="width:100%;padding:18px;border-radius:14px;border:none;background:linear-gradient(135deg,#E8A838,#f0c060);color:#1B2A4A;font-size:16px;font-weight:900;cursor:pointer;">🔓 THANH TOÁN QUA MÃ QR</button><p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px;">Nhận file PDF trong 30 giây · Thanh toán bảo mật</p></div></div>`;
+    modal.innerHTML = `<div style="background:#1e293b;color:#fff;border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;"><div style="display:flex;align-items:center;justify-content:space-between;padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);position:sticky;top:0;background:#1e293b;z-index:1;"><div><p style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#E8A838;margin:0 0 4px;">MỞ KHÓA BÁO CÁO ĐẦY ĐỦ</p><p style="font-size:15px;font-weight:900;color:#fff;margin:0;">Bản đồ sự nghiệp cá nhân hóa</p></div><button id="ncn-modal-close" style="background:rgba(255,255,255,0.08);border:none;color:#fff;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;">✕</button></div><div id="ncn-modal-body" style="padding:20px;"><div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:16px;"><p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin:0 0 12px;">📄 BÁO CÁO BAO GỒM</p>${['5 nghề phù hợp nhất — phân tích chi tiết','3 nghề nên tránh — và lý do cụ thể','Môi trường làm việc tối ưu','Lộ trình ngành học → nghề nghiệp → thu nhập','Chiến lược phát triển sự nghiệp 5 năm'].map(t=>`<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="color:#2BA88C;">✓</span><span style="font-size:13px;color:rgba(255,255,255,0.8);">${t}</span></div>`).join('')}</div><div style="text-align:center;margin-bottom:16px;"><span style="text-decoration:line-through;color:rgba(255,255,255,0.4);font-size:14px;margin-right:10px;">${PRICE_ORIGINAL_DISPLAY}</span><span id="ncn-price-display" style="font-size:32px;font-weight:900;color:#E8A838;">${PRICE_DISPLAY}</span></div><div style="display:flex;gap:8px;margin-bottom:8px;"><input id="ncn-coupon" type="text" placeholder="Nhập mã ưu đãi (nếu có)" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:#0f172a;color:#fff;font-size:13px;outline:none;"><button id="ncn-coupon-btn" style="background:#3b82f6;color:#fff;border:none;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Áp dụng</button></div><p id="ncn-coupon-msg" style="font-size:12px;margin:0 0 12px;min-height:16px;"></p><p id="ncn-modal-error" style="color:#f87171;font-size:13px;background:rgba(248,113,113,0.1);border-radius:8px;padding:8px 12px;display:none;margin-bottom:12px;"></p><button id="ncn-pay-btn" style="width:100%;padding:18px;border-radius:14px;border:none;background:linear-gradient(135deg,#E8A838,#f0c060);color:#1B2A4A;font-size:16px;font-weight:900;cursor:pointer;">🔓 THANH TOÁN QUA MÃ QR</button><p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px;">Nhận file PDF trong 30 giây · Thanh toán bảo mật</p></div></div>`;
     document.body.appendChild(modal);
     document.getElementById('ncn-modal-close').onclick = () => modal.remove();
     modal.onclick = e => { if (e.target === modal) modal.remove(); };
@@ -65,9 +96,27 @@
       const msgEl = document.getElementById('ncn-coupon-msg');
       if (!code) { msgEl.textContent = 'Vui lòng nhập mã'; msgEl.style.color = '#f87171'; return; }
       try {
-        const res = await fetch(`${API_BASE}/apply-coupon`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ coupon: code, orderCode: String(orderCodeNum) }) });
+        const res = await fetch(`${API_BASE}/apply-coupon`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ coupon: code, action: 'validate', orderCode: String(orderCodeNum) }) });
         const d = await res.json();
-        if (d.success) { finalAmount = 0; document.getElementById('ncn-price-display').textContent = 'MIỄN PHÍ'; document.getElementById('ncn-pay-btn').textContent = '🔓 NHẬN BÁO CÁO MIỄN PHÍ'; msgEl.textContent = '✅ Mã hợp lệ! Miễn phí 100%'; msgEl.style.color = '#34d399'; }
+        if (d.success) {
+          const apiDiscount = Number(d.discountAmount ?? 0);
+          if (apiDiscount > 0) {
+            // Coupon giảm 1 phần (VD: GIAM50 → -50k)
+            finalAmount = Math.max(0, PRICE - apiDiscount);
+            const fmtNew = finalAmount.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('ncn-price-display').textContent = fmtNew;
+            document.getElementById('ncn-pay-btn').textContent = `🔓 THANH TOÁN ${fmtNew}`;
+            msgEl.textContent = `✅ Giảm ${apiDiscount.toLocaleString('vi-VN')}đ! Giá còn ${fmtNew}`;
+            msgEl.style.color = '#34d399';
+          } else {
+            // Coupon miễn phí 100%
+            finalAmount = 0;
+            document.getElementById('ncn-price-display').textContent = 'MIỄN PHÍ';
+            document.getElementById('ncn-pay-btn').textContent = '🔓 NHẬN BÁO CÁO MIỄN PHÍ';
+            msgEl.textContent = '✅ Mã hợp lệ! Miễn phí 100%';
+            msgEl.style.color = '#34d399';
+          }
+        }
         else { msgEl.textContent = '❌ ' + (d.message || 'Mã không hợp lệ'); msgEl.style.color = '#f87171'; }
       } catch { msgEl.textContent = '❌ Lỗi kiểm tra mã'; msgEl.style.color = '#f87171'; }
     };
@@ -75,18 +124,18 @@
       const btn = document.getElementById('ncn-pay-btn'); const errEl = document.getElementById('ncn-modal-error');
       btn.disabled = true; btn.textContent = '⏳ Đang xử lý...'; errEl.style.display = 'none';
       try {
-        await fetch(`${API_BASE}/create-order`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ orderCode: orderCodeNum, orderId: `NCN-${orderCodeNum}`, amount: finalAmount, customerName: payload.HOTEN || '', customerEmail: payload.EMAIL || '', customerPhone: payload.DIEN_THOAI || '', payload }) });
+        // Tạo order với amount = giá gốc, discountAmount được lưu riêng qua apply-coupon
+        await fetch(`${API_BASE}/create-order`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ orderCode: orderCodeNum, orderId: `NCN-${orderCodeNum}`, amount: PRICE, customerName: payload.HOTEN || '', customerEmail: payload.EMAIL || '', customerPhone: payload.DIEN_THOAI || '', payload, referralCode: getRef() }) });
         if (finalAmount === 0) {
           document.getElementById('ncn-modal-body').innerHTML = '<div style="text-align:center;padding:32px 16px;"><div style="font-size:48px;margin-bottom:16px;">⏳</div><p style="font-weight:800;font-size:18px;color:#fff;">Đang tạo báo cáo...</p></div>';
           const pdfRes = await fetch(`${API_BASE}/generate-pdf`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
           if (!pdfRes.ok) throw new Error('Lỗi tạo PDF');
           showDone(URL.createObjectURL(await pdfRes.blob()), payload.HOTEN || 'BaoCao'); return;
         }
-        const res = await fetch(`${API_BASE}/payos/create`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ orderCode: orderCodeNum, amount: finalAmount, description: `NCN ${orderCodeNum}`, buyerName: payload.HOTEN || '', buyerPhone: payload.DIEN_THOAI || '' }) });
-        const d = await res.json();
-        const bin = (d.data && d.data.bin) || 'OCB', acct = (d.data && d.data.accountNumber) || '61666666';
-        const owner = (d.data && d.data.accountName) || 'PHAM THI NGAN', desc = (d.data && d.data.description) || `NCN ${orderCodeNum}`, amt = (d.data && d.data.amount) || finalAmount;
-        showQR(`https://img.vietqr.io/image/${bin}-${acct}-compact2.png?amount=${amt}&addInfo=${encodeURIComponent(desc)}&accountName=${encodeURIComponent(owner)}`, desc, amt, orderCodeNum, payload);
+        // Tạo QR VietQR — amount = finalAmount (giá sau giảm coupon)
+        const desc = `NCN ${orderCodeNum}`;
+        const qrUrl = `https://img.vietqr.io/image/${BANK_BIN}-${BANK_ACCT}-compact2.png?amount=${finalAmount}&addInfo=${encodeURIComponent(desc)}&accountName=${encodeURIComponent(BANK_OWNER)}`;
+        showQR(qrUrl, desc, finalAmount, orderCodeNum, payload);
       } catch (err) { btn.disabled = false; btn.textContent = '🔓 THANH TOÁN QUA MÃ QR'; errEl.textContent = err.message || 'Có lỗi, vui lòng thử lại'; errEl.style.display = 'block'; }
     };
   }
@@ -120,7 +169,7 @@
 .ncn-section{padding:52px 20px;}
 .ncn-cont{max-width:640px;margin:0 auto;}
 .ncn-badge{display:inline-block;padding:4px 14px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
-.ncn-h2{font-size:clamp(20px,4vw,28px);font-weight:900;margin:0 0 24px;}
+.ncn-h2{font-size:clamp(24px,5vw,34px);font-weight:900;margin:0 0 24px;letter-spacing:-0.5px;color:#000 !important;text-shadow:0 0 0.5px #000;-webkit-text-stroke:0.3px #000;}
 .ncn-career{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;border:1px solid #e2e8f0;background:#fff;margin-bottom:10px;}
 .ncn-star{display:inline-block;width:32px;height:32px;border-radius:10px;font-size:13px;font-weight:900;color:#fff;text-align:center;line-height:32px;flex-shrink:0;}
 .ncn-cta-btn{display:block;width:100%;padding:22px 16px;border:none;border-radius:18px;background:linear-gradient(135deg,#E8A838,#f0c060);color:#1B2A4A;font-size:16px;font-weight:900;cursor:pointer;text-align:center;transition:all .2s;box-shadow:0 8px 32px rgba(232,168,56,0.35);}
@@ -138,7 +187,7 @@
   </div>
   <div class="ncn-cont" style="text-align:center;padding-top:36px;">
     <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.5);margin:0 0 8px;">KẾT QUẢ CỦA BẠN</p>
-    <h1 style="font-size:clamp(22px,4vw,30px);font-weight:900;color:#fff;margin:0 0 28px;">Xin chào, <span style="color:#E8A838;">${firstName}</span>!</h1>
+    <h1 style="font-size:clamp(26px,5vw,36px);font-weight:900;color:#fff;margin:0 0 28px;">Xin chào, <span style="color:#E8A838;">${firstName}</span>!</h1>
     ${svgRing(score)}
     <p style="font-size:15px;font-weight:700;color:#fff;margin:0 0 6px;">Chỉ số phù hợp nghề nghiệp</p>
     <p style="font-size:12px;color:rgba(255,255,255,0.5);max-width:300px;margin:0 auto 20px;">Con số này cho biết câu trả lời của bạn rõ ràng đến đâu trong việc chỉ ra nhóm nghề phù hợp.</p>
@@ -214,9 +263,9 @@
       <span id="ncn-countdown" style="font-family:monospace;font-size:18px;font-weight:900;color:#fff;">00:00:00</span>
     </div>
     <div style="margin-bottom:20px;">
-      <div style="display:inline-block;padding:4px 14px;border-radius:999px;background:rgba(43,168,140,0.15);border:1px solid rgba(43,168,140,0.3);margin-bottom:12px;"><span style="font-size:12px;font-weight:700;color:#2BA88C;">Tiết kiệm 790.000đ</span></div>
-      <div style="display:flex;align-items:baseline;justify-content:center;gap:12px;"><span style="text-decoration:line-through;color:rgba(255,255,255,0.4);font-size:16px;">1.358.000đ</span><span style="font-size:clamp(32px,7vw,44px);font-weight:900;color:#E8A838;">568.000đ</span></div>
-      <p style="font-size:14px;color:rgba(255,255,255,0.6);max-width:400px;margin:12px auto 0;">Chỉ hơn 500k để tránh quyết định sai có thể khiến bạn mất 4 năm đại học và hàng trăm triệu đồng.</p>
+      <div style="display:inline-block;padding:4px 14px;border-radius:999px;background:rgba(43,168,140,0.15);border:1px solid rgba(43,168,140,0.3);margin-bottom:12px;"><span style="font-size:12px;font-weight:700;color:#2BA88C;">Tiết kiệm ${IS_CAMPAIGN ? '959.000đ' : '790.000đ'}</span></div>
+      <div style="display:flex;align-items:baseline;justify-content:center;gap:12px;"><span style="text-decoration:line-through;color:rgba(255,255,255,0.4);font-size:16px;">${PRICE_ORIGINAL_DISPLAY}</span><span style="font-size:clamp(32px,7vw,44px);font-weight:900;color:#E8A838;">${PRICE_DISPLAY}</span></div>
+
     </div>
     <button class="ncn-cta-btn" id="ncn-main-cta">XEM NGAY 5 NGHỀ PHÙ HỢP NHẤT VỚI BẠN<br><span style="font-size:12px;font-weight:600;opacity:0.8;">& ĐỊNH HƯỚNG PHÁT TRIỂN TRONG TƯƠNG LAI</span></button>
     <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:12px;">Nhận file PDF trong 30 giây · Thanh toán bảo mật</p>
@@ -229,6 +278,99 @@
     window._ncnOpenCheckout = () => openCheckout(payload);
     startCountdown();
     fetchAiData(payload).then(ai => { renderInsights(ai); renderCareers(ai); renderRisk(ai); });
+
+    // ── Zalo floating button ──────────────────────────────────────────────────
+    if (!document.getElementById('ncn-zalo-fab')) {
+      const ZALO_PHONE = '0986864591';
+      const fab = document.createElement('div');
+      fab.id = 'ncn-zalo-fab';
+      fab.innerHTML = `
+        <style>
+          #ncn-zalo-fab {
+            position: fixed;
+            bottom: 24px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            font-family: 'Inter', sans-serif;
+          }
+          #ncn-zalo-fab .ncn-fab-tooltip {
+            background: #fff;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 14px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.25s ease;
+            pointer-events: none;
+          }
+          #ncn-zalo-fab .ncn-fab-tooltip span {
+            display: block;
+            font-weight: 400;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+          }
+          #ncn-zalo-fab:hover .ncn-fab-tooltip {
+            opacity: 1;
+            transform: translateX(0);
+          }
+          #ncn-zalo-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #0068FF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0,104,255,0.45);
+            cursor: pointer;
+            text-decoration: none;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+          #ncn-zalo-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 30px rgba(0,104,255,0.55);
+          }
+          #ncn-zalo-btn::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(0,104,255,0.35);
+            animation: ncn-zalo-ring 1.8s ease-out infinite;
+          }
+          @keyframes ncn-zalo-ring {
+            0%   { transform: scale(1);   opacity: 0.8; }
+            100% { transform: scale(1.5); opacity: 0; }
+          }
+          #ncn-zalo-btn svg { width: 30px; height: 30px; }
+        </style>
+        <div class="ncn-fab-tooltip">
+          Tư vấn qua Zalo
+          <span>📞 ${ZALO_PHONE}</span>
+        </div>
+        <a id="ncn-zalo-btn"
+           href="https://zalo.me/${ZALO_PHONE}"
+           target="_blank"
+           rel="noopener"
+           title="Liên hệ Zalo ${ZALO_PHONE}">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" rx="32" fill="#0068FF"/>
+            <text x="32" y="42" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="24" fill="#fff">Z</text>
+          </svg>
+        </a>
+      `;
+      document.body.appendChild(fab);
+    }
   }
 
   function renderInsights(ai) {
@@ -271,3 +413,4 @@
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', waitForResult); }
   else { waitForResult(); }
 })();
+
