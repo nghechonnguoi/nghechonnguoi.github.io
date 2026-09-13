@@ -2000,8 +2000,19 @@ function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength, mbtiCo
 }
 
 async function generateReportUI() {
-  const profile = JSON.parse(localStorage.getItem("active_student_profile"));
-  const answers = JSON.parse(localStorage.getItem("user_quiz_answers"));
+  let profile, answers;
+  try {
+    profile = JSON.parse(localStorage.getItem("active_student_profile"));
+    answers = JSON.parse(localStorage.getItem("user_quiz_answers"));
+  } catch (parseErr) {
+    console.error('Lỗi parse dữ liệu localStorage:', parseErr);
+    // Xóa dữ liệu lỗi và reload để làm lại
+    localStorage.removeItem("active_student_profile");
+    localStorage.removeItem("user_quiz_answers");
+    localStorage.removeItem("user_quiz_date");
+    location.reload();
+    return;
+  }
 
   if (!profile || !answers) {
     alert("Không tìm thấy dữ liệu. Vui lòng làm lại từ đầu!");
@@ -3664,11 +3675,12 @@ async function generateReportUI() {
     const optionsSpace = document.getElementById('options-space');
     const errTarget = reportContainer || optionsSpace;
     if (errTarget) {
+      const errMsg = err?.message ? `(${err.message})` : '';
       errTarget.innerHTML = `
         <div style="background:#1e293b;border:1.5px solid #ef4444;border-radius:12px;padding:28px;text-align:center;margin-top:20px;">
           <p style="color:#ef4444;font-size:18px;font-weight:700;margin-bottom:10px;">⚠️ Đã xảy ra sự cố</p>
-          <p style="color:#cbd5e1;font-size:14px;margin-bottom:20px;">Hệ thống gặp lỗi khi phân tích dữ liệu. Vui lòng thử lại.</p>
-          <button onclick="location.reload()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">🔄 Thử lại</button>
+          <p style="color:#cbd5e1;font-size:14px;margin-bottom:20px;">Hệ thống gặp lỗi khi phân tích dữ liệu. Vui lòng thử làm lại bài test từ đầu.</p>
+          <button onclick="(function(){localStorage.removeItem('user_quiz_answers');localStorage.removeItem('active_student_profile');localStorage.removeItem('user_quiz_date');location.reload();})()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-right:8px;">🔄 Làm lại bài test</button>
         </div>`;
     }
   }
