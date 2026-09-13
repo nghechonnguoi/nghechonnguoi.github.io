@@ -68,15 +68,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const savedAnswers = localStorage.getItem("user_quiz_answers");
   const savedProfile = localStorage.getItem("active_student_profile");
   const savedQuizDate = localStorage.getItem("user_quiz_date");
-  const RESET_TIMESTAMP = new Date('2026-07-05T00:00:00.000Z').getTime();
+  // RESET_TIMESTAMP: cập nhật khi có thay đổi schema câu hỏi/dữ liệu quan trọng
+  const RESET_TIMESTAMP = new Date('2026-09-13T00:00:00.000Z').getTime();
   const quizSavedAt = savedQuizDate ? parseInt(savedQuizDate) : 0;
+
+  // Kiểm tra dữ liệu còn hợp lệ không
+  let isDataValid = false;
   if (savedAnswers && savedProfile && quizSavedAt >= RESET_TIMESTAMP) {
+    try {
+      const parsedAnswers = JSON.parse(savedAnswers);
+      const parsedProfile = JSON.parse(savedProfile);
+      // Phải có ít nhất 30 câu trả lời và profile hợp lệ
+      const ansCount = Object.keys(parsedAnswers || {}).length;
+      if (ansCount >= 30 && parsedProfile && parsedProfile.birthDate) {
+        isDataValid = true;
+      }
+    } catch {
+      isDataValid = false;
+    }
+  }
+
+  if (isDataValid) {
     const profileContainer = document.getElementById("profile-container");
     const quizContainer = document.getElementById("quiz-container");
     if (profileContainer) profileContainer.classList.add("hidden");
     if (quizContainer) quizContainer.classList.add("hidden");
     generateReportUI();
+  } else if (savedAnswers || savedProfile) {
+    // Có data cũ nhưng không hợp lệ (schema cũ, thiếu câu hỏi) → xóa và làm lại
+    localStorage.removeItem("user_quiz_answers");
+    localStorage.removeItem("active_student_profile");
+    localStorage.removeItem("user_quiz_date");
   }
+
 
   const profileForm = document.getElementById("profile-form");
   if (!profileForm) return;
