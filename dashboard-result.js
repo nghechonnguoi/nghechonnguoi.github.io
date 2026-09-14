@@ -1,4 +1,4 @@
-/**
+﻿/**
  * dashboard-result.js — NCN Academy Result Redesign v1.0
  * Intercept report-container khi hiển thị, render lại 8 sections mới.
  * KHÔNG đụng vào script.js gốc.
@@ -208,6 +208,7 @@
   </div>
 </div>
 
+
 <!-- TOP 5 CAREERS -->
 <div class="ncn-section" style="background:#f8fafc;">
   <div class="ncn-cont">
@@ -225,6 +226,7 @@
       <div style="flex:1;"><p style="font-weight:700;font-size:14px;color:#0f172a;margin:0 0 4px;">3 nghề bạn nên tránh</p><p style="font-size:12px;color:#6b7280;margin:0;">Những ngành trông hấp dẫn nhưng sẽ khiến bạn chán sau 1–2 năm — có trong báo cáo đầy đủ</p></div>
       <span style="color:#fca5a5;flex-shrink:0;">🔒</span>
     </div>
+<div style="margin-top:20px;text-align:center;"><button class="ncn-cta-btn" id="ncn-cta-careers">XEM NGAY 5 NGHỀ PHÙ HỢP NHẤT VỚI BẠN<br><span style="font-size:12px;font-weight:600;opacity:0.8;">& ĐỊNH HƯỚNG PHÁT TRIỂN TRONG TƯƠNG LAI</span></button><p style="font-size:11px;color:#94a3b8;margin-top:10px;">Nhận file PDF trong 30 giây · Thanh toán bảo mật</p></div>
   </div>
 </div>
 
@@ -250,7 +252,6 @@
   <div class="ncn-cont">
     <div style="text-align:center;"><span class="ncn-badge" style="background:rgba(232,168,56,0.1);color:#E8A838;border:1px solid rgba(232,168,56,0.3);">BẰNG CHỨNG</span><h2 class="ncn-h2" style="color:#0f172a;">Hàng ngàn học sinh đã hành động</h2></div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;">${[['2.840+','bài test đã hoàn thành'],['94%','tự tin hơn khi chọn ngành'],['4.8/5 ⭐','đánh giá từ phụ huynh']].map(([num,label])=>`<div style="text-align:center;"><div style="font-size:clamp(18px,4vw,24px);font-weight:900;color:#0f172a;">${num}</div><div style="font-size:11px;color:#6b7280;margin-top:4px;">${label}</div></div>`).join('')}</div>
-    ${[['Phụ huynh em Thanh Hà','Hà Nội','Con đọc xong bỏ ngay ý định thi Kinh tế vì biết mình thuộc nhóm sáng tạo. Giờ con đang học Truyền thông và rất hạnh phúc.'],['Em Đức Minh','Lớp 11, TP.HCM','Em cứ nghĩ mình phải thi Y vì ba mẹ muốn. Báo cáo chỉ ra em thuộc nhóm Nghiên cứu-Nghệ thuật. Em đã nói chuyện lại với ba mẹ.'],['Phụ huynh em Khánh Linh','Hà Giang','Chỉ hơn 500k mà tránh được 4 năm học sai ngành. Đáng lắm. Chúng tôi đã mua cho cả 2 con.']].map(([name,loc,text])=>`<div style="padding:18px;border-radius:16px;background:#fff;border:1px solid #e2e8f0;margin-bottom:12px;"><div style="display:flex;gap:2px;margin-bottom:10px;">${'⭐'.repeat(5)}</div><p style="font-size:14px;color:#374151;line-height:1.6;margin-bottom:12px;">"${text}"</p><p style="font-size:12px;font-weight:700;color:#0f172a;margin:0;">${name}</p><p style="font-size:11px;color:#9ca3af;margin:2px 0 0;">${loc}</p></div>`).join('')}
   </div>
 </div>
 
@@ -261,6 +262,7 @@
     <div style="border-radius:18px;overflow:hidden;border:1px solid #e2e8f0;">${['5 nghề phù hợp nhất — phân tích chi tiết từng nghề','3 nghề nên tránh — và lý do cụ thể','Môi trường làm việc tối ưu cho tính cách của bạn','Lộ trình: ngành học → nghề nghiệp → mức thu nhập','Chiến lược phát triển sự nghiệp 5 năm tới'].map((item,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:16px 20px;${i<4?'border-bottom:1px solid #f1f5f9;':''}"><span style="color:#2BA88C;font-size:16px;flex-shrink:0;">✓</span><span style="font-size:14px;color:#374151;">${item}</span></div>`).join('')}</div>
   </div>
 </div>
+
 
 <!-- CTA -->
 <div style="background:linear-gradient(135deg,#1B2A4A 0%,#2d4a7a 100%);padding:56px 20px;">
@@ -282,6 +284,7 @@
 <div style="background:#1B2A4A;padding:20px;text-align:center;"><p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">© NCN Academy — Nghề Chọn Người</p></div>`;
 
     document.getElementById('ncn-main-cta').onclick = () => openCheckout(payload);
+    document.getElementById('ncn-cta-careers').onclick = () => openCheckout(payload);
     window._ncnOpenCheckout = () => openCheckout(payload);
     startCountdown();
     fetchAiData(payload).then(ai => { renderInsights(ai); renderCareers(ai); renderRisk(ai); });
@@ -436,4 +439,5 @@
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', waitForResult); }
   else { waitForResult(); }
 })();
+
 
