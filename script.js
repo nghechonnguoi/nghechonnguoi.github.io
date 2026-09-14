@@ -62,6 +62,23 @@ let questions = [];
 let currentQuestionIndex = 0;
 let userAnswers = {};
 
+// ─── XÓA KẾT QUẢ CŨ KHI KHÁCH QUAY LẠI TỪ ĐẦU ─────────────────────────────
+// sessionStorage tồn tại trong cùng tab, mất khi đóng tab hoặc thoát hẳn.
+// → F5 trong tab thì giữ kết quả, nhưng mở lại / tab mới thì reset về quiz đầu.
+(function clearQuizIfNewSession() {
+  const SESSION_KEY = 'ncn_quiz_session_active';
+  if (!sessionStorage.getItem(SESSION_KEY)) {
+    // Không có session flag → đây là lần vào mới → xóa kết quả cũ
+    localStorage.removeItem('user_quiz_answers');
+    localStorage.removeItem('active_student_profile');
+    localStorage.removeItem('user_quiz_date');
+    localStorage.removeItem('active_order_code');
+    localStorage.removeItem('ncn_result_countdown');
+  }
+  // Đánh dấu session đang hoạt động (sẽ tự mất khi đóng tab)
+  sessionStorage.setItem(SESSION_KEY, '1');
+})();
+
 // ─── KHỞI ĐỘNG SAU KHI DOM LOAD ─────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   // ✅ Tự động khôi phục kết quả nếu đã làm bài test trước đó (F5 không mất dữ liệu)
@@ -100,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("active_student_profile");
     localStorage.removeItem("user_quiz_date");
   }
+
 
 
   const profileForm = document.getElementById("profile-form");

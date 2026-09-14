@@ -6,6 +6,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hệ Thống Định Vị Tương Lai</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    #admin-phone-badge {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.5);
+      z-index: 9999;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      letter-spacing: 0.5px;
+    }
+    #admin-phone-badge:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(124,58,237,0.65);
+    }
+    #admin-phone-badge .phone-icon {
+      font-size: 16px;
+    }
+  </style>
 </head>
 
 <body>
@@ -93,7 +121,7 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-primary">Tiếp Tục Làm Bài Test Khảo Sát ➔</button>
+        <button type="submit" class="btn-primary">Tiếp Tục Làm Bài Phân Tích ➔</button>
       </form>
     </div>
     <div id="quiz-container" class="card hidden">
@@ -174,6 +202,12 @@
 
     </div>
   </div>
+
+  <!-- Số điện thoại admin cố định góc dưới phải -->
+  <a href="tel:0986864591" id="admin-phone-badge" title="Liên hệ admin">
+    <span class="phone-icon">📞</span>
+    <span class="phone-text">0986 864 591</span>
+  </a>
 
   <script src="script.js?v=2.0.10"></script>
 </body>

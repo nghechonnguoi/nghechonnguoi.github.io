@@ -212,7 +212,14 @@
 <div class="ncn-section" style="background:#f8fafc;">
   <div class="ncn-cont">
     <div style="text-align:center;"><span class="ncn-badge" style="background:rgba(43,168,140,0.1);color:#2BA88C;border:1px solid rgba(43,168,140,0.3);">GỢI Ý NGHỀ NGHIỆP</span><h2 class="ncn-h2" style="color:#0f172a;">5 nghề phù hợp nhất với bạn</h2></div>
-    <div id="ncn-careers-area">${[1,2,3,4,5].map(i=>`<div style="height:58px;background:#e2e8f0;border-radius:16px;margin-bottom:10px;animation:ncnpulse 1.5s ease-in-out infinite;"></div>`).join('')}</div>
+    <div style="text-align:center;margin:-4px 0 20px;">
+      <button onclick="window._ncnOpenCheckout&&window._ncnOpenCheckout()" style="display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border-radius:14px;background:linear-gradient(135deg,#E8A838,#f5c55a);border:none;cursor:pointer;box-shadow:0 4px 20px rgba(232,168,56,0.45);transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(232,168,56,0.55)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(232,168,56,0.45)'">
+        <span style="font-size:16px;">🔓</span>
+        <span style="font-size:14px;font-weight:800;color:#1B2A4A;line-height:1.3;">XEM NGAY 5 NGHỀ PHÙ HỢP NHẤT VỚI BẠN<br><span style="font-size:11px;font-weight:600;opacity:0.75;">& ĐỊNH HƯỚNG PHÁT TRIỂN TRONG TƯƠNG LAI</span></span>
+      </button>
+      <p style="font-size:11px;color:#94a3b8;margin:8px 0 0;">🔒 Kết quả được cá nhân hóa riêng cho bạn · Nhận ngay trong 30 giây</p>
+    </div>
+    <div id="ncn-careers-area" style="position:relative;">${[1,2,3,4,5].map(i=>`<div style="height:58px;background:#e2e8f0;border-radius:16px;margin-bottom:10px;animation:ncnpulse 1.5s ease-in-out infinite;"></div>`).join('')}</div>
     <div style="display:flex;align-items:center;gap:12px;padding:16px;border-radius:16px;background:#fef2f2;border:1px solid #fecaca;margin-top:4px;">
       <span style="font-size:24px;flex-shrink:0;">🚫</span>
       <div style="flex:1;"><p style="font-weight:700;font-size:14px;color:#0f172a;margin:0 0 4px;">3 nghề bạn nên tránh</p><p style="font-size:12px;color:#6b7280;margin:0;">Những ngành trông hấp dẫn nhưng sẽ khiến bạn chán sau 1–2 năm — có trong báo cáo đầy đủ</p></div>
@@ -265,7 +272,7 @@
     <div style="margin-bottom:20px;">
       <div style="display:inline-block;padding:4px 14px;border-radius:999px;background:rgba(43,168,140,0.15);border:1px solid rgba(43,168,140,0.3);margin-bottom:12px;"><span style="font-size:12px;font-weight:700;color:#2BA88C;">Tiết kiệm ${IS_CAMPAIGN ? '959.000đ' : '790.000đ'}</span></div>
       <div style="display:flex;align-items:baseline;justify-content:center;gap:12px;"><span style="text-decoration:line-through;color:rgba(255,255,255,0.4);font-size:16px;">${PRICE_ORIGINAL_DISPLAY}</span><span style="font-size:clamp(32px,7vw,44px);font-weight:900;color:#E8A838;">${PRICE_DISPLAY}</span></div>
-      <p style="font-size:14px;color:rgba(255,255,255,0.6);max-width:400px;margin:12px auto 0;">${IS_CAMPAIGN ? "Ưu đãi đặc biệt — chỉ trong chiến dịch thi 2026" : "Chỉ hơn 500k để tránh quyết định sai"} có thể khiến bạn mất 4 năm đại học và hàng trăm triệu đồng.</p>
+
     </div>
     <button class="ncn-cta-btn" id="ncn-main-cta">XEM NGAY 5 NGHỀ PHÙ HỢP NHẤT VỚI BẠN<br><span style="font-size:12px;font-weight:600;opacity:0.8;">& ĐỊNH HƯỚNG PHÁT TRIỂN TRONG TƯƠNG LAI</span></button>
     <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:12px;">Nhận file PDF trong 30 giây · Thanh toán bảo mật</p>
@@ -383,10 +390,26 @@
     const area = document.getElementById('ncn-careers-area'); if (!area) return;
     const careers = ai && ai.careers && ai.careers.top_careers;
     if (!careers || !careers.length) { area.innerHTML = '<p style="color:#94a3b8;font-size:13px;text-align:center;">Đang tải...</p>'; return; }
-    area.innerHTML = careers.map(c => c.locked
-      ? `<div class="ncn-career" style="opacity:.7;background:#f1f5f9;border-style:dashed;cursor:pointer;" onclick="window._ncnOpenCheckout&&window._ncnOpenCheckout()"><div class="ncn-star" style="background:#cbd5e1;">${c.rank}</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:6px;"><span>🔒</span><span style="font-size:13px;font-weight:700;color:#94a3b8;">Nghề phù hợp #${c.rank} — phù hợp hơn cả 3 nghề bên dưới</span></div><p style="font-size:11px;color:#94a3b8;margin:3px 0 0;">Mở khóa trong báo cáo đầy đủ</p></div><div style="text-align:right;flex-shrink:0;"><div style="font-weight:900;color:#94a3b8;">${c.match}%</div><div style="font-size:10px;color:#cbd5e1;">phù hợp</div></div></div>`
-      : `<div class="ncn-career"><div class="ncn-star" style="background:#2BA88C;">${c.rank}</div><div style="flex:1;"><p style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 3px;">${c.title}</p><p style="font-size:12px;color:#6b7280;margin:0;">${c.reason}</p></div><div style="text-align:right;flex-shrink:0;"><div style="font-size:14px;font-weight:900;color:#2BA88C;">${c.match}%</div><div style="font-size:11px;color:#9ca3af;">phù hợp</div></div></div>`
+    const unlockedList = careers.filter(c => !c.locked);
+    const lockedList = careers.filter(c => c.locked);
+    const unlockedHtml = unlockedList.map(c =>
+      `<div class="ncn-career"><div class="ncn-star" style="background:#2BA88C;">${c.rank}</div><div style="flex:1;"><p style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 3px;">${c.title}</p><p style="font-size:12px;color:#6b7280;margin:0;">${c.reason}</p></div><div style="text-align:right;flex-shrink:0;"><div style="font-size:14px;font-weight:900;color:#2BA88C;">${c.match}%</div><div style="font-size:11px;color:#9ca3af;">phù hợp</div></div></div>`
     ).join('');
+    const lockedHtml = lockedList.length ? `
+      <div style="position:relative;margin-top:4px;border-radius:16px;overflow:hidden;">
+        <div style="filter:blur(3px);pointer-events:none;user-select:none;">
+          ${lockedList.map(c => `<div class="ncn-career" style="opacity:.55;background:#f1f5f9;border-style:dashed;"><div class="ncn-star" style="background:#cbd5e1;">${c.rank}</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:6px;"><span>🔒</span><span style="font-size:13px;font-weight:700;color:#94a3b8;">Nghề phù hợp #${c.rank} — phù hợp hơn cả 3 nghề bên dưới</span></div><p style="font-size:11px;color:#94a3b8;margin:3px 0 0;">Mở khóa trong báo cáo đầy đủ</p></div><div style="text-align:right;flex-shrink:0;"><div style="font-weight:900;color:#94a3b8;">${c.match}%</div><div style="font-size:10px;color:#cbd5e1;">phù hợp</div></div></div>`).join('')}
+        </div>
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(248,250,252,0) 0%,rgba(248,250,252,0.92) 55%,rgba(248,250,252,1) 100%);display:flex;align-items:flex-end;justify-content:center;padding-bottom:20px;">
+          <div style="text-align:center;">
+            <button onclick="window._ncnOpenCheckout&&window._ncnOpenCheckout()" style="display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border-radius:14px;background:linear-gradient(135deg,#E8A838,#f5c55a);border:none;cursor:pointer;box-shadow:0 4px 20px rgba(232,168,56,0.5);transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(232,168,56,0.6)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(232,168,56,0.5)'">
+              <span style="font-size:16px;">🔓</span>
+              <span style="font-size:14px;font-weight:800;color:#1B2A4A;line-height:1.3;">MỞ KHÓA ${lockedList.length} NGHỀ CÒN LẠI<br><span style="font-size:11px;font-weight:600;opacity:0.75;">Xem phân tích chi tiết & lộ trình phát triển</span></span>
+            </button>
+          </div>
+        </div>
+      </div>` : '';
+    area.innerHTML = unlockedHtml + lockedHtml;
   }
 
   function renderRisk(ai) {
