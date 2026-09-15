@@ -65,15 +65,38 @@ let userAnswers = {};
 // ─── XÓA KẾT QUẢ CŨ KHI KHÁCH QUAY LẠI TỪ ĐẦU ─────────────────────────────
 // sessionStorage tồn tại trong cùng tab, mất khi đóng tab hoặc thoát hẳn.
 // → F5 trong tab thì giữ kết quả, nhưng mở lại / tab mới thì reset về quiz đầu.
+// QUAN TRỌNG: KHÔNG xóa nếu đang có kết quả hợp lệ (đã làm đủ bài test) —
+// tránh trường hợp xóa data trước khi generateReportUI() đọc được.
 (function clearQuizIfNewSession() {
   const SESSION_KEY = 'ncn_quiz_session_active';
   if (!sessionStorage.getItem(SESSION_KEY)) {
-    // Không có session flag → đây là lần vào mới → xóa kết quả cũ
-    localStorage.removeItem('user_quiz_answers');
-    localStorage.removeItem('active_student_profile');
-    localStorage.removeItem('user_quiz_date');
-    localStorage.removeItem('active_order_code');
-    localStorage.removeItem('ncn_result_countdown');
+    // Kiểm tra xem có dữ liệu quiz đã hoàn thành hợp lệ không
+    // Nếu có → GIỮ LẠI để hiển thị kết quả, không xóa
+    let hasValidCompletedQuiz = false;
+    try {
+      const savedAnswers = localStorage.getItem('user_quiz_answers');
+      const savedProfile = localStorage.getItem('active_student_profile');
+      if (savedAnswers && savedProfile) {
+        const parsedAnswers = JSON.parse(savedAnswers);
+        const parsedProfile = JSON.parse(savedProfile);
+        const ansCount = Object.keys(parsedAnswers || {}).length;
+        if (ansCount >= 30 && parsedProfile && parsedProfile.birthDate) {
+          hasValidCompletedQuiz = true;
+        }
+      }
+    } catch (e) {
+      // Parse lỗi → coi như không có dữ liệu hợp lệ
+      hasValidCompletedQuiz = false;
+    }
+
+    if (!hasValidCompletedQuiz) {
+      // Không có bài test hoàn chỉnh → xóa để bắt đầu lại
+      localStorage.removeItem('user_quiz_answers');
+      localStorage.removeItem('active_student_profile');
+      localStorage.removeItem('user_quiz_date');
+      localStorage.removeItem('active_order_code');
+      localStorage.removeItem('ncn_result_countdown');
+    }
   }
   // Đánh dấu session đang hoạt động (sẽ tự mất khi đóng tab)
   sessionStorage.setItem(SESSION_KEY, '1');
