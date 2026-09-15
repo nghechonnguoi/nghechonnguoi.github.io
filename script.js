@@ -2071,16 +2071,49 @@ async function generateReportUI() {
     answers = JSON.parse(localStorage.getItem("user_quiz_answers"));
   } catch (parseErr) {
     console.error('Lỗi parse dữ liệu localStorage:', parseErr);
-    // Xóa dữ liệu lỗi và reload để làm lại
+    // Dữ liệu bị hỏng — xóa để tránh lặp lỗi
     localStorage.removeItem("active_student_profile");
     localStorage.removeItem("user_quiz_answers");
     localStorage.removeItem("user_quiz_date");
-    location.reload();
-    return;
+    profile = null;
+    answers = null;
+  }
+
+  // ── PHỤC HỒI TỪ SNAPSHOT NẾU RAW DATA BỊ MẤT ────────────────────────────
+  // Sau mỗi lần tính xong, hệ thống lưu snapshot (profile + answers) vào
+  // 'ncn_result_snapshot'. Nếu raw data bị xóa (đổi tab, sessionStorage hết)
+  // → tự phục hồi từ snapshot thay vì crash.
+  if (!profile || !answers) {
+    try {
+      const snapshot = JSON.parse(localStorage.getItem('ncn_result_snapshot'));
+      if (snapshot && snapshot.profile && snapshot.answers) {
+        const ansCount = Object.keys(snapshot.answers || {}).length;
+        if (ansCount >= 30 && snapshot.profile.birthDate) {
+          console.warn('[NCN] Raw data missing → restoring from snapshot');
+          profile = snapshot.profile;
+          answers = snapshot.answers;
+          // Ghi lại vào key chính để các bước sau đọc được
+          localStorage.setItem('active_student_profile', JSON.stringify(profile));
+          localStorage.setItem('user_quiz_answers', JSON.stringify(answers));
+          if (snapshot.savedAt) localStorage.setItem('user_quiz_date', String(snapshot.savedAt));
+        }
+      }
+    } catch (snapErr) {
+      console.error('[NCN] Snapshot restore failed:', snapErr);
+    }
   }
 
   if (!profile || !answers) {
-    alert("Không tìm thấy dữ liệu. Vui lòng làm lại từ đầu!");
+    // Không có gì để phục hồi → quay về trang chủ nhẹ nhàng
+    const reportContainer = document.getElementById('report-container');
+    const optionsSpace = document.getElementById('options-space');
+    const errTarget = reportContainer || optionsSpace || document.body;
+    errTarget.innerHTML = `
+      <div style="background:#1e293b;border:1.5px solid #f59e0b;border-radius:12px;padding:28px;text-align:center;margin-top:20px;">
+        <p style="color:#f59e0b;font-size:18px;font-weight:700;margin-bottom:10px;">📋 Không tìm thấy dữ liệu bài test</p>
+        <p style="color:#cbd5e1;font-size:14px;margin-bottom:20px;">Dữ liệu bài test không còn trong trình duyệt này. Vui lòng làm lại bài phân tích (chỉ mất ~5 phút).</p>
+        <button onclick="(function(){localStorage.clear();sessionStorage.clear();location.reload();})()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">🔄 Làm lại bài test</button>
+      </div>`;
     return;
   }
 
@@ -3105,6 +3138,19 @@ async function generateReportUI() {
     document.getElementById('quiz-container').classList.add('hidden');
     document.getElementById('report-container').classList.remove('hidden');
 
+    // ── LƯU SNAPSHOT PHỤC HỒI SAU KHI TÍNH XONG ─────────────────────────────
+    // Snapshot này được dùng để phục hồi khi raw data bị xóa (đổi tab / session mới)
+    // Lưu TRƯỚC khi render UI để đảm bảo luôn có backup
+    try {
+      localStorage.setItem('ncn_result_snapshot', JSON.stringify({
+        profile,
+        answers,
+        savedAt: Date.now()
+      }));
+    } catch (snapSaveErr) {
+      console.warn('[NCN] Không lưu được snapshot (localStorage đầy?):', snapSaveErr);
+    }
+
     // Cấu hình payload cho Báo cáo PDF (sẽ dùng khi thanh toán xong)
     window.pdfPayload = {
       HOTEN: profile.fullName,
@@ -3734,18 +3780,41 @@ async function generateReportUI() {
     }
 
   } catch (err) {
-    console.error('Lỗi thực thi Universal Layered Algorithm v5.0:', err);
-    // Hiển thị thông báo lỗi thân thiện cho người dùng
+    console.error('[NCN] Lỗi thực thi Universal Layered Algorithm v5.0:', err);
+    // Hiển thị thông báo lỗi thân thiện — với nút phục hồi thông minh
     const reportContainer = document.getElementById('report-container');
     const optionsSpace = document.getElementById('options-space');
     const errTarget = reportContainer || optionsSpace;
     if (errTarget) {
-      const errMsg = err?.message ? `(${err.message})` : '';
+      const errCode = err?.message ? err.message.slice(0, 120) : 'unknown';
+      // Kiểm tra xem có snapshot để thử lại không
+      let hasSnapshot = false;
+      try {
+        const snap = JSON.parse(localStorage.getItem('ncn_result_snapshot'));
+        hasSnapshot = !!(snap && snap.profile && snap.answers &&
+          Object.keys(snap.answers || {}).length >= 30);
+      } catch (_) {}
+
       errTarget.innerHTML = `
         <div style="background:#1e293b;border:1.5px solid #ef4444;border-radius:12px;padding:28px;text-align:center;margin-top:20px;">
-          <p style="color:#ef4444;font-size:18px;font-weight:700;margin-bottom:10px;">⚠️ Đã xảy ra sự cố</p>
-          <p style="color:#cbd5e1;font-size:14px;margin-bottom:20px;">Hệ thống gặp lỗi khi phân tích dữ liệu. Vui lòng thử làm lại bài test từ đầu.</p>
-          <button onclick="(function(){localStorage.removeItem('user_quiz_answers');localStorage.removeItem('active_student_profile');localStorage.removeItem('user_quiz_date');location.reload();})()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-right:8px;">🔄 Làm lại bài test</button>
+          <p style="color:#ef4444;font-size:18px;font-weight:700;margin-bottom:10px;">⚠️ Đã xảy ra sự cố kỹ thuật</p>
+          <p style="color:#cbd5e1;font-size:14px;margin-bottom:8px;">Hệ thống gặp lỗi trong quá trình phân tích. Đội ngũ NCN Academy đã được thông báo.</p>
+          <p style="color:#64748b;font-size:12px;margin-bottom:20px;font-family:monospace;">Mã lỗi: ${errCode}</p>
+          ${hasSnapshot
+            ? `<button onclick="(function(){
+                try {
+                  var snap = JSON.parse(localStorage.getItem('ncn_result_snapshot'));
+                  if (snap && snap.profile) {
+                    localStorage.setItem('active_student_profile', JSON.stringify(snap.profile));
+                    localStorage.setItem('user_quiz_answers', JSON.stringify(snap.answers));
+                    if (snap.savedAt) localStorage.setItem('user_quiz_date', String(snap.savedAt));
+                    sessionStorage.setItem('ncn_quiz_session_active','1');
+                  }
+                } catch(e){}
+                location.reload();
+              })()" style="background:#10b981;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-right:8px;">🔁 Thử phục hồi kết quả</button>`
+            : ''}
+          <button onclick="(function(){localStorage.removeItem('user_quiz_answers');localStorage.removeItem('active_student_profile');localStorage.removeItem('user_quiz_date');localStorage.removeItem('ncn_result_snapshot');sessionStorage.clear();location.reload();})()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">🔄 Làm lại bài test</button>
         </div>`;
     }
   }
