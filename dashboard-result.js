@@ -219,7 +219,6 @@
       <div style="flex:1;"><p style="font-weight:700;font-size:14px;color:#0f172a;margin:0 0 4px;">3 nghề bạn nên tránh</p><p style="font-size:12px;color:#6b7280;margin:0;">Những ngành trông hấp dẫn nhưng sẽ khiến bạn chán sau 1–2 năm — có trong báo cáo đầy đủ</p></div>
       <span style="color:#fca5a5;flex-shrink:0;">🔒</span>
     </div>
-    <div style="margin-top:20px;text-align:center;"><button class="ncn-cta-btn" id="ncn-cta-careers">XEM NGAY 5 NGHỀ PHÙ HỢP NHẤT VỚI BẠN<br><span style="font-size:12px;font-weight:600;opacity:0.8;">& ĐỊNH HƯỚNG PHÁT TRIỂN TRONG TƯƠNG LAI</span></button><p style="font-size:11px;color:#94a3b8;margin-top:10px;">Nhận file PDF trong 30 giây · Thanh toán bảo mật</p></div>
   </div>
 </div>
 
@@ -278,7 +277,7 @@
 <div style="background:#1B2A4A;padding:20px;text-align:center;"><p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">© NCN Academy — Nghề Chọn Người</p></div>`;
 
     document.getElementById('ncn-main-cta').onclick = () => openCheckout(payload);
-    document.getElementById('ncn-cta-careers').onclick = () => openCheckout(payload);
+
 
     window._ncnOpenCheckout = () => openCheckout(payload);
     startCountdown();
@@ -398,8 +397,11 @@
         <div style="filter:blur(3px);pointer-events:none;user-select:none;">
           ${lockedList.map(c => `<div class="ncn-career" style="opacity:.55;background:#f1f5f9;border-style:dashed;"><div class="ncn-star" style="background:#cbd5e1;">${c.rank}</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:6px;"><span>🔒</span><span style="font-size:13px;font-weight:700;color:#94a3b8;">Nghề phù hợp #${c.rank} — phù hợp hơn cả 3 nghề bên dưới</span></div><p style="font-size:11px;color:#94a3b8;margin:3px 0 0;">Mở khóa trong báo cáo đầy đủ</p></div><div style="text-align:right;flex-shrink:0;"><div style="font-weight:900;color:#94a3b8;">${c.match}%</div><div style="font-size:10px;color:#cbd5e1;">phù hợp</div></div></div>`).join('')}
         </div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,0.55);backdrop-filter:blur(1px);border-radius:16px;">
+          <button onclick="window._ncnOpenCheckout && window._ncnOpenCheckout()" style="background:linear-gradient(135deg,#E8A838,#f0c060);color:#1B2A4A;border:none;padding:14px 28px;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 4px 20px rgba(232,168,56,0.4);">🔓 Mở khóa ${lockedList.length} nghề còn lại</button>
         </div>
       </div>` : '';
+
     area.innerHTML = unlockedHtml + lockedHtml;
   }
 

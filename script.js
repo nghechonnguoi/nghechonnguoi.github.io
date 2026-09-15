@@ -2135,6 +2135,18 @@ async function generateReportUI() {
     if (!database) throw new Error('Không thể tải dữ liệu nghề nghiệp: ' + (fetchError?.message || 'timeout'));
     const careers = database.careers || [];
 
+    // ── PRE-FILTER THEO LỘ TRÌNH HỌC (eduPath) ────────────────────────────────
+    // Nghề "Dịch vụ Cá nhân & Lifestyle" và "Nghề thủ công & Handmade" là các ngành
+    // học nghề thực tế — KHÔNG phải chuyên ngành Đại học.
+    // Khi học sinh chọn Đại học (UNI/COLLEGE), loại bỏ các ngành này khỏi pool.
+    const VOCATIONAL_ONLY_INDUSTRIES = [
+      'Dịch vụ Cá nhân & Lifestyle',
+      'Nghề thủ công & Handmade',
+    ];
+    const filteredCareers = (profile.eduPath === 'VOCATIONAL')
+      ? careers  // Học nghề: giữ toàn bộ pool
+      : careers.filter(c => !VOCATIONAL_ONLY_INDUSTRIES.includes(c.industry));
+
     // ══════════════════════════════════════════════════════════════════════════
     //  PHÂN HỆ A — NHÂN SỐ HỌC PYTHAGORAS
     //  Tính 5 chỉ số: Tiềm năng, Khát vọng, Sứ mệnh, Tài năng, Đam mê
@@ -2330,7 +2342,7 @@ async function generateReportUI() {
     const BIZ_KEYWORDS = ['doanh nhân', 'kinh doanh', 'giám đốc', 'chủ tịch', 'startup', 'ceo', 'khởi nghiệp', 'founder', 'tự kinh doanh'];
     const INSPIRE_KEYWORDS = ['truyền cảm hứng', 'huấn luyện viên', 'đào tạo', 'điễn giả', 'tư vấn', 'giáo viên', 'khai vấn', 'coach', 'speaker', 'hướng nghiệp'];
     const CARE_KEYWORDS = ['bác sĩ', 'y tế', 'sức khỏe', 'chăm sóc', 'chữ a lành bệnh', 'tâm lý học', 'trị liệu'];
-    const TECH_KEYWORDS = ['lập trình', 'công nghệ', 'kỹ sư', 'developer', 'data', 'ai', 'robot', 'phần mềm'];
+    const TECH_KEYWORDS = ['lập trình', 'công nghệ', 'kỹ sư', 'developer', 'data', 'ai', 'robot'];
 
     const hasBiz = BIZ_KEYWORDS.some(k => dreamText.includes(k));
     const hasInspire = INSPIRE_KEYWORDS.some(k => dreamText.includes(k));
@@ -2341,6 +2353,7 @@ async function generateReportUI() {
     const ikigaiValue = answers["Q_IKIGAI_VALUE"] || null; // MONEY/IMPACT/FREEDOM/MASTERY/RECOGNITION
     const ikigaiEnv = answers["Q_IKIGAI_ENV"] || null; // TEAM/SOLO/FIELD/REMOTE/MIXED
     const ikigaiStrength = answers["Q_IKIGAI_STRENGTH"] || null; // COMMUNICATE/ANALYZE/CREATE/ORGANIZE/EMPATHIZE
+          // ── MỸ THUẬT / HỘI HỌ / NHIẾP ẢNH (thi khối H01 chính quy) ───────────
     const ikigaiAvoid = answers["Q_IKIGAI_AVOID"] || null; // AVOID_ROUTINE/AVOID_PEOPLE/AVOID_PRESSURE/AVOID_ABSTRACT/AVOID_RULES
 
     // ── Ánh xạ VALUE → Holland bonus: MONEY→E, IMPACT→S, FREEDOM→A/I, MASTERY→I/C, RECOGNITION→E
@@ -2418,7 +2431,7 @@ async function generateReportUI() {
     //  Chỉ dùng num_mapping + 5 chỉ số Nhân số học
     //  S_identity = LP×0.25 + Soul×0.10 + Mission×0.30 + Talent×0.25 + Passion×0.10
     //  (num_mapping value 1–10) × 10 → thang 0–100
-    // ══════════════════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════════════
     // ═══════════════════════════════════════════════════════════════════════
     //  PRE-FILTER — NĂNG KHIẾU CỨNG: Loại hẳn khỏi pool nếu thiếu điều kiện
     //  Lý do: ×0.30 penalty chỉ ảnh hưởng S_niche (25%), không đủ mạnh để
@@ -2431,8 +2444,8 @@ async function generateReportUI() {
 
     // Lọc pool đầu vào dựa trên tự đánh giá năng khiếu của người dùng
     const candidateCareers = (ikigaiTalent.CRAFT <= 2)
-      ? careers.filter(c => !RE_ARTS_HARD.test(c.name.toLowerCase()))
-      : careers;
+      ? filteredCareers.filter(c => !RE_ARTS_HARD.test(c.name.toLowerCase()))
+      : filteredCareers;
 
     // Vòng 1: tính S_identity cho toàn bộ pool
     const _r1All = candidateCareers
@@ -2817,9 +2830,21 @@ async function generateReportUI() {
           const ind = (c.industry || '').toLowerCase();
 
           // ── NGHỆ THUẬT / BIỂU DIỄN ────────────────────────────────────────
-          if (/thiết kế đồ họa|mỹ thuật|hội họa|nhiếp ảnh|hoạt hình|animation|nội thất|thời trang|concept art|illustration/i.test(nm)) {
+          // MY THUAT chinh quy thi khoi H01
+          if (/mỹ thuật|hội họa|nhiếp ảnh|tranh sơn dầu|tranh lụa|điêu khắc|mỹ thuật ứng dụng/i.test(nm)
+            || ind.includes('mỹ thuật') || ind.includes('nghệ thuật')) {
+            displayCombo = 'H01 (Toán - Văn - Vẽ Mỹ thuật)';
+            displaySubjects = 'Hình họa khối, Bố cục màu sắc, Chất liệu tạo hình (sơn dầu / bột màu / lụa), Thẩm mỹ nghệ thuật.';
+
+          // THIET KE SO (H01 primary, D01 phu - mot so truong da nganh)
+          } else if (/thiết kế đồ họa|hoạt hình|animation|thời trang|concept art|illustration|ui.ux|game art|visual design|motion graphic/i.test(nm)) {
             displayCombo = 'H01 / D01 (Toán - Văn - Vẽ Mỹ thuật / Toán - Văn - Anh)';
-            displaySubjects = 'Hình họa khối, Bố cục màu sắc, Tư duy thẩm mỹ thị giác, Đồ họa kỹ thuật số.';
+            displaySubjects = 'Hình họa khối, Tư duy thẩm mỹ thị giác, Đồ họa số (Adobe / Figma / Blender), Bao bì & nhận diện thương hiệu.';
+
+          // NOI THAT & THIET KE KHONG GIAN (H01 + A00)
+          } else if (/nội thất|trang trí không gian|decor|home staging/i.test(nm)) {
+            displayCombo = 'H01 / A00 (Toán - Văn - Vẽ / Toán - Lý - Hóa)';
+            displaySubjects = 'Hình họa không gian, Vật liệu xây dựng & nội thất, Thiết kế kỹ thuật, Thẩm mỹ không gian.';
 
           } else if (/diễn viên|âm nhạc|thanh nhạc|múa|biên đạo|sân khấu|kịch/i.test(nm)) {
             displayCombo = 'N00 / N01 (Năng khiếu Âm nhạc / Sân khấu / Múa)';
@@ -2867,9 +2892,15 @@ async function generateReportUI() {
             displayCombo = 'A00 / H01 (Toán - Lý - Hóa / Toán - Văn - Vẽ Mỹ thuật)';
             displaySubjects = 'Toán kỹ thuật, Vật lý kết cấu, Mỹ học kiến trúc, Hình họa & Bản vẽ kỹ thuật.';
 
+          // ── LOGISTICS & CHUỖI CUNG ỨNG ───────────────────────────
+          } else if (ind.includes('logistics') || ind.includes('chuỗi cung ứng')
+            || /logistics|supply chain|vận tải|xuất nhập khẩu|hải quan|kho vận|procurement/i.test(nm)) {
+            displayCombo = 'A01 / D01 (Toán - Lý - Anh / Toán - Văn - Anh)';
+            displaySubjects = 'Toán tối ưu hóa, Kinh tế vận tải, Tiếng Anh thương mại & logistics, Luật thương mại quốc tế.';
+
             // ── KINH TẾ & TÀI CHÍNH ───────────────────────────────────────────
-          } else if (ind.includes('kinh tế') || ind.includes('tài chính')
-            || /kế toán|kiểm toán|tài chính|ngân hàng|đầu tư|chứng khoán|bảo hiểm|fintech|wealth|cfo/i.test(nm)) {
+          } else if (ind.includes('kinh tế') || ind.includes('tài chính') || ind.includes('ngân hàng')
+            || /kế toán|kiểm toán|tài chính|ngân hàng|đầu tư|chứng khoán|bảo hiểm|fintech|wealth|cfo|treasury/i.test(nm)) {
             displayCombo = 'A01 / D01 (Toán - Lý - Anh / Toán - Văn - Anh)';
             displaySubjects = 'Toán tài chính, Kinh tế vi mô & vĩ mô, Tiếng Anh thương mại, Thống kê ứng dụng.';
 
@@ -2879,7 +2910,8 @@ async function generateReportUI() {
             displaySubjects = 'Kinh tế học nền tảng, Kỹ năng viết thuyết phục, Tiếng Anh thương mại, Tư duy phân tích thị trường.';
 
             // ── TRUYỀN THÔNG & BÁO CHÍ ────────────────────────────────────────
-          } else if (ind.includes('truyền thông') || /truyền thông|báo chí|phóng viên|biên tập|content|podcast|social media/i.test(nm)) {
+          } else if (ind.includes('truyền thông') || ind.includes('edtech') || ind.includes('giáo dục trực tuyến') || ind.includes('bán dẫn')
+            || /truyền thông|báo chí|phóng viên|biên tập|content|podcast|social media|youtuber|creator/i.test(nm)) {
             displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
             displaySubjects = 'Kỹ năng viết lách sáng tạo, Tư duy truyền thông số, Ngôn ngữ học, Quan hệ công chúng.';
 
@@ -2889,7 +2921,8 @@ async function generateReportUI() {
             displaySubjects = 'Ngữ văn lập luận, Lịch sử pháp luật, Địa chính trị, Tiếng Anh pháp lý.';
 
             // ── GIÁO DỤC & ĐÀO TẠO ───────────────────────────────────────────
-          } else if (ind.includes('giáo dục') || /giáo viên|giảng viên|nhà đào tạo|huấn luyện viên|sư phạm|hướng nghiệp|life coach|khai vấn/i.test(nm)) {
+          } else if (ind.includes('giáo dục') || ind.includes('sư phạm') || ind.includes('đào tạo')
+            || /giáo viên|giảng viên|nhà đào tạo|huấn luyện viên|sư phạm|hướng nghiệp|life coach|khai vấn|trainer|facilitator/i.test(nm)) {
             displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
             displaySubjects = 'Ngôn ngữ & giao tiếp, Tâm lý giáo dục, Phương pháp giảng dạy, Kiến thức chuyên ngành sâu.';
 
@@ -2908,10 +2941,10 @@ async function generateReportUI() {
             displayCombo = 'D01 / D14 (Toán - Văn - Anh / Văn - Sử - Anh)';
             displaySubjects = 'Tiếng Anh giao tiếp du lịch, Địa lý du lịch, Văn hóa & lịch sử Việt Nam, Nghiệp vụ lễ tân.';
 
-            // ── DỊCH VỤ CÁ NHÂN & LIFESTYLE ──────────────────────────────────
-          } else if (ind.includes('dịch vụ') || /làm đẹp|tóc|nail|spa|massage|bếp|ẩm thực|barista|cà phê chuyên nghiệp/i.test(nm)) {
-            displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa) hoặc học nghề';
-            displaySubjects = 'Kỹ thuật thực hành nghề, Hóa mỹ phẩm cơ bản, Dinh dưỡng ẩm thực, Kỹ năng chăm sóc khách hàng.';
+            // ── DỊCH VỤ CÁ NHÂN & LIFESTYLE / KHÁCH SẠN CAO CẤP ─────────────
+          } else if (/dịch vụ cá nhân|lifestyle|wellness|spa cao cấp|concierge|luxury/i.test(ind) || /lifestyle manager|chuyên gia wellness|retreat|digital detox|sleep coach|minimalism|zero waste/i.test(nm)) {
+            displayCombo = 'D01 / A01 (Toán - Văn - Anh / Toán - Lý - Anh)';
+            displaySubjects = 'Quản trị dịch vụ cao cấp, Tâm lý khách hàng, Tiếng Anh thương mại, Kỹ năng giao tiếp & chăm sóc khách hàng.';
 
             // ── HÀNH CHÍNH & DỊCH VỤ CÔNG ────────────────────────────────────
           } else if (ind.includes('hành chính') || /công chức|hành chính nhà nước|dịch vụ công|cán bộ|quản lý nhà nước/i.test(nm)) {
@@ -2945,17 +2978,23 @@ async function generateReportUI() {
             displaySubjects = 'Toán kỹ thuật, Vật lý ứng dụng, Lịch sử & địa lý quốc phòng, Thể lực chiến đấu, Tiếng Anh quân sự.';
 
             // ── TÂM LÝ HỌC ỨNG DỤNG (không phải y tế lâm sàng) ──────────────
-          } else if (ind.includes('tâm lý') || /executive coach|life coach|tư vấn tâm lý|khai vấn|art therapist/i.test(nm)) {
+          } else if (/executive coach|life coach|tư vấn tâm lý|khai vấn|art therapist/i.test(nm)) {
             displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
             displaySubjects = 'Tâm lý học đại cương, Khoa học hành vi, Ngôn ngữ & giao tiếp, Xã hội học.';
 
             // ── FALLBACK DỰA VÀO HOLLAND TOP ──────────────────────────────────
           } else if (careerTopH === 'R' || careerTopH === 'I') {
-            displayCombo = 'A00 / B00 (Toán - Lý - Hóa / Toán - Hóa - Sinh)';
-            displaySubjects = 'Tư duy logic toán, Khoa học tự nhiên, Kỹ thuật ứng dụng, Lập trình nền tảng.';
+            displayCombo = 'A00 / A01 (Toán - Lý - Hóa / Toán - Lý - Anh)';
+            displaySubjects = 'Toán & Vật lý nền tảng, Hóa học kỹ thuật, Lập trình cơ bản, Tiếng Anh kỹ thuật.';
           } else if (careerTopH === 'A') {
             displayCombo = 'H01 / D01 (Toán - Văn - Vẽ / Toán - Văn - Anh)';
             displaySubjects = 'Tư duy sáng tạo, Mỹ học & thẩm mỹ, Ngôn ngữ nghệ thuật, Thực hành nghề sáng tạo.';
+          } else if (careerTopH === 'E') {
+            displayCombo = 'D01 / A01 (Toán - Văn - Anh / Toán - Lý - Anh)';
+            displaySubjects = 'Kinh tế học nền tảng, Kỹ năng giao tiếp & thuyết phục, Tiếng Anh thương mại, Tư duy kinh doanh.';
+          } else if (careerTopH === 'S') {
+            displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
+            displaySubjects = 'Tâm lý học xã hội, Khoa học xã hội, Ngôn ngữ giao tiếp, Kỹ năng phục vụ cộng đồng.';
           } else {
             displayCombo = 'D01 / C00 (Toán - Văn - Anh / Văn - Sử - Địa)';
             displaySubjects = 'Khoa học xã hội, Ngôn ngữ, Kỹ năng giao tiếp thuyết phục, Quản trị nền tảng.';
