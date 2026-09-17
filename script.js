@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // IKIGAI ENGINE — Universal Layered Architecture v5.0
 // Giám đốc Kiến trúc Thuật toán EdTech
 //
@@ -56,58 +56,35 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();  // 🗄️ Khởi tạo Firestore để lưu dữ liệu khách hàng
-// ─── XÓA BỎ LOGIC FIREBASE AUTH TẠI ĐÂY ───
+
+// ─── TẤT CẢ DỮ LIỆU QUIZ DÙNG sessionStorage ────────────────────────────────
+// sessionStorage tự mất khi đóng tab / cửa sổ.
+// → Khách tắt trang sẽ về trang mới, KHÔNG lưu kết quả cũ.
+// → F5 trong cùng tab vẫn giữ dữ liệu để không mất tiến trình đang làm.
+function initQuizSession() {
+  if (!sessionStorage.getItem('ncn_quiz_session_active')) {
+    sessionStorage.removeItem('user_quiz_answers');
+    sessionStorage.removeItem('active_student_profile');
+    sessionStorage.removeItem('user_quiz_date');
+    sessionStorage.removeItem('active_order_code');
+    sessionStorage.removeItem('ncn_result_countdown');
+  }
+  sessionStorage.setItem('ncn_quiz_session_active', '1');
+}
+initQuizSession();
+
 // ─── TRẠNG THÁI TOÀN CỤC ────────────────────────────────────────────────────
 let questions = [];
 let currentQuestionIndex = 0;
 let userAnswers = {};
 
-// ─── XÓA KẾT QUẢ CŨ KHI KHÁCH QUAY LẠI TỪ ĐẦU ─────────────────────────────
-// sessionStorage tồn tại trong cùng tab, mất khi đóng tab hoặc thoát hẳn.
-// → F5 trong tab thì giữ kết quả, nhưng mở lại / tab mới thì reset về quiz đầu.
-// QUAN TRỌNG: KHÔNG xóa nếu đang có kết quả hợp lệ (đã làm đủ bài test) —
-// tránh trường hợp xóa data trước khi generateReportUI() đọc được.
-(function clearQuizIfNewSession() {
-  const SESSION_KEY = 'ncn_quiz_session_active';
-  if (!sessionStorage.getItem(SESSION_KEY)) {
-    // Kiểm tra xem có dữ liệu quiz đã hoàn thành hợp lệ không
-    // Nếu có → GIỮ LẠI để hiển thị kết quả, không xóa
-    let hasValidCompletedQuiz = false;
-    try {
-      const savedAnswers = localStorage.getItem('user_quiz_answers');
-      const savedProfile = localStorage.getItem('active_student_profile');
-      if (savedAnswers && savedProfile) {
-        const parsedAnswers = JSON.parse(savedAnswers);
-        const parsedProfile = JSON.parse(savedProfile);
-        const ansCount = Object.keys(parsedAnswers || {}).length;
-        if (ansCount >= 30 && parsedProfile && parsedProfile.birthDate) {
-          hasValidCompletedQuiz = true;
-        }
-      }
-    } catch (e) {
-      // Parse lỗi → coi như không có dữ liệu hợp lệ
-      hasValidCompletedQuiz = false;
-    }
-
-    if (!hasValidCompletedQuiz) {
-      // Không có bài test hoàn chỉnh → xóa để bắt đầu lại
-      localStorage.removeItem('user_quiz_answers');
-      localStorage.removeItem('active_student_profile');
-      localStorage.removeItem('user_quiz_date');
-      localStorage.removeItem('active_order_code');
-      localStorage.removeItem('ncn_result_countdown');
-    }
-  }
-  // Đánh dấu session đang hoạt động (sẽ tự mất khi đóng tab)
-  sessionStorage.setItem(SESSION_KEY, '1');
-})();
 
 // ─── KHỞI ĐỘNG SAU KHI DOM LOAD ─────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   // ✅ Tự động khôi phục kết quả nếu đã làm bài test trước đó (F5 không mất dữ liệu)
-  const savedAnswers = localStorage.getItem("user_quiz_answers");
-  const savedProfile = localStorage.getItem("active_student_profile");
-  const savedQuizDate = localStorage.getItem("user_quiz_date");
+  const savedAnswers = sessionStorage.getItem("user_quiz_answers");
+  const savedProfile = sessionStorage.getItem("active_student_profile");
+  const savedQuizDate = sessionStorage.getItem("user_quiz_date");
   // RESET_TIMESTAMP: cập nhật khi có thay đổi schema câu hỏi/dữ liệu quan trọng
   const RESET_TIMESTAMP = new Date('2026-09-13T00:00:00.000Z').getTime();
   const quizSavedAt = savedQuizDate ? parseInt(savedQuizDate) : 0;
@@ -136,9 +113,9 @@ document.addEventListener("DOMContentLoaded", () => {
     generateReportUI();
   } else if (savedAnswers || savedProfile) {
     // Có data cũ nhưng không hợp lệ (schema cũ, thiếu câu hỏi) → xóa và làm lại
-    localStorage.removeItem("user_quiz_answers");
-    localStorage.removeItem("active_student_profile");
-    localStorage.removeItem("user_quiz_date");
+    sessionStorage.removeItem("user_quiz_answers");
+    sessionStorage.removeItem("active_student_profile");
+    sessionStorage.removeItem("user_quiz_date");
   }
 
 
@@ -167,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
       languageCertification: { type: '', score: '' }
     };
 
-    localStorage.setItem("active_student_profile", JSON.stringify(studentProfile));
+    sessionStorage.setItem("active_student_profile", JSON.stringify(studentProfile));
 
     // 🗄️ Lưu thông tin khách hàng lên Firestore (không block luồng quiz)
     db.collection("customers").add({
@@ -376,8 +353,8 @@ function handleSelectOption(qId, value) {
 // ─── KẾT THÚC TRẮC NGHIỆM ────────────────────────────────────────────────────
 function finishQuiz() {
   document.getElementById("progress-fill").style.width = "100%";
-  localStorage.setItem("user_quiz_answers", JSON.stringify(userAnswers));
-  localStorage.setItem("user_quiz_date", Date.now().toString()); // Lưu timestamp để kiểm tra reset
+  sessionStorage.setItem("user_quiz_answers", JSON.stringify(userAnswers));
+  sessionStorage.setItem("user_quiz_date", Date.now().toString()); // Lưu timestamp để kiểm tra reset
   console.log("=== HOÀN THÀNH KHẢO SÁT ===", userAnswers);
 
   document.getElementById("question-content").innerText =
@@ -2067,14 +2044,14 @@ function getProfessionDisplay(industry, hPct, thptScores, ikigaiStrength, mbtiCo
 async function generateReportUI() {
   let profile, answers;
   try {
-    profile = JSON.parse(localStorage.getItem("active_student_profile"));
-    answers = JSON.parse(localStorage.getItem("user_quiz_answers"));
+    profile = JSON.parse(sessionStorage.getItem("active_student_profile"));
+    answers = JSON.parse(sessionStorage.getItem("user_quiz_answers"));
   } catch (parseErr) {
     console.error('Lỗi parse dữ liệu localStorage:', parseErr);
     // Dữ liệu bị hỏng — xóa để tránh lặp lỗi
-    localStorage.removeItem("active_student_profile");
-    localStorage.removeItem("user_quiz_answers");
-    localStorage.removeItem("user_quiz_date");
+    sessionStorage.removeItem("active_student_profile");
+    sessionStorage.removeItem("user_quiz_answers");
+    sessionStorage.removeItem("user_quiz_date");
     profile = null;
     answers = null;
   }
@@ -2085,7 +2062,7 @@ async function generateReportUI() {
   // → tự phục hồi từ snapshot thay vì crash.
   if (!profile || !answers) {
     try {
-      const snapshot = JSON.parse(localStorage.getItem('ncn_result_snapshot'));
+      const snapshot = JSON.parse(sessionStorage.getItem('ncn_result_snapshot'));
       if (snapshot && snapshot.profile && snapshot.answers) {
         const ansCount = Object.keys(snapshot.answers || {}).length;
         if (ansCount >= 30 && snapshot.profile.birthDate) {
@@ -2093,9 +2070,9 @@ async function generateReportUI() {
           profile = snapshot.profile;
           answers = snapshot.answers;
           // Ghi lại vào key chính để các bước sau đọc được
-          localStorage.setItem('active_student_profile', JSON.stringify(profile));
-          localStorage.setItem('user_quiz_answers', JSON.stringify(answers));
-          if (snapshot.savedAt) localStorage.setItem('user_quiz_date', String(snapshot.savedAt));
+          sessionStorage.setItem('active_student_profile', JSON.stringify(profile));
+          sessionStorage.setItem('user_quiz_answers', JSON.stringify(answers));
+          if (snapshot.savedAt) sessionStorage.setItem('user_quiz_date', String(snapshot.savedAt));
         }
       }
     } catch (snapErr) {
@@ -2112,7 +2089,7 @@ async function generateReportUI() {
       <div style="background:#1e293b;border:1.5px solid #f59e0b;border-radius:12px;padding:28px;text-align:center;margin-top:20px;">
         <p style="color:#f59e0b;font-size:18px;font-weight:700;margin-bottom:10px;">📋 Không tìm thấy dữ liệu bài test</p>
         <p style="color:#cbd5e1;font-size:14px;margin-bottom:20px;">Dữ liệu bài test không còn trong trình duyệt này. Vui lòng làm lại bài phân tích (chỉ mất ~5 phút).</p>
-        <button onclick="(function(){localStorage.clear();sessionStorage.clear();location.reload();})()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">🔄 Làm lại bài test</button>
+        <button onclick="(function(){sessionStorage.clear();location.reload();})()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">🔄 Làm lại bài test</button>
       </div>`;
     return;
   }
@@ -3181,7 +3158,7 @@ async function generateReportUI() {
     // Snapshot này được dùng để phục hồi khi raw data bị xóa (đổi tab / session mới)
     // Lưu TRƯỚC khi render UI để đảm bảo luôn có backup
     try {
-      localStorage.setItem('ncn_result_snapshot', JSON.stringify({
+      sessionStorage.setItem('ncn_result_snapshot', JSON.stringify({
         profile,
         answers,
         savedAt: Date.now()
@@ -3197,10 +3174,10 @@ async function generateReportUI() {
       DIEN_THOAI: profile.phone || "Không cung cấp",
       NGAY_SINH: profile.birthDate || "Không cung cấp",
       MA_SO_HO_SO: (() => {
-        let saved = localStorage.getItem('active_order_code');
+        let saved = sessionStorage.getItem('active_order_code');
         if (!saved) {
           saved = `NCN-${Math.floor(Math.random() * 10000)}`;
-          localStorage.setItem('active_order_code', saved);
+          sessionStorage.setItem('active_order_code', saved);
         }
         return saved;
       })(),
@@ -3829,7 +3806,7 @@ async function generateReportUI() {
       // Kiểm tra xem có snapshot để thử lại không
       let hasSnapshot = false;
       try {
-        const snap = JSON.parse(localStorage.getItem('ncn_result_snapshot'));
+        const snap = JSON.parse(sessionStorage.getItem('ncn_result_snapshot'));
         hasSnapshot = !!(snap && snap.profile && snap.answers &&
           Object.keys(snap.answers || {}).length >= 30);
       } catch (_) {}
@@ -3842,18 +3819,18 @@ async function generateReportUI() {
           ${hasSnapshot
             ? `<button onclick="(function(){
                 try {
-                  var snap = JSON.parse(localStorage.getItem('ncn_result_snapshot'));
+                  var snap = JSON.parse(sessionStorage.getItem('ncn_result_snapshot'));
                   if (snap && snap.profile) {
-                    localStorage.setItem('active_student_profile', JSON.stringify(snap.profile));
-                    localStorage.setItem('user_quiz_answers', JSON.stringify(snap.answers));
-                    if (snap.savedAt) localStorage.setItem('user_quiz_date', String(snap.savedAt));
+                    sessionStorage.setItem('active_student_profile', JSON.stringify(snap.profile));
+                    sessionStorage.setItem('user_quiz_answers', JSON.stringify(snap.answers));
+                    if (snap.savedAt) sessionStorage.setItem('user_quiz_date', String(snap.savedAt));
                     sessionStorage.setItem('ncn_quiz_session_active','1');
                   }
                 } catch(e){}
                 location.reload();
               })()" style="background:#10b981;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-right:8px;">🔁 Thử phục hồi kết quả</button>`
             : ''}
-          <button onclick="(function(){localStorage.removeItem('user_quiz_answers');localStorage.removeItem('active_student_profile');localStorage.removeItem('user_quiz_date');localStorage.removeItem('ncn_result_snapshot');sessionStorage.clear();location.reload();})()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">🔄 Làm lại bài test</button>
+          <button onclick="(function(){sessionStorage.removeItem('user_quiz_answers');sessionStorage.removeItem('active_student_profile');sessionStorage.removeItem('user_quiz_date');sessionStorage.removeItem('ncn_result_snapshot');sessionStorage.clear();location.reload();})()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">🔄 Làm lại bài test</button>
         </div>`;
     }
   }
